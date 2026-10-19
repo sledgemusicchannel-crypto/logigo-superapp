@@ -1,0 +1,23 @@
+{
+  "name": "LogiScan Pro",
+  "short_name": "LogiScan",
+  "start_url": "/logiscan-pro/index.html",
+  "scope": "/logiscan-pro/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b1320",
+  "theme_color": "#0b1320",
+  "description": "Enterprise Logistics, Tracking & Dispatch Engine",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192/0b1320/00e676?text=LogiScan",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512/0b1320/00e676?text=LogiScan",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
