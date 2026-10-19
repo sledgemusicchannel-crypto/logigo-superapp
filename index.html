@@ -224,9 +224,9 @@ textarea.report-box {
   </div>
 
   <div class="form-group">
-    <label for="gpsField">GPS Proof-of-Delivery Coordinates</label>
+    <label for="gpsField">GPS Coordinates / Location Note</label>
     <div class="row" style="margin-bottom:0">
-      <input id="gpsField" placeholder="Click 'Fetch GPS' or Auto-Capture" readonly>
+      <input id="gpsField" placeholder="Tap GPS button or type location...">
       <button style="width:110px;background:#37474f;color:white" onclick="captureGPS()">📍 GPS</button>
     </div>
   </div>
@@ -308,21 +308,44 @@ function playBeep(error = false) {
   } catch (e) {}
 }
 
+/* ROBUST MULTI-STAGE GPS LOGIC */
 function captureGPS() {
-  if ("geolocation" in navigator) {
-    showMessage("Fetching location...");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const coords = pos.coords.latitude.toFixed(5) + ", " + pos.coords.longitude.toFixed(5);
-        setValue("gpsField", coords);
-        showMessage("GPS position captured!");
-      },
-      (err) => { showMessage("GPS unavailable or permission denied.", true); },
-      { enableHighAccuracy: true, timeout: 5000 }
-    );
-  } else {
-    showMessage("Geolocation not supported.", true);
+  if (!("geolocation" in navigator)) {
+    showMessage("Geolocation API not supported by device browser.", true);
+    return;
   }
+  showMessage("Fetching GPS location...");
+
+  /* Stage 1: High Accuracy GPS (10s Timeout) */
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const coords = pos.coords.latitude.toFixed(5) + ", " + pos.coords.longitude.toFixed(5);
+      setValue("gpsField", coords);
+      showMessage("GPS position captured (" + coords + ")");
+      playBeep(false);
+    },
+    (err) => {
+      /* Stage 2: Fallback to Low Accuracy (Cell/WiFi Triangulation) */
+      navigator.geolocation.getCurrentPosition(
+        (pos2) => {
+          const coords2 = pos2.coords.latitude.toFixed(5) + ", " + pos2.coords.longitude.toFixed(5);
+          setValue("gpsField", coords2);
+          showMessage("Network Location captured (" + coords2 + ")");
+          playBeep(false);
+        },
+        (err2) => {
+          let errTxt = "Location unavailable.";
+          if (err2.code === 1) errTxt = "Permission denied. Enable location in Android Settings.";
+          else if (err2.code === 2) errTxt = "Position unavailable. Check GPS toggle.";
+          else if (err2.code === 3) errTxt = "GPS timeout. Try moving closer to window.";
+          showMessage(errTxt, true);
+          playBeep(true);
+        },
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+      );
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
 }
 
 function parseTrackingCode(raw) {
