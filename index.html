@@ -198,7 +198,7 @@ th { background: #1a2d48; color: var(--text-main); }
 .shop-card h4 { margin: 0 0 4px; font-size: 12px; color: var(--text-main); }
 .shop-card p { margin: 0 0 8px; font-size: 11px; color: var(--accent-green); font-weight: bold; }
 
-#exportModal, #shopBrowserModal {
+#exportModal {
   display: none;
   background: rgba(0,0,0,0.95);
   position: fixed;
@@ -341,41 +341,58 @@ textarea.report-box {
 <!-- SECTION 2: E-COMMERCE & TAXI BOOKING -->
 <div id="sectionMarket" style="display:none">
   <div class="form-box">
-    <h3 style="color:var(--accent-orange);margin-top:0" id="hdrMarketplace">🛍️ Embedded E-Commerce Marketplace</h3>
-    <p style="font-size:12px;color:var(--text-muted)" id="descMarketplace">Access official online web stores directly to purchase items online:</p>
+    <h3 style="color:var(--accent-orange);margin-top:0" id="hdrMarketplace">🛍️ Direct E-Commerce Store Launch</h3>
+    <p style="font-size:12px;color:var(--text-muted)" id="descMarketplace">Open official online web stores directly to purchase items online:</p>
     
     <div class="shop-grid">
       <div class="shop-card">
         <h4>Shopee Vietnam</h4>
         <p>#1 E-Commerce</p>
-        <button class="btn-shop" onclick="openEmbedStore('https://shopee.vn', 'Shopee VN')">Open Store</button>
+        <button class="btn-shop" onclick="openDirectStore('https://shopee.vn')">Open Shopee</button>
       </div>
       <div class="shop-card">
         <h4>Lazada Vietnam</h4>
         <p>Official Mall</p>
-        <button class="btn-shop" onclick="openEmbedStore('https://www.lazada.vn', 'Lazada VN')">Open Store</button>
+        <button class="btn-shop" onclick="openDirectStore('https://www.lazada.vn')">Open Lazada</button>
       </div>
       <div class="shop-card">
         <h4>Decathlon Vietnam</h4>
         <p>Sports Equipment</p>
-        <button class="btn-shop" onclick="openEmbedStore('https://www.decathlon.vn', 'Decathlon VN')">Open Store</button>
+        <button class="btn-shop" onclick="openDirectStore('https://www.decathlon.vn')">Open Decathlon</button>
       </div>
       <div class="shop-card">
         <h4>Muji Vietnam</h4>
         <p>Household & Fashion</p>
-        <button class="btn-shop" onclick="openEmbedStore('https://www.muji.com/vn/', 'Muji VN')">Open Store</button>
+        <button class="btn-shop" onclick="openDirectStore('https://www.muji.com/vn/')">Open Muji</button>
       </div>
       <div class="shop-card">
         <h4>Thế Giới Di Động</h4>
         <p>Phones & Laptops</p>
-        <button class="btn-shop" onclick="openEmbedStore('https://www.thegioididong.com', 'TGDĐ')">Open Store</button>
+        <button class="btn-shop" onclick="openDirectStore('https://www.thegioididong.com')">Open TGDĐ</button>
       </div>
       <div class="shop-card">
         <h4>Nguyễn Kim</h4>
         <p>Electronics & Appliances</p>
-        <button class="btn-shop" onclick="openEmbedStore('https://www.nguyenkim.com', 'Nguyễn Kim')">Open Store</button>
+        <button class="btn-shop" onclick="openDirectStore('https://www.nguyenkim.com')">Open Nguyễn Kim</button>
       </div>
     </div>
+  </div>
+
+  <div class="form-box">
+    <h4 style="color:var(--accent-blue);margin-top:0">📦 Convert E-Commerce Order to LogiGo Waybill</h4>
+    <div class="form-group">
+      <label for="ecomStoreName">Source Store / Platform</label>
+      <input id="ecomStoreName" placeholder="e.g. Shopee / Lazada / Decathlon">
+    </div>
+    <div class="form-group">
+      <label for="ecomItemDesc">Purchased Product Name / Order Link</label>
+      <input id="ecomItemDesc" placeholder="e.g. Nike Running Shoes / Order #99102">
+    </div>
+    <div class="form-group">
+      <label for="ecomCustomerName">Customer Name & Delivery Address</label>
+      <input id="ecomCustomerName" placeholder="e.g. John Doe - 120 Nguyen Hue, District 1">
+    </div>
+    <button class="btn-add" onclick="createWaybillFromEcom()">🚀 DISPATCH E-COMMERCE ORDER TO MANIFEST</button>
   </div>
 
   <div class="form-box">
@@ -488,13 +505,6 @@ textarea.report-box {
   </div>
 </div>
 
-<!-- EMBEDDED E-COMMERCE MODAL -->
-<div id="shopBrowserModal">
-  <h3 id="shopModalTitle" style="color:var(--accent-orange);margin-top:0">Online Store</h3>
-  <iframe id="shopIframe" style="width:100%;height:65vh;border:1px solid var(--border-color);border-radius:8px;background:#fff;margin-bottom:10px"></iframe>
-  <button class="btn-del" id="btnCloseShop" onclick="closeEmbedStore()">✕ Close Store & Return</button>
-</div>
-
 <!-- EXPORT MODAL -->
 <div id="exportModal" class="no-print">
   <h3 id="modalTitle" style="color:var(--accent-green);margin-top:0">Manifest Export Hub</h3>
@@ -510,8 +520,8 @@ textarea.report-box {
 <script>
 "use strict";
 
-const STORAGE_KEY = "logigo_manifest_v5";
-const CONFIG_KEY = "logigo_config_v5";
+const STORAGE_KEY = "logigo_manifest_v6";
+const CONFIG_KEY = "logigo_config_v6";
 const LANG_KEY = "logigo_lang_v1";
 
 let items = [];
@@ -537,7 +547,7 @@ const i18n = {
     lblGps: "GPS Location / Terminal Tag", btnLogShipment: "➕ LOG SHIPMENT TO MANIFEST", phSearch: "🔍 Search tracking number, product, driver, or customer...",
     thWaybill: "Tracking ID", thItem: "Item / Product", thStatus: "Status", thCustomer: "Customer / Recipient", thDriverGps: "Driver & GPS", thActions: "Actions",
     btnExportCsv: "📊 Export CSV", btnPrintSummary: "📄 Printable Summary",
-    hdrMarketplace: "🛍️ Embedded E-Commerce Marketplace", descMarketplace: "Access official online web stores directly to purchase items online:",
+    hdrMarketplace: "🛍️ Direct E-Commerce Store Launch", descMarketplace: "Open official online web stores directly to purchase items online:",
     hdrTaxiDispatch: "🚕 Taxi Ride & Express Cargo Dispatch (VNĐ)", lblTaxiType: "Vehicle / Transportation Service", lblPickup: "Pickup Location", lblDropoff: "Dropoff Address", lblDistance: "Estimated Distance (Km)", lblEstimatedFare: "Estimated Price: ", btnConfirmTaxi: "🚀 CONFIRM RIDE & DISPATCH WAYBILL",
     hdrSupport: "🎧 Dispatch & Dispute Support Center", descSupport: "Need help with an emergency, dispute, or address change? Connect instantly with our team:",
     lblSupportWaybill: "Reference Waybill / Tracking ID (Optional)", lblSupportIssue: "Describe Issue / Dispute / Address Change",
@@ -545,7 +555,7 @@ const i18n = {
     hdrCompanyDetails: "Official Contact Details", lblCompany: "Company:", lblHotline: "Support Phone:", lblWhatsApp: "WhatsApp / Zalo:", lblEmail: "Email:", lblWebsite: "Website:",
     hdrAdminControl: "⚙️ Company Self-Service Control Panel", descAdminControl: "Configure your business contact details. Changing these details instantly updates all support routing across the app!",
     lblCfgName: "Business / Company Name", lblCfgPhone: "Dispatch Hotline (Calls)", lblCfgWhatsApp: "WhatsApp / Zalo Number", lblCfgEmail: "Support Email Address", lblCfgWebsite: "Website URL", btnSaveConfig: "💾 SAVE COMPANY CONFIGURATION",
-    btnCloseShop: "✕ Close Store & Return", btnCopyData: "📋 COPY DATA TO CLIPBOARD", btnShareReport: "📲 SHARE VIA WHATSAPP / ZALO / EMAIL", btnCloseExport: "✕ Close Window"
+    btnCopyData: "📋 COPY DATA TO CLIPBOARD", btnShareReport: "📲 SHARE VIA WHATSAPP / ZALO / EMAIL", btnCloseExport: "✕ Close Window"
   },
   vi: {
     tagline: "GIAO HÀNG, ĐẶT XE & SIÊU ỨNG DỤNG THƯƠNG MẠI ĐIỆN TỬ",
@@ -557,7 +567,7 @@ const i18n = {
     lblGps: "Tọa Độ GPS / Vị Trí Giao", btnLogShipment: "➕ LƯU ĐƠN VÀO DANH SÁCH", phSearch: "🔍 Tìm theo mã đơn, sản phẩm, tài xế, khách hàng...",
     thWaybill: "Mã Vận Đơn", thItem: "Sản Phẩm", thStatus: "Trạng Thái", thCustomer: "Khách Hàng", thDriverGps: "Tài Xế & GPS", thActions: "Thao Tác",
     btnExportCsv: "📊 Xuất File CSV", btnPrintSummary: "📄 Báo Cáo Tổng Hợp",
-    hdrMarketplace: "🛍️ Sàn Thương Mại Điện Tử Trực Tuyến", descMarketplace: "Truy cập trực tiếp cửa hàng online chính hãng tại Việt Nam để chọn mua hàng hóa:",
+    hdrMarketplace: "🛍️ Mua Sắm Trực Tiếp Trên Cửa Hàng Online", descMarketplace: "Mở trực tiếp ứng dụng / trang web chính hãng để chọn mua hàng hóa:",
     hdrTaxiDispatch: "🚕 Đặt Xe Taxi & Giao Hàng Nhanh (VNĐ)", lblTaxiType: "Loại Xe / Dịch Vụ Vận Chuyển", lblPickup: "Điểm Đón / Nhận Hàng", lblDropoff: "Điểm Đến / Giao Hàng", lblDistance: "Khoảng Cách Ước Tính (Km)", lblEstimatedFare: "Tổng Cước Phí Dự Kiến: ", btnConfirmTaxi: "🚀 XÁC NHẬN ĐẶT XE & TẠO ĐƠN GIAO",
     hdrSupport: "🎧 Trung Tâm Hỗ Trợ & Khiếu Nại Đơn Hàng", descSupport: "Cần hỗ trợ sự cố, đổi địa chỉ giao hàng hoặc phản hồi dịch vụ? Liên hệ ngay:",
     lblSupportWaybill: "Mã Vận Đơn / Đơn Hàng (Không bắt buộc)", lblSupportIssue: "Nội Dung Sự Cố / Yêu Cầu Đổi Địa Chỉ",
@@ -565,7 +575,7 @@ const i18n = {
     hdrCompanyDetails: "Thông Tin Liên Hệ Doanh Nghiệp", lblCompany: "Doanh Nghiệp:", lblHotline: "Hotline:", lblWhatsApp: "WhatsApp / Zalo:", lblEmail: "Email:", lblWebsite: "Website:",
     hdrAdminControl: "⚙️ Cấu Hình Doanh Nghiệp (Tự Quản Lý)", descAdminControl: "Nhập số điện thoại, Zalo/WhatsApp và thông tin công ty của bạn. Thông tin sẽ tự động áp dụng toàn bộ ứng dụng!",
     lblCfgName: "Tên Công Ty / Cửa Hàng", lblCfgPhone: "Số Hotline Gọi Điện", lblCfgWhatsApp: "Số Zalo / WhatsApp", lblCfgEmail: "Email Hỗ Trợ Khách Hàng", lblCfgWebsite: "Địa Chỉ Website", btnSaveConfig: "💾 LƯU CẤU HÌNH DOANH NGHIỆP",
-    btnCloseShop: "✕ Đóng Cửa Hàng & Quay Lại", btnCopyData: "📋 SAO CHÉP DỮ LIỆU", btnShareReport: "📲 CHIA SẺ QUA ZALO / EMAIL", btnCloseExport: "✕ Đóng Cửa Sổ"
+    btnCopyData: "📋 SAO CHÉP DỮ LIỆU", btnShareReport: "📲 CHIA SẺ QUA ZALO / EMAIL", btnCloseExport: "✕ Đóng Cửa Sổ"
   },
   zh: {
     tagline: "物流派送、叫车出行与电商超级应用平台",
@@ -577,7 +587,7 @@ const i18n = {
     lblGps: "GPS 定位 / 站点标记", btnLogShipment: "➕ 添加运单至列表", phSearch: "🔍 搜索运单号、物品、司机或收件人...",
     thWaybill: "运单号", thItem: "物品", thStatus: "状态", thCustomer: "收件人", thDriverGps: "司机与 GPS", thActions: "操作",
     btnExportCsv: "📊 导出 CSV", btnPrintSummary: "📄 打印汇总报告",
-    hdrMarketplace: "🛍️ 内置电商在线商城", descMarketplace: "直接访问官方在线商城采购商品：",
+    hdrMarketplace: "🛍️ 一键直达官方电商平台", descMarketplace: "直接启动官方 App 或网页进行线上采购：",
     hdrTaxiDispatch: "🚕 出租车叫车与快运派送 (VNĐ)", lblTaxiType: "车辆 / 运输服务类型", lblPickup: "接载 / 取货地点", lblDropoff: "送达 / 目的地", lblDistance: "预计距离 (公里)", lblEstimatedFare: "预计费用: ", btnConfirmTaxi: "🚀 确认叫车并生成运单",
     hdrSupport: "🎧 调度与争议客服中心", descSupport: "需要紧急协助、修改地址或处理争议？请即刻联系我们：",
     lblSupportWaybill: "参考运单号 (选填)", lblSupportIssue: "描述问题 / 争议 / 修改地址",
@@ -585,7 +595,7 @@ const i18n = {
     hdrCompanyDetails: "官方联系方式", lblCompany: "公司名称:", lblHotline: "客服热线:", lblWhatsApp: "WhatsApp / Zalo / 微信:", lblEmail: "电子邮箱:", lblWebsite: "官方网站:",
     hdrAdminControl: "⚙️ 公司自主管理控制台", descAdminControl: "配置您的企业联系方式。保存后将即时更新应用内所有客服与路由信息！",
     lblCfgName: "企业 / 公司名称", lblCfgPhone: "调度热线电话", lblCfgWhatsApp: "WhatsApp / Zalo / 微信账号", lblCfgEmail: "客服电子邮箱", lblCfgWebsite: "官方网站 URL", btnSaveConfig: "💾 保存公司配置",
-    btnCloseShop: "✕ 关闭商城并返回", btnCopyData: "📋 复制数据至剪贴板", btnShareReport: "📲 分享报告 (微信/Zalo/邮箱)", btnCloseExport: "✕ 关闭窗口"
+    btnCopyData: "📋 复制数据至剪贴板", btnShareReport: "📲 分享报告 (微信/Zalo/邮箱)", btnCloseExport: "✕ 关闭窗口"
   }
 };
 
@@ -676,7 +686,6 @@ function setLanguage(lang) {
   document.getElementById("lblCfgWebsite").textContent = dict.lblCfgWebsite;
   document.getElementById("btnSaveConfig").textContent = dict.btnSaveConfig;
 
-  document.getElementById("btnCloseShop").textContent = dict.btnCloseShop;
   document.getElementById("btnCopyData").textContent = dict.btnCopyData;
   document.getElementById("btnShareReport").textContent = dict.btnShareReport;
   document.getElementById("btnCloseExport").textContent = dict.btnCloseExport;
@@ -685,94 +694,37 @@ function setLanguage(lang) {
   renderTable();
 }
 
-function showMessage(msg, isError = false) {
-  const box = document.getElementById("alertBox");
-  box.textContent = msg;
-  box.style.color = isError ? "#ff5252" : "#ff9100";
+function openDirectStore(url) {
+  window.open(url, '_blank');
 }
 
-function loadCompanyConfig() {
-  try {
-    const saved = localStorage.getItem(CONFIG_KEY);
-    if (saved) companyConfig = Object.assign(companyConfig, JSON.parse(saved));
-    const savedLang = localStorage.getItem(LANG_KEY);
-    if (savedLang) currentLang = savedLang;
-  } catch(e) {}
+function createWaybillFromEcom() {
+  const store = getValue("ecomStoreName") || "Online Store";
+  const desc = getValue("ecomItemDesc") || "E-Commerce Purchase";
+  const customer = getValue("ecomCustomerName");
 
-  setValue("cfgCompanyName", companyConfig.name);
-  setValue("cfgPhone", companyConfig.phone);
-  setValue("cfgWhatsApp", companyConfig.whatsapp);
-  setValue("cfgEmail", companyConfig.email);
-  setValue("cfgWebsite", companyConfig.website);
-
-  document.getElementById("companyTaglineHeader").textContent = companyConfig.name.toUpperCase() + " - " + i18n[currentLang].tagline;
-  document.getElementById("lblDisplayCompany").textContent = companyConfig.name;
-  document.getElementById("lblDisplayPhone").textContent = companyConfig.phone;
-  document.getElementById("lblDisplayWhatsApp").textContent = companyConfig.whatsapp;
-  document.getElementById("lblDisplayEmail").textContent = companyConfig.email;
-  document.getElementById("lblDisplayWebsite").textContent = companyConfig.website;
-}
-
-function saveCompanyConfig() {
-  companyConfig.name = getValue("cfgCompanyName") || "LogiGo Express & SuperApp";
-  companyConfig.phone = getValue("cfgPhone") || "19001234";
-  companyConfig.whatsapp = getValue("cfgWhatsApp") || "0901234567";
-  companyConfig.email = getValue("cfgEmail") || "cskh@logigo.vn";
-  companyConfig.website = getValue("cfgWebsite") || "https://logigo.vn";
-
-  try {
-    localStorage.setItem(CONFIG_KEY, JSON.stringify(companyConfig));
-    alert("Company configuration saved successfully!");
-  } catch(e) {}
-
-  loadCompanyConfig();
-}
-
-function switchTab(tabName) {
-  const sScanner = document.getElementById("sectionScanner");
-  const sMarket = document.getElementById("sectionMarket");
-  const sSupport = document.getElementById("sectionSupport");
-  const sAdmin = document.getElementById("sectionAdmin");
-
-  const tScanner = document.getElementById("tabScannerBtn");
-  const tMarket = document.getElementById("tabMarketBtn");
-  const tSupport = document.getElementById("tabSupportBtn");
-  const tAdmin = document.getElementById("tabAdminBtn");
-
-  sScanner.style.display = "none";
-  sMarket.style.display = "none";
-  sSupport.style.display = "none";
-  sAdmin.style.display = "none";
-
-  tScanner.classList.remove("active");
-  tMarket.classList.remove("active");
-  tSupport.classList.remove("active");
-  tAdmin.classList.remove("active");
-
-  if (tabName === 'scanner') {
-    sScanner.style.display = "block";
-    tScanner.classList.add("active");
-  } else if (tabName === 'market') {
-    sMarket.style.display = "block";
-    tMarket.classList.add("active");
-  } else if (tabName === 'support') {
-    sSupport.style.display = "block";
-    tSupport.classList.add("active");
-  } else if (tabName === 'admin') {
-    sAdmin.style.display = "block";
-    tAdmin.classList.add("active");
+  if (!customer) {
+    alert("Please enter customer name and delivery address.");
+    return;
   }
-}
 
-function openEmbedStore(url, name) {
-  document.getElementById("shopModalTitle").textContent = "🛍️ Online Store: " + name;
-  document.getElementById("shopIframe").src = url;
-  document.getElementById("shopBrowserModal").style.display = "block";
-}
+  const code = "ECOM-" + Math.floor(100000 + Math.random() * 900000);
+  const driver = "Driver #104";
+  const vehicle = "VAN-59B";
+  const gps = "Marketplace Hub";
+  const time = new Date().toLocaleString();
 
-function closeEmbedStore() {
-  document.getElementById("shopIframe").src = "about:blank";
-  document.getElementById("shopBrowserModal").style.display = "none";
+  const item = { id: code, item: `[${store}] ${desc}`, status: "PICKED_UP", driver, vehicle, recipient: customer, gps, time };
+  items.unshift(item);
+  saveData();
+  renderTable();
+  updateKPIs();
+  playBeep(false);
+  alert(`Order tracked successfully! Waybill ${code} dispatched to manifest.`);
+  setValue("ecomStoreName", "");
+  setValue("ecomItemDesc", "");
+  setValue("ecomCustomerName", "");
+  switchTab('scanner');
 }
 
 function updateTaxiCostPreview() {
