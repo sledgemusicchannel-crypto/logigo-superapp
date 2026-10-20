@@ -153,14 +153,6 @@ textarea.report-box {
   font-size: 11px;
   margin-bottom: 10px;
 }
-
-@media print {
-  body { background: white; color: black; padding: 0; }
-  .no-print { display: none !important; }
-  table { font-size: 10px; color: black; }
-  th { background: #ccc !important; color: black !important; }
-  th, td { border: 1px solid #666; }
-}
 </style>
 </head>
 
@@ -255,19 +247,19 @@ textarea.report-box {
 </div>
 
 <div class="row no-print" style="margin-top:12px">
-  <div class="col"><button class="btn-excel" onclick="openExportModal()">📊 Export Hub</button></div>
-  <div class="col"><button class="btn-share" onclick="window.print()">📄 Print Summary</button></div>
+  <div class="col"><button class="btn-excel" onclick="openExportModal('csv')">📊 Export Hub (CSV)</button></div>
+  <div class="col"><button class="btn-share" onclick="openExportModal('summary')">📄 Printable Summary</button></div>
 </div>
 
 <div id="exportModal" class="no-print">
-  <h3 style="color:var(--accent-green);margin-top:0">LogiScan Export & Manifest Hub</h3>
-  <p style="font-size:12px;color:var(--text-muted)">Formats ready for Logistics ERPs & Spreadsheets:</p>
+  <h3 id="modalTitle" style="color:var(--accent-green);margin-top:0">LogiScan Export & Manifest Hub</h3>
+  <p id="modalSub" style="font-size:12px;color:var(--text-muted)">Formats ready for Logistics ERPs & Spreadsheets:</p>
   
   <textarea id="csvPreview" class="report-box" readonly></textarea>
 
-  <button class="btn-add" style="margin-bottom:8px" onclick="copyCSVToClipboard()">📋 COPY CSV DATA TO CLIPBOARD</button>
+  <button class="btn-add" style="margin-bottom:8px" onclick="copyCSVToClipboard()">📋 COPY DATA TO CLIPBOARD</button>
   <button class="btn-share" style="margin-bottom:8px" onclick="shareReportText()">📲 SHARE MANIFEST (WhatsApp / Email / App)</button>
-  <button class="btn-del" onclick="document.getElementById('exportModal').style.display='none'">✕ Close Export Hub</button>
+  <button class="btn-del" onclick="document.getElementById('exportModal').style.display='none'">✕ Close Window</button>
 </div>
 
 <script>
@@ -308,7 +300,6 @@ function playBeep(error = false) {
   } catch (e) {}
 }
 
-/* BULLETPROOF WEBVIEW GPS FALLBACK ENGINE */
 function captureGPS() {
   if (!("geolocation" in navigator)) {
     setValue("gpsField", "Mobile Terminal (" + new Date().toLocaleTimeString() + ")");
@@ -326,7 +317,6 @@ function captureGPS() {
       playBeep(false);
     },
     (err) => {
-      // Graceful fallback so app never gets stuck or shows hard error in WebView
       const fallbackNote = "Terminal Scan (" + new Date().toLocaleTimeString() + ")";
       setValue("gpsField", fallbackNote);
       showMessage("GPS unavailable. Logged standard terminal stamp.");
@@ -516,9 +506,31 @@ function getCSVString() {
   return csvRows.join("\n");
 }
 
-function openExportModal() {
+function getSummaryString() {
+  let text = "=== LOGISCAN PRO MANIFEST REPORT ===\n";
+  text += "Generated: " + new Date().toLocaleString() + "\n";
+  text += "Total Shipments: " + items.length + "\n";
+  text += "----------------------------------------\n\n";
+  items.forEach((i, idx) => {
+    text += `#${idx+1} | ID: ${i.id} | Status: ${i.status}\n`;
+    text += `Driver: ${i.driver} (${i.vehicle}) | Recipient: ${i.recipient}\n`;
+    text += `Location: ${i.gps} | Time: ${i.time}\n`;
+    text += "----------------------------------------\n";
+  });
+  return text;
+}
+
+function openExportModal(type) {
   if (!items.length) { alert("No records to export."); return; }
-  document.getElementById("csvPreview").value = getCSVString();
+  if (type === 'summary') {
+    document.getElementById("modalTitle").textContent = "📄 Printable Manifest Summary";
+    document.getElementById("modalSub").textContent = "Ready to copy or share via WhatsApp/Email/Apps:";
+    document.getElementById("csvPreview").value = getSummaryString();
+  } else {
+    document.getElementById("modalTitle").textContent = "📊 Export CSV / Spreadsheet Data";
+    document.getElementById("modalSub").textContent = "Formats ready for Logistics ERPs & Spreadsheets:";
+    document.getElementById("csvPreview").value = getCSVString();
+  }
   document.getElementById("exportModal").style.display = "block";
 }
 
@@ -526,12 +538,14 @@ async function copyCSVToClipboard() {
   const text = document.getElementById("csvPreview").value;
   try {
     await navigator.clipboard.writeText(text);
-    alert("CSV copied to clipboard!");
+    alert("Report copied to clipboard successfully!");
+    document.getElementById("exportModal").style.display = "none";
   } catch(e) {
     const ta = document.getElementById("csvPreview");
     ta.select();
     document.execCommand("copy");
-    alert("CSV copied to clipboard!");
+    alert("Report copied to clipboard!");
+    document.getElementById("exportModal").style.display = "none";
   }
 }
 
@@ -540,6 +554,7 @@ async function shareReportText() {
   if (navigator.share) {
     try {
       await navigator.share({ title: 'LogiScan Manifest Report', text: text });
+      document.getElementById("exportModal").style.display = "none";
       return;
     } catch(e){}
   }
