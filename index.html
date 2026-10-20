@@ -525,9 +525,9 @@ textarea.report-box {
 <script>
 "use strict";
 
-const STORAGE_KEY = "logigo_manifest_v10";
-const CONFIG_KEY = "logigo_config_v10";
-const LANG_KEY = "logigo_lang_v5";
+const STORAGE_KEY = "logigo_manifest_v11";
+const CONFIG_KEY = "logigo_config_v11";
+const LANG_KEY = "logigo_lang_v6";
 
 let items = [];
 let editingId = null;
@@ -903,7 +903,7 @@ function applyBarcode(raw) {
   if (!text) { playBeep(true); alert("Empty barcode detected."); return; }
   setValue("trackingCode", text);
   playBeep(false);
-  captureGPS();
+  // GPS auto-capture removed on scan to prevent permission popup blocks
 }
 
 document.getElementById("trackingCode").addEventListener("keydown", function(e) {
@@ -937,7 +937,6 @@ async function startCameraScanner() {
     const videoInputDevices = await codeReader.listVideoInputDevices();
     let selectedDeviceId = undefined;
 
-    // Select environment (rear) camera automatically
     if (videoInputDevices && videoInputDevices.length > 0) {
       const backCamera = videoInputDevices.find(device => 
         /back|rear|environment/i.test(device.label)
