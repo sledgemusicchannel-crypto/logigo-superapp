@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0b1320">
-<title>LogiScan Pro - Enterprise Logistics & Tracking Engine</title>
+<title>LogiScan Pro Super-App - Enterprise Logistics & On-Demand Marketplace</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://unpkg.com/@zxing/library@0.19.1"></script>
 
@@ -50,6 +50,29 @@ header p {
   font-size: 11px;
   color: var(--accent-blue);
   letter-spacing: 0.5px;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.tab-btn {
+  flex: 1;
+  padding: 8px 4px;
+  font-size: 11px;
+  font-weight: bold;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+}
+.tab-btn.active {
+  background: var(--accent-blue);
+  color: #000;
+  border-color: var(--accent-blue);
 }
 
 .kpi-grid {
@@ -108,6 +131,9 @@ button {
 .btn-excel { background: #2e7d32; color: white; }
 .btn-share { background: #0288d1; color: white; }
 .btn-del { background: var(--accent-red); color: white; }
+.btn-call { background: #00c853; color: white; }
+.btn-wa { background: #25d366; color: white; }
+.btn-shop { background: #ff9100; color: #000; }
 
 .alert {
   text-align: center;
@@ -133,6 +159,22 @@ th { background: #1a2d48; color: var(--text-main); }
 .st-transit { background: #f57c00; color: white; }
 .st-deliv { background: #2e7d32; color: white; }
 .st-fail { background: #c62828; color: white; }
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.shop-card {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+.shop-card h4 { margin: 0 0 4px; font-size: 13px; color: var(--text-main); }
+.shop-card p { margin: 0 0 8px; font-size: 11px; color: var(--accent-green); font-weight: bold; }
 
 #exportModal {
   display: none;
@@ -160,95 +202,200 @@ textarea.report-box {
 
 <header class="no-print">
   <h1>⚡ LogiScan Pro</h1>
-  <p>ENTERPRISE LOGISTICS, TRACKING & DISPATCH ENGINE</p>
+  <p>ENTERPRISE LOGISTICS & ON-DEMAND SUPER-APP</p>
 </header>
 
-<div class="kpi-grid no-print">
-  <div class="kpi-card"><div class="val" id="kpiTotal">0</div><div class="lbl">TOTAL</div></div>
-  <div class="kpi-card"><div class="val" style="color:var(--accent-blue)" id="kpiPicked">0</div><div class="lbl">PICKED UP</div></div>
-  <div class="kpi-card"><div class="val" style="color:var(--accent-orange)" id="kpiTransit">0</div><div class="lbl">IN TRANSIT</div></div>
-  <div class="kpi-card"><div class="val" style="color:var(--accent-green)" id="kpiDelivered">0</div><div class="lbl">DELIVERED</div></div>
+<div class="nav-tabs no-print">
+  <button class="tab-btn active" id="tabScannerBtn" onclick="switchTab('scanner')">📦 Manifest</button>
+  <button class="tab-btn" id="tabMarketBtn" onclick="switchTab('market')">🛒 E-Shop & Services</button>
+  <button class="tab-btn" id="tabSupportBtn" onclick="switchTab('support')">🎧 Support</button>
 </div>
 
-<div id="alertBox" class="alert no-print">Ready for scanning. Hardware Laser Supported.</div>
+<!-- SECTION 1: MANIFEST & SCANNER -->
+<div id="sectionScanner">
+  <div class="kpi-grid no-print">
+    <div class="kpi-card"><div class="val" id="kpiTotal">0</div><div class="lbl">TOTAL</div></div>
+    <div class="kpi-card"><div class="val" style="color:var(--accent-blue)" id="kpiPicked">0</div><div class="lbl">PICKED UP</div></div>
+    <div class="kpi-card"><div class="val" style="color:var(--accent-orange)" id="kpiTransit">0</div><div class="lbl">IN TRANSIT</div></div>
+    <div class="kpi-card"><div class="val" style="color:var(--accent-green)" id="kpiDelivered">0</div><div class="lbl">DELIVERED</div></div>
+  </div>
 
-<div class="form-box no-print">
-  <div class="row">
-    <div class="col form-group">
-      <label for="driverName">Driver / Officer</label>
-      <input id="driverName" value="Driver #104" maxlength="60">
+  <div id="alertBox" class="alert no-print">Ready for scanning. Hardware Laser Supported.</div>
+
+  <div class="form-box no-print">
+    <div class="row">
+      <div class="col form-group">
+        <label for="driverName">Driver / Officer</label>
+        <input id="driverName" value="Driver #104" maxlength="60">
+      </div>
+      <div class="col form-group">
+        <label for="vehicleId">Vehicle / Route ID</label>
+        <input id="vehicleId" value="VAN-08" maxlength="60">
+      </div>
     </div>
-    <div class="col form-group">
-      <label for="vehicleId">Vehicle / Route ID</label>
-      <input id="vehicleId" value="VAN-08" maxlength="60">
+
+    <button class="btn-scan" id="startScanBtn" onclick="startCameraScanner()">📷 OPEN CAMERA SCANNER</button>
+    <button class="btn-del" id="stopScanBtn" onclick="stopCameraScanner()" style="display:none">✕ STOP CAMERA</button>
+
+    <div id="cameraPanel" style="display:none;margin-top:8px;background:#050c18;padding:8px;border-radius:8px">
+      <video id="cameraVideo" playsinline muted autoplay style="width:100%;max-height:260px;object-fit:contain;background:#000;border-radius:6px"></video>
+      <button class="btn-add" style="margin-top:8px" onclick="manualCaptureFrame()">📸 CAPTURE FRAME</button>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <div class="col form-group">
+        <label for="trackingCode">Waybill / Tracking Barcode</label>
+        <input id="trackingCode" placeholder="Scan tracking barcode..." autocomplete="off">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col form-group">
+        <label for="itemDescription">Package Item / Product Type</label>
+        <input id="itemDescription" placeholder="e.g. Electronics / Documents / Cargo">
+      </div>
+      <div class="col form-group">
+        <label for="recipient">Customer / Recipient Name</label>
+        <input id="recipient" placeholder="Customer name or hub">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col form-group">
+        <label for="statusSelect">Delivery Status</label>
+        <select id="statusSelect">
+          <option value="PICKED_UP">Picked Up</option>
+          <option value="IN_TRANSIT" selected>In Transit</option>
+          <option value="DELIVERED">Delivered</option>
+          <option value="FAILED">Delivery Exception</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="gpsField">GPS Location / Terminal Tag</label>
+      <div class="row" style="margin-bottom:0">
+        <input id="gpsField" placeholder="Auto-captured or tap to type location...">
+        <button style="width:110px;background:#37474f;color:white" onclick="captureGPS()">📍 GPS</button>
+      </div>
+    </div>
+
+    <button class="btn-add" id="saveBtn" onclick="addShipment()">➕ LOG SHIPMENT TO MANIFEST</button>
+  </div>
+
+  <div class="no-print" style="margin-bottom:10px">
+    <input id="searchFilter" placeholder="🔍 Search tracking number, product, driver, or customer..." oninput="renderTable()" style="background:var(--bg-card)">
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Tracking ID</th>
+          <th>Item / Product</th>
+          <th>Status</th>
+          <th>Customer / Recipient</th>
+          <th>Driver & GPS</th>
+          <th class="no-print">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="manifestBody"></tbody>
+    </table>
+  </div>
+
+  <div class="row no-print" style="margin-top:12px">
+    <div class="col"><button class="btn-excel" onclick="openExportModal('csv')">📊 Export Hub (CSV)</button></div>
+    <div class="col"><button class="btn-share" onclick="openExportModal('summary')">📄 Printable Summary</button></div>
+  </div>
+</div>
+
+<!-- SECTION 2: E-COMMERCE & ON-DEMAND SERVICES -->
+<div id="sectionMarket" style="display:none">
+  <div class="form-box">
+    <h3 style="color:var(--accent-orange);margin-top:0">🛒 E-Commerce Shop & Instant Booking</h3>
+    <p style="font-size:12px;color:var(--text-muted)">Purchase items online or book on-demand courier, food delivery, and taxi rides with automatic manifest dispatch:</p>
+    
+    <div class="shop-grid">
+      <div class="shop-card">
+        <h4>📦 Express Parcel Dispatch</h4>
+        <p>$15.00 / Waybill</p>
+        <button class="btn-shop" onclick="bookOnDemandService('Parcel Dispatch', 'Instant Courier Cargo')">Book Dispatch</button>
+      </div>
+      <div class="shop-card">
+        <h4>🍔 Gourmet Food Delivery</h4>
+        <p>$24.50 / Meal Box</p>
+        <button class="btn-shop" onclick="bookOnDemandService('Food Delivery', 'Hot Meal & Beverage')">Order Meal</button>
+      </div>
+      <div class="shop-card">
+        <h4>🚕 City Taxi Ride</h4>
+        <p>$12.00 / Trip</p>
+        <button class="btn-shop" onclick="bookOnDemandService('Taxi Ride', 'Passenger Transit')">Book Ride</button>
+      </div>
+      <div class="shop-card">
+        <h4>💻 MacBook Pro M3</h4>
+        <p>$1,899.00</p>
+        <button class="btn-shop" onclick="bookOnDemandService('E-Shop Purchase', 'MacBook Pro M3')">Buy & Ship</button>
+      </div>
     </div>
   </div>
 
-  <button class="btn-scan" id="startScanBtn" onclick="startCameraScanner()">📷 OPEN CAMERA SCANNER</button>
-  <button class="btn-del" id="stopScanBtn" onclick="stopCameraScanner()" style="display:none">✕ STOP CAMERA</button>
-
-  <div id="cameraPanel" style="display:none;margin-top:8px;background:#050c18;padding:8px;border-radius:8px">
-    <video id="cameraVideo" playsinline muted autoplay style="width:100%;max-height:260px;object-fit:contain;background:#000;border-radius:6px"></video>
-    <button class="btn-add" style="margin-top:8px" onclick="manualCaptureFrame()">📸 CAPTURE FRAME</button>
-  </div>
-
-  <div class="row" style="margin-top:10px">
-    <div class="col form-group">
-      <label for="trackingCode">Waybill / Tracking Barcode</label>
-      <input id="trackingCode" placeholder="Scan tracking barcode..." autocomplete="off">
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col form-group">
-      <label for="statusSelect">Status</label>
-      <select id="statusSelect">
-        <option value="PICKED_UP">Picked Up</option>
-        <option value="IN_TRANSIT" selected>In Transit</option>
-        <option value="DELIVERED">Delivered</option>
-        <option value="FAILED">Delivery Exception</option>
+  <div class="form-box">
+    <h4 style="color:var(--accent-blue);margin-top:0">📝 Custom Service Booking</h4>
+    <div class="form-group">
+      <label for="customServiceType">Service / Product Category</label>
+      <select id="customServiceType">
+        <option value="E-Commerce Goods">E-Commerce Goods</option>
+        <option value="Food & Groceries">Food & Groceries</option>
+        <option value="Taxi Passenger Ride">Taxi Passenger Ride</option>
+        <option value="Freight & Cargo">Freight & Cargo</option>
       </select>
     </div>
-    <div class="col form-group">
-      <label for="recipient">Recipient / Location</label>
-      <input id="recipient" placeholder="Recipient name or hub">
+    <div class="form-group">
+      <label for="customItemName">Item / Description</label>
+      <input id="customItemName" placeholder="e.g. Organic Groceries / Office Furniture">
     </div>
+    <div class="form-group">
+      <label for="customCustomer">Customer Name & Dropoff Address</label>
+      <input id="customCustomer" placeholder="Jane Doe - 45 Financial Ave">
+    </div>
+    <button class="btn-add" onclick="submitCustomBooking()">🚀 PLACE ORDER & DISPATCH TO MANIFEST</button>
+  </div>
+</div>
+
+<!-- SECTION 3: CUSTOMER SERVICE & DISPUTE CENTER -->
+<div id="sectionSupport" style="display:none">
+  <div class="form-box">
+    <h3 style="color:var(--accent-blue);margin-top:0">🎧 Live Dispatch & Support Center</h3>
+    <p style="font-size:12px;color:var(--text-muted)">Need help with a package dispute, emergency, or address change? Connect instantly with our operations team:</p>
+    
+    <div style="margin: 15px 0;">
+      <label for="supportWaybill">Reference Waybill / Tracking ID (Optional)</label>
+      <input id="supportWaybill" placeholder="e.g. WAYBILL-8921" style="margin-bottom:10px">
+      
+      <label for="supportIssue">Describe Issue / Dispute / Address Change</label>
+      <textarea id="supportIssue" placeholder="Type delivery dispute, emergency note, or new address..." style="height:90px;margin-bottom:10px"></textarea>
+    </div>
+
+    <div class="row" style="margin-bottom:10px">
+      <div class="col">
+        <button class="btn-call" onclick="callSupportHotline()">📞 CALL DISPATCH HOTLINE</button>
+      </div>
+      <div class="col">
+        <button class="btn-wa" onclick="openWhatsAppSupport()">💬 CHAT VIA WHATSAPP</button>
+      </div>
+    </div>
+
+    <button class="btn-share" onclick="submitSupportTicket()">📩 SUBMIT DISPUTE TICKET TO CLOUD</button>
   </div>
 
-  <div class="form-group">
-    <label for="gpsField">GPS Location / Terminal Tag</label>
-    <div class="row" style="margin-bottom:0">
-      <input id="gpsField" placeholder="Auto-captured or tap to type location...">
-      <button style="width:110px;background:#37474f;color:white" onclick="captureGPS()">📍 GPS</button>
-    </div>
+  <div class="form-box">
+    <h4 style="color:var(--accent-green);margin-top:0">Frequently Asked Logistics Support</h4>
+    <ul style="font-size:12px;color:var(--text-muted);padding-left:18px;line-height:1.6">
+      <li><b>Address Change:</b> Log dispute ticket or chat via WhatsApp with the new street and landmark before status marks 'Delivered'.</li>
+      <li><b>Delivery Exceptions:</b> If customer is unreachable, log status as 'Delivery Exception' and notify dispatch.</li>
+      <li><b>Super-App Orders:</b> Marketplace purchases automatically generate priority tracking waybills in your live manifest.</li>
+    </ul>
   </div>
-
-  <button class="btn-add" id="saveBtn" onclick="addShipment()">➕ LOG SHIPMENT TO MANIFEST</button>
-</div>
-
-<div class="no-print" style="margin-bottom:10px">
-  <input id="searchFilter" placeholder="🔍 Search tracking number, driver, or recipient..." oninput="renderTable()" style="background:var(--bg-card)">
-</div>
-
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Tracking ID</th>
-        <th>Status</th>
-        <th>Driver / Route</th>
-        <th>Recipient</th>
-        <th>GPS / Timestamp</th>
-        <th class="no-print">Actions</th>
-      </tr>
-    </thead>
-    <tbody id="manifestBody"></tbody>
-  </table>
-</div>
-
-<div class="row no-print" style="margin-top:12px">
-  <div class="col"><button class="btn-excel" onclick="openExportModal('csv')">📊 Export Hub (CSV)</button></div>
-  <div class="col"><button class="btn-share" onclick="openExportModal('summary')">📄 Printable Summary</button></div>
 </div>
 
 <div id="exportModal" class="no-print">
@@ -265,7 +412,7 @@ textarea.report-box {
 <script>
 "use strict";
 
-const STORAGE_KEY = "logiScanPro_manifest_v1";
+const STORAGE_KEY = "logiScanPro_manifest_v3";
 let items = [];
 let editingId = null;
 
@@ -276,6 +423,99 @@ function showMessage(msg, isError = false) {
   const box = document.getElementById("alertBox");
   box.textContent = msg;
   box.style.color = isError ? "#ff5252" : "#ff9100";
+}
+
+function switchTab(tabName) {
+  const sScanner = document.getElementById("sectionScanner");
+  const sMarket = document.getElementById("sectionMarket");
+  const sSupport = document.getElementById("sectionSupport");
+  const tScanner = document.getElementById("tabScannerBtn");
+  const tMarket = document.getElementById("tabMarketBtn");
+  const tSupport = document.getElementById("tabSupportBtn");
+
+  sScanner.style.display = "none";
+  sMarket.style.display = "none";
+  sSupport.style.display = "none";
+  tScanner.classList.remove("active");
+  tMarket.classList.remove("active");
+  tSupport.classList.remove("active");
+
+  if (tabName === 'scanner') {
+    sScanner.style.display = "block";
+    tScanner.classList.add("active");
+  } else if (tabName === 'market') {
+    sMarket.style.display = "block";
+    tMarket.classList.add("active");
+  } else {
+    sSupport.style.display = "block";
+    tSupport.classList.add("active");
+  }
+}
+
+function bookOnDemandService(category, itemName) {
+  const code = "ORD-" + Math.floor(10000 + Math.random() * 90000);
+  const driver = "Driver #104";
+  const vehicle = "VAN-08";
+  const recipient = "Retail Customer (" + category + ")";
+  const gps = "Online Checkout Pin";
+  const time = new Date().toLocaleString();
+
+  const item = { id: code, item: itemName, status: "IN_TRANSIT", driver, vehicle, recipient, gps, time };
+  items.unshift(item);
+  saveData();
+  renderTable();
+  updateKPIs();
+  playBeep(false);
+  alert(`Successfully booked ${itemName}! Generated Waybill: ${code}`);
+  switchTab('scanner');
+}
+
+function submitCustomBooking() {
+  const category = getValue("customServiceType");
+  const itemName = getValue("customItemName") || "Standard Service";
+  const recipient = getValue("customCustomer") || "General Dispatch";
+  
+  if (!getValue("customCustomer")) {
+    alert("Please enter customer name and delivery address.");
+    return;
+  }
+
+  const code = "BOOK-" + Math.floor(10000 + Math.random() * 90000);
+  const driver = "Driver #104";
+  const vehicle = "VAN-08";
+  const gps = "Marketplace Hub";
+  const time = new Date().toLocaleString();
+
+  const item = { id: code, item: `${category}: ${itemName}`, status: "PICKED_UP", driver, vehicle, recipient, gps, time };
+  items.unshift(item);
+  saveData();
+  renderTable();
+  updateKPIs();
+  playBeep(false);
+  alert(`Booking confirmed! Waybill ${code} added to manifest.`);
+  setValue("customItemName", "");
+  setValue("customCustomer", "");
+  switchTab('scanner');
+}
+
+function callSupportHotline() {
+  window.location.href = "tel:+1800555LOGI";
+}
+
+function openWhatsAppSupport() {
+  const waybill = getValue("supportWaybill") || "General Inquiry";
+  const issue = getValue("supportIssue") || "Address change / Dispute assistance needed.";
+  const text = encodeURIComponent(`*LogiScan Support Ticket*\nWaybill: ${waybill}\nIssue: ${issue}`);
+  window.open(`https://wa.me/?text=${text}`, '_blank');
+}
+
+function submitSupportTicket() {
+  const waybill = getValue("supportWaybill");
+  const issue = getValue("supportIssue");
+  if (!issue) { alert("Please describe your issue or dispute."); return; }
+  alert(`Support ticket successfully submitted for Waybill: ${waybill || 'General'}. Dispatch will contact you shortly.`);
+  setValue("supportIssue", "");
+  setValue("supportWaybill", "");
 }
 
 let audioCtx = null;
@@ -330,10 +570,10 @@ function parseTrackingCode(raw) {
   try {
     const json = JSON.parse(text);
     if (json.tracking || json.id) {
-      return { code: json.tracking || json.id, recipient: json.recipient || json.to || "" };
+      return { code: json.tracking || json.id, recipient: json.recipient || json.to || "", item: json.item || json.product || "" };
     }
   } catch (e) {}
-  return { code: text, recipient: "" };
+  return { code: text, recipient: "", item: "" };
 }
 
 function applyBarcode(raw) {
@@ -341,6 +581,7 @@ function applyBarcode(raw) {
   if (!parsed.code) { playBeep(true); showMessage("Empty barcode.", true); return; }
   setValue("trackingCode", parsed.code);
   if (parsed.recipient) setValue("recipient", parsed.recipient);
+  if (parsed.item) setValue("itemDescription", parsed.item);
   playBeep(false);
   showMessage("Scanned: " + parsed.code);
   captureGPS();
@@ -424,8 +665,8 @@ function loadData() {
     items = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     if (!items.length) {
       items = [
-        { id: "WAYBILL-8921", status: "IN_TRANSIT", driver: "Driver #104", vehicle: "VAN-08", recipient: "Central Hub", gps: "Central Depot", time: new Date().toLocaleString() },
-        { id: "PKG-55102", status: "DELIVERED", driver: "Driver #104", vehicle: "VAN-08", recipient: "John Smith", gps: "Downtown Station", time: new Date().toLocaleString() }
+        { id: "WAYBILL-8921", item: "Electronics / Laptop", status: "IN_TRANSIT", driver: "Driver #104", vehicle: "VAN-08", recipient: "Central Hub", gps: "Central Depot", time: new Date().toLocaleString() },
+        { id: "PKG-55102", item: "Documents / Contract", status: "DELIVERED", driver: "Driver #104", vehicle: "VAN-08", recipient: "John Smith", gps: "Downtown Station", time: new Date().toLocaleString() }
       ];
     }
   } catch(e) { items = []; }
@@ -433,6 +674,7 @@ function loadData() {
 
 function addShipment() {
   const code = getValue("trackingCode");
+  const itemDesc = getValue("itemDescription") || "Standard Cargo";
   const driver = getValue("driverName") || "Driver #1";
   const vehicle = getValue("vehicleId") || "VAN-1";
   const status = document.getElementById("statusSelect").value;
@@ -442,12 +684,13 @@ function addShipment() {
 
   if (!code) { showMessage("Enter or scan a tracking ID.", true); return; }
 
-  const item = { id: code, status, driver, vehicle, recipient, gps, time };
+  const item = { id: code, item: itemDesc, status, driver, vehicle, recipient, gps, time };
   if (editingId !== null) items = items.filter(i => i.id !== editingId);
   items.unshift(item);
   editingId = null;
 
   setValue("trackingCode", "");
+  setValue("itemDescription", "");
   setValue("recipient", "");
   setValue("gpsField", "");
   saveData();
@@ -468,7 +711,7 @@ function renderTable() {
   const query = getValue("searchFilter").toLowerCase();
   body.replaceChildren();
 
-  const filtered = items.filter(i => [i.id, i.driver, i.vehicle, i.recipient, i.status].join(" ").toLowerCase().includes(query));
+  const filtered = items.filter(i => [i.id, i.item, i.driver, i.vehicle, i.recipient, i.status].join(" ").toLowerCase().includes(query));
 
   filtered.forEach(item => {
     const row = document.createElement("tr");
@@ -480,10 +723,10 @@ function renderTable() {
 
     row.innerHTML = `
       <td><b>${item.id}</b></td>
+      <td>${item.item}</td>
       <td><span class="status-pill ${pillClass}">${item.status.replace("_"," ")}</span></td>
-      <td>${item.driver} (${item.vehicle})</td>
       <td>${item.recipient}</td>
-      <td><small>${item.gps}<br>${item.time}</small></td>
+      <td><small>${item.driver} (${item.vehicle})<br>${item.gps}</small></td>
       <td class="no-print"><button class="btn-del" style="padding:4px 8px;font-size:10px" onclick="deleteItem('${item.id}')">Del</button></td>
     `;
     body.appendChild(row);
@@ -498,10 +741,10 @@ function updateKPIs() {
 }
 
 function getCSVString() {
-  const headings = ["Tracking ID", "Status", "Driver", "Vehicle", "Recipient", "GPS", "Timestamp"];
+  const headings = ["Tracking ID", "Item Description", "Status", "Driver", "Vehicle", "Recipient", "GPS", "Timestamp"];
   let csvRows = [headings.join(",")];
   items.forEach(i => {
-    csvRows.push([`"${i.id}"`, `"${i.status}"`, `"${i.driver}"`, `"${i.vehicle}"`, `"${i.recipient}"`, `"${i.gps}"`, `"${i.time}"`].join(","));
+    csvRows.push([`"${i.id}"`, `"${i.item}"`, `"${i.status}"`, `"${i.driver}"`, `"${i.vehicle}"`, `"${i.recipient}"`, `"${i.gps}"`, `"${i.time}"`].join(","));
   });
   return csvRows.join("\n");
 }
@@ -512,9 +755,10 @@ function getSummaryString() {
   text += "Total Shipments: " + items.length + "\n";
   text += "----------------------------------------\n\n";
   items.forEach((i, idx) => {
-    text += `#${idx+1} | ID: ${i.id} | Status: ${i.status}\n`;
-    text += `Driver: ${i.driver} (${i.vehicle}) | Recipient: ${i.recipient}\n`;
-    text += `Location: ${i.gps} | Time: ${i.time}\n`;
+    text += `#${idx+1} | ID: ${i.id} | Item: ${i.item}\n`;
+    text += `Status: ${i.status} | Customer: ${i.recipient}\n`;
+    text += `Driver: ${i.driver} (${i.vehicle}) | Loc: ${i.gps}\n`;
+    text += `Time: ${i.time}\n`;
     text += "----------------------------------------\n";
   });
   return text;
