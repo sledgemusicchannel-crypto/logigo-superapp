@@ -202,13 +202,14 @@ textarea.report-box {
 
 <header class="no-print">
   <h1>⚡ LogiScan Pro</h1>
-  <p>ENTERPRISE LOGISTICS & ON-DEMAND SUPER-APP</p>
+  <p id="companyTaglineHeader">ENTERPRISE LOGISTICS & ON-DEMAND SUPER-APP</p>
 </header>
 
 <div class="nav-tabs no-print">
   <button class="tab-btn active" id="tabScannerBtn" onclick="switchTab('scanner')">📦 Manifest</button>
-  <button class="tab-btn" id="tabMarketBtn" onclick="switchTab('market')">🛒 E-Shop & Services</button>
+  <button class="tab-btn" id="tabMarketBtn" onclick="switchTab('market')">🛒 E-Shop</button>
   <button class="tab-btn" id="tabSupportBtn" onclick="switchTab('support')">🎧 Support</button>
+  <button class="tab-btn" id="tabAdminBtn" onclick="switchTab('admin')">⚙️ Control</button>
 </div>
 
 <!-- SECTION 1: MANIFEST & SCANNER -->
@@ -389,12 +390,59 @@ textarea.report-box {
   </div>
 
   <div class="form-box">
-    <h4 style="color:var(--accent-green);margin-top:0">Frequently Asked Logistics Support</h4>
-    <ul style="font-size:12px;color:var(--text-muted);padding-left:18px;line-height:1.6">
-      <li><b>Address Change:</b> Log dispute ticket or chat via WhatsApp with the new street and landmark before status marks 'Delivered'.</li>
-      <li><b>Delivery Exceptions:</b> If customer is unreachable, log status as 'Delivery Exception' and notify dispatch.</li>
-      <li><b>Super-App Orders:</b> Marketplace purchases automatically generate priority tracking waybills in your live manifest.</li>
-    </ul>
+    <h4 style="color:var(--accent-green);margin-top:0">Official Contact Details</h4>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>Company:</b> <span id="lblDisplayCompany">LogiScan Global Logistics</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>Support Phone:</b> <span id="lblDisplayPhone">+1 800 555 LOGI</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>WhatsApp:</b> <span id="lblDisplayWhatsApp">+1 800 555 LOGI</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>Email:</b> <span id="lblDisplayEmail">support@logiscan.com</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>Website:</b> <span id="lblDisplayWebsite">www.logiscan.com</span></p>
+  </div>
+</div>
+
+<!-- SECTION 4: COMPANY CONTROL PANEL -->
+<div id="sectionAdmin" style="display:none">
+  <div class="form-box">
+    <h3 style="color:var(--accent-green);margin-top:0">⚙️ Company Self-Service Control Panel</h3>
+    <p style="font-size:12px;color:var(--text-muted)">Configure your business contact details. Changing these details instantly updates all support routing and app branding across the entire software!</p>
+
+    <div class="form-group">
+      <label for="cfgCompanyName">Business / Company Name</label>
+      <input id="cfgCompanyName" placeholder="e.g. Apex Express Logistics">
+    </div>
+
+    <div class="row">
+      <div class="col form-group">
+        <label for="cfgPhone">Dispatch Phone Number (for calls)</label>
+        <input id="cfgPhone" placeholder="e.g. +1234567890">
+      </div>
+      <div class="col form-group">
+        <label for="cfgWhatsApp">WhatsApp Number (with country code)</label>
+        <input id="cfgWhatsApp" placeholder="e.g. 1234567890">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="cfgEmail">Support Email Address</label>
+      <input id="cfgEmail" placeholder="e.g. support@yourcompany.com">
+    </div>
+
+    <div class="form-group">
+      <label for="cfgWebsite">Website URL</label>
+      <input id="cfgWebsite" placeholder="e.g. https://yourcompany.com">
+    </div>
+
+    <div class="row">
+      <div class="col form-group">
+        <label for="cfgFacebook">Facebook Page URL</label>
+        <input id="cfgFacebook" placeholder="https://facebook.com/yourpage">
+      </div>
+      <div class="col form-group">
+        <label for="cfgInstagram">Instagram Handle / URL</label>
+        <input id="cfgInstagram" placeholder="https://instagram.com/yourpage">
+      </div>
+    </div>
+
+    <button class="btn-add" onclick="saveCompanyConfig()">💾 SAVE COMPANY CONFIGURATION</button>
   </div>
 </div>
 
@@ -413,8 +461,20 @@ textarea.report-box {
 "use strict";
 
 const STORAGE_KEY = "logiScanPro_manifest_v3";
+const CONFIG_KEY = "logiScanPro_config_v1";
+
 let items = [];
 let editingId = null;
+
+let companyConfig = {
+  name: "LogiScan Global Logistics",
+  phone: "+1800555LOGI",
+  whatsapp: "1800555LOGI",
+  email: "support@logiscan.com",
+  website: "https://logiscan.com",
+  facebook: "https://facebook.com",
+  instagram: "https://instagram.com"
+};
 
 function getValue(id) { return document.getElementById(id).value.trim(); }
 function setValue(id, val) { document.getElementById(id).value = val; }
@@ -425,20 +485,65 @@ function showMessage(msg, isError = false) {
   box.style.color = isError ? "#ff5252" : "#ff9100";
 }
 
+function loadCompanyConfig() {
+  try {
+    const saved = localStorage.getItem(CONFIG_KEY);
+    if (saved) companyConfig = Object.assign(companyConfig, JSON.parse(saved));
+  } catch(e) {}
+
+  setValue("cfgCompanyName", companyConfig.name);
+  setValue("cfgPhone", companyConfig.phone);
+  setValue("cfgWhatsApp", companyConfig.whatsapp);
+  setValue("cfgEmail", companyConfig.email);
+  setValue("cfgWebsite", companyConfig.website);
+  setValue("cfgFacebook", companyConfig.facebook);
+  setValue("cfgInstagram", companyConfig.instagram);
+
+  document.getElementById("companyTaglineHeader").textContent = companyConfig.name.toUpperCase() + " - LOGISTICS & SUPER-APP";
+  document.getElementById("lblDisplayCompany").textContent = companyConfig.name;
+  document.getElementById("lblDisplayPhone").textContent = companyConfig.phone;
+  document.getElementById("lblDisplayWhatsApp").textContent = companyConfig.whatsapp;
+  document.getElementById("lblDisplayEmail").textContent = companyConfig.email;
+  document.getElementById("lblDisplayWebsite").textContent = companyConfig.website;
+}
+
+function saveCompanyConfig() {
+  companyConfig.name = getValue("cfgCompanyName") || "LogiScan Logistics";
+  companyConfig.phone = getValue("cfgPhone") || "+1800555LOGI";
+  companyConfig.whatsapp = getValue("cfgWhatsApp") || "1800555LOGI";
+  companyConfig.email = getValue("cfgEmail") || "support@logiscan.com";
+  companyConfig.website = getValue("cfgWebsite") || "https://logiscan.com";
+  companyConfig.facebook = getValue("cfgFacebook") || "https://facebook.com";
+  companyConfig.instagram = getValue("cfgInstagram") || "https://instagram.com";
+
+  try {
+    localStorage.setItem(CONFIG_KEY, JSON.stringify(companyConfig));
+    alert("Company configuration saved successfully!");
+  } catch(e) {}
+
+  loadCompanyConfig();
+}
+
 function switchTab(tabName) {
   const sScanner = document.getElementById("sectionScanner");
   const sMarket = document.getElementById("sectionMarket");
   const sSupport = document.getElementById("sectionSupport");
+  const sAdmin = document.getElementById("sectionAdmin");
+
   const tScanner = document.getElementById("tabScannerBtn");
   const tMarket = document.getElementById("tabMarketBtn");
   const tSupport = document.getElementById("tabSupportBtn");
+  const tAdmin = document.getElementById("tabAdminBtn");
 
   sScanner.style.display = "none";
   sMarket.style.display = "none";
   sSupport.style.display = "none";
+  sAdmin.style.display = "none";
+
   tScanner.classList.remove("active");
   tMarket.classList.remove("active");
   tSupport.classList.remove("active");
+  tAdmin.classList.remove("active");
 
   if (tabName === 'scanner') {
     sScanner.style.display = "block";
@@ -446,9 +551,12 @@ function switchTab(tabName) {
   } else if (tabName === 'market') {
     sMarket.style.display = "block";
     tMarket.classList.add("active");
-  } else {
+  } else if (tabName === 'support') {
     sSupport.style.display = "block";
     tSupport.classList.add("active");
+  } else if (tabName === 'admin') {
+    sAdmin.style.display = "block";
+    tAdmin.classList.add("active");
   }
 }
 
@@ -499,21 +607,28 @@ function submitCustomBooking() {
 }
 
 function callSupportHotline() {
-  window.location.href = "tel:+1800555LOGI";
+  const phone = companyConfig.phone.replace(/[^0-9+]/g, '');
+  window.location.href = "tel:" + (phone || "+1800555LOGI");
 }
 
 function openWhatsAppSupport() {
   const waybill = getValue("supportWaybill") || "General Inquiry";
   const issue = getValue("supportIssue") || "Address change / Dispute assistance needed.";
-  const text = encodeURIComponent(`*LogiScan Support Ticket*\nWaybill: ${waybill}\nIssue: ${issue}`);
-  window.open(`https://wa.me/?text=${text}`, '_blank');
+  const cleanNumber = companyConfig.whatsapp.replace(/[^0-9]/g, '');
+  const text = encodeURIComponent(`*${companyConfig.name} Support Ticket*\nWaybill: ${waybill}\nIssue: ${issue}`);
+  
+  if (cleanNumber) {
+    window.open(`https://wa.me/${cleanNumber}?text=${text}`, '_blank');
+  } else {
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  }
 }
 
 function submitSupportTicket() {
   const waybill = getValue("supportWaybill");
   const issue = getValue("supportIssue");
   if (!issue) { alert("Please describe your issue or dispute."); return; }
-  alert(`Support ticket successfully submitted for Waybill: ${waybill || 'General'}. Dispatch will contact you shortly.`);
+  alert(`Support ticket submitted to ${companyConfig.name} for Waybill: ${waybill || 'General'}. Dispatch will contact you shortly.`);
   setValue("supportIssue", "");
   setValue("supportWaybill", "");
 }
@@ -750,9 +865,10 @@ function getCSVString() {
 }
 
 function getSummaryString() {
-  let text = "=== LOGISCAN PRO MANIFEST REPORT ===\n";
+  let text = `=== ${companyConfig.name.toUpperCase()} MANIFEST REPORT ===\n`;
   text += "Generated: " + new Date().toLocaleString() + "\n";
   text += "Total Shipments: " + items.length + "\n";
+  text += "Support Hotline: " + companyConfig.phone + "\n";
   text += "----------------------------------------\n\n";
   items.forEach((i, idx) => {
     text += `#${idx+1} | ID: ${i.id} | Item: ${i.item}\n`;
@@ -797,7 +913,7 @@ async function shareReportText() {
   const text = document.getElementById("csvPreview").value;
   if (navigator.share) {
     try {
-      await navigator.share({ title: 'LogiScan Manifest Report', text: text });
+      await navigator.share({ title: `${companyConfig.name} Manifest Report`, text: text });
       document.getElementById("exportModal").style.display = "none";
       return;
     } catch(e){}
@@ -805,7 +921,10 @@ async function shareReportText() {
   copyCSVToClipboard();
 }
 
-loadData(); renderTable(); updateKPIs();
+loadCompanyConfig();
+loadData();
+renderTable();
+updateKPIs();
 </script>
 </body>
 </html>
