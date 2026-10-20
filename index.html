@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0b1320">
-<title>LogiScan Pro Global - Enterprise Logistics & On-Demand Marketplace</title>
+<title>LogiGo SuperApp - All-In-One Delivery, Taxi & E-Commerce Engine</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://unpkg.com/@zxing/library@0.19.1"></script>
 
@@ -60,7 +60,7 @@ header {
 }
 header h1 {
   margin: 0;
-  font-size: 20px;
+  font-size: 22px;
   color: var(--text-main);
   display: flex;
   align-items: center;
@@ -229,8 +229,8 @@ textarea.report-box {
 </div>
 
 <header class="no-print">
-  <h1>⚡ LogiScan Pro Global</h1>
-  <p id="companyTaglineHeader">LOGISTICS & ON-DEMAND SUPER-APP PLATFORM</p>
+  <h1>🚀 LogiGo SuperApp</h1>
+  <p id="companyTaglineHeader">LOGISTICS, RIDE-HAILING & E-COMMERCE ENGINE</p>
 </header>
 
 <div class="nav-tabs no-print">
@@ -444,11 +444,11 @@ textarea.report-box {
 
   <div class="form-box">
     <h4 style="color:var(--accent-green);margin-top:0" id="hdrCompanyDetails">Official Contact Details</h4>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblCompany">Company:</b> <span id="lblDisplayCompany">LogiScan Global Logistics</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblCompany">Company:</b> <span id="lblDisplayCompany">LogiGo Express & SuperApp</span></p>
     <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblHotline">Support Phone:</b> <span id="lblDisplayPhone">1900 1234</span></p>
     <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblWhatsApp">WhatsApp / Zalo:</b> <span id="lblDisplayWhatsApp">0901234567</span></p>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblEmail">Email:</b> <span id="lblDisplayEmail">cskh@logiscan.vn</span></p>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblWebsite">Website:</b> <span id="lblDisplayWebsite">www.logiscan.vn</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblEmail">Email:</b> <span id="lblDisplayEmail">cskh@logigo.vn</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblWebsite">Website:</b> <span id="lblDisplayWebsite">www.logigo.vn</span></p>
   </div>
 </div>
 
@@ -460,7 +460,7 @@ textarea.report-box {
 
     <div class="form-group">
       <label for="cfgCompanyName" id="lblCfgName">Business / Company Name</label>
-      <input id="cfgCompanyName" placeholder="e.g. Apex Express Logistics">
+      <input id="cfgCompanyName" placeholder="e.g. LogiGo Express & SuperApp">
     </div>
 
     <div class="row">
@@ -510,25 +510,25 @@ textarea.report-box {
 <script>
 "use strict";
 
-const STORAGE_KEY = "logiScanPro_manifest_v4";
-const CONFIG_KEY = "logiScanPro_config_v4";
-const LANG_KEY = "logiScanPro_lang_v1";
+const STORAGE_KEY = "logigo_manifest_v5";
+const CONFIG_KEY = "logigo_config_v5";
+const LANG_KEY = "logigo_lang_v1";
 
 let items = [];
 let editingId = null;
 let currentLang = "en";
 
 let companyConfig = {
-  name: "LogiScan Global Logistics",
+  name: "LogiGo Express & SuperApp",
   phone: "19001234",
   whatsapp: "0901234567",
-  email: "cskh@logiscan.vn",
-  website: "https://logiscan.vn"
+  email: "cskh@logigo.vn",
+  website: "https://logigo.vn"
 };
 
 const i18n = {
   en: {
-    tagline: "LOGISTICS & ON-DEMAND SUPER-APP PLATFORM",
+    tagline: "LOGISTICS, RIDE-HAILING & E-COMMERCE ENGINE",
     tabManifest: "📦 Manifest", tabMarket: "🛒 E-Shop & Taxi", tabSupport: "🎧 Support", tabControl: "⚙️ Control",
     kpiTotal: "TOTAL", kpiPicked: "PICKED UP", kpiTransit: "IN TRANSIT", kpiDelivered: "DELIVERED",
     lblDriver: "Driver / Officer", lblVehicle: "Vehicle / Route ID", btnOpenCam: "📷 OPEN CAMERA SCANNER", btnStopCam: "✕ STOP CAMERA", btnCaptureFrame: "📸 CAPTURE FRAME",
@@ -548,7 +548,7 @@ const i18n = {
     btnCloseShop: "✕ Close Store & Return", btnCopyData: "📋 COPY DATA TO CLIPBOARD", btnShareReport: "📲 SHARE VIA WHATSAPP / ZALO / EMAIL", btnCloseExport: "✕ Close Window"
   },
   vi: {
-    tagline: "GIAO HÀNG & SIÊU ỨNG DỤNG THƯƠNG MẠI ĐIỆN TỬ",
+    tagline: "GIAO HÀNG, ĐẶT XE & SIÊU ỨNG DỤNG THƯƠNG MẠI ĐIỆN TỬ",
     tabManifest: "📦 Đơn Hàng", tabMarket: "🛒 Mua Sắm & Đặt Xe", tabSupport: "🎧 Hỗ Trợ", tabControl: "⚙️ Cấu Hình",
     kpiTotal: "TỔNG ĐƠN", kpiPicked: "ĐÃ NHẬN", kpiTransit: "ĐANG GIAO", kpiDelivered: "THÀNH CÔNG",
     lblDriver: "Tài Xế / Nhân Viên", lblVehicle: "Mã Xe / Tuyến", btnOpenCam: "📷 MỞ CAMERA QUÉT MÃ", btnStopCam: "✕ TẮT CAMERA", btnCaptureFrame: "📸 CHỤP KHUNG HÌNH",
@@ -568,7 +568,7 @@ const i18n = {
     btnCloseShop: "✕ Đóng Cửa Hàng & Quay Lại", btnCopyData: "📋 SAO CHÉP DỮ LIỆU", btnShareReport: "📲 CHIA SẺ QUA ZALO / EMAIL", btnCloseExport: "✕ Đóng Cửa Sổ"
   },
   zh: {
-    tagline: "物流追溯与即时服务超级应用平台",
+    tagline: "物流派送、叫车出行与电商超级应用平台",
     tabManifest: "📦 运单列表", tabMarket: "🛒 商城与打车", tabSupport: "🎧 客服中心", tabControl: "⚙️ 公司设置",
     kpiTotal: "总运单", kpiPicked: "已揽收", kpiTransit: "运输中", kpiDelivered: "已送达",
     lblDriver: "司机 / 派送员", lblVehicle: "车辆 / 路线 ID", btnOpenCam: "📷 打开摄像头扫码", btnStopCam: "✕ 关闭摄像头", btnCaptureFrame: "📸 捕获图像",
@@ -714,11 +714,11 @@ function loadCompanyConfig() {
 }
 
 function saveCompanyConfig() {
-  companyConfig.name = getValue("cfgCompanyName") || "LogiScan Global Logistics";
+  companyConfig.name = getValue("cfgCompanyName") || "LogiGo Express & SuperApp";
   companyConfig.phone = getValue("cfgPhone") || "19001234";
   companyConfig.whatsapp = getValue("cfgWhatsApp") || "0901234567";
-  companyConfig.email = getValue("cfgEmail") || "cskh@logiscan.vn";
-  companyConfig.website = getValue("cfgWebsite") || "https://logiscan.vn";
+  companyConfig.email = getValue("cfgEmail") || "cskh@logigo.vn";
+  companyConfig.website = getValue("cfgWebsite") || "https://logigo.vn";
 
   try {
     localStorage.setItem(CONFIG_KEY, JSON.stringify(companyConfig));
