@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0b1320">
-<title>LogiScan Pro Vietnam - Siêu Ứng Dụng Giao Hàng & Thương Mại Điện Tử</title>
+<title>LogiScan Pro Global - Enterprise Logistics & On-Demand Marketplace</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://unpkg.com/@zxing/library@0.19.1"></script>
 
@@ -30,6 +30,28 @@ body {
   margin: 0;
   padding: 12px;
   min-height: 100vh;
+}
+
+.lang-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.lang-btn {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: bold;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.lang-btn.active {
+  background: var(--accent-blue);
+  color: #000;
+  border-color: var(--accent-blue);
 }
 
 header {
@@ -200,104 +222,110 @@ textarea.report-box {
 
 <body>
 
+<div class="lang-bar no-print">
+  <button class="lang-btn active" id="langBtnEn" onclick="setLanguage('en')">🇬🇧 EN</button>
+  <button class="lang-btn" id="langBtnVi" onclick="setLanguage('vi')">🇻🇳 VN</button>
+  <button class="lang-btn" id="langBtnZh" onclick="setLanguage('zh')">🇨🇳 中文</button>
+</div>
+
 <header class="no-print">
-  <h1>⚡ LogiScan Pro VN</h1>
-  <p id="companyTaglineHeader">GIAO HÀNG & THƯƠNG MẠI ĐIỆN TỬ VIỆT NAM</p>
+  <h1>⚡ LogiScan Pro Global</h1>
+  <p id="companyTaglineHeader">LOGISTICS & ON-DEMAND SUPER-APP PLATFORM</p>
 </header>
 
 <div class="nav-tabs no-print">
-  <button class="tab-btn active" id="tabScannerBtn" onclick="switchTab('scanner')">📦 Đơn Hàng</button>
-  <button class="tab-btn" id="tabMarketBtn" onclick="switchTab('market')">🛒 Mua Sắm & Đặt Xe</button>
-  <button class="tab-btn" id="tabSupportBtn" onclick="switchTab('support')">🎧 Hỗ Trợ</button>
-  <button class="tab-btn" id="tabAdminBtn" onclick="switchTab('admin')">⚙️ Cấu Hình</button>
+  <button class="tab-btn active" id="tabScannerBtn" onclick="switchTab('scanner')">📦 Manifest</button>
+  <button class="tab-btn" id="tabMarketBtn" onclick="switchTab('market')">🛒 E-Shop & Taxi</button>
+  <button class="tab-btn" id="tabSupportBtn" onclick="switchTab('support')">🎧 Support</button>
+  <button class="tab-btn" id="tabAdminBtn" onclick="switchTab('admin')">⚙️ Control</button>
 </div>
 
 <!-- SECTION 1: MANIFEST & SCANNER -->
 <div id="sectionScanner">
   <div class="kpi-grid no-print">
-    <div class="kpi-card"><div class="val" id="kpiTotal">0</div><div class="lbl">TỔNG ĐƠN</div></div>
-    <div class="kpi-card"><div class="val" style="color:var(--accent-blue)" id="kpiPicked">0</div><div class="lbl">ĐÃ NHẬN</div></div>
-    <div class="kpi-card"><div class="val" style="color:var(--accent-orange)" id="kpiTransit">0</div><div class="lbl">ĐANG GIAO</div></div>
-    <div class="kpi-card"><div class="val" style="color:var(--accent-green)" id="kpiDelivered">0</div><div class="lbl">THÀNH CÔNG</div></div>
+    <div class="kpi-card"><div class="val" id="kpiTotal">0</div><div class="lbl" id="lblKpiTotal">TOTAL</div></div>
+    <div class="kpi-card"><div class="val" style="color:var(--accent-blue)" id="kpiPicked">0</div><div class="lbl" id="lblKpiPicked">PICKED UP</div></div>
+    <div class="kpi-card"><div class="val" style="color:var(--accent-orange)" id="kpiTransit">0</div><div class="lbl" id="lblKpiTransit">IN TRANSIT</div></div>
+    <div class="kpi-card"><div class="val" style="color:var(--accent-green)" id="kpiDelivered">0</div><div class="lbl" id="lblKpiDelivered">DELIVERED</div></div>
   </div>
 
-  <div id="alertBox" class="alert no-print">Sẵn sàng quét mã. Hỗ trợ máy quét Laser cầm tay.</div>
+  <div id="alertBox" class="alert no-print">Ready for scanning. Hardware Laser Supported.</div>
 
   <div class="form-box no-print">
     <div class="row">
       <div class="col form-group">
-        <label for="driverName">Tài Xế / Nhân Viên</label>
-        <input id="driverName" value="Tài xế #104" maxlength="60">
+        <label for="driverName" id="lblDriver">Driver / Officer</label>
+        <input id="driverName" value="Driver #104" maxlength="60">
       </div>
       <div class="col form-group">
-        <label for="vehicleId">Mã Xe / Tuyến</label>
-        <input id="vehicleId" value="XE-59B" maxlength="60">
+        <label for="vehicleId" id="lblVehicle">Vehicle / Route ID</label>
+        <input id="vehicleId" value="VAN-59B" maxlength="60">
       </div>
     </div>
 
-    <button class="btn-scan" id="startScanBtn" onclick="startCameraScanner()">📷 MỞ CAMERA QUÉT MÃ</button>
-    <button class="btn-del" id="stopScanBtn" onclick="stopCameraScanner()" style="display:none">✕ TẮT CAMERA</button>
+    <button class="btn-scan" id="startScanBtn" onclick="startCameraScanner()">📷 OPEN CAMERA SCANNER</button>
+    <button class="btn-del" id="stopScanBtn" onclick="stopCameraScanner()" style="display:none">✕ STOP CAMERA</button>
 
     <div id="cameraPanel" style="display:none;margin-top:8px;background:#050c18;padding:8px;border-radius:8px">
       <video id="cameraVideo" playsinline muted autoplay style="width:100%;max-height:260px;object-fit:contain;background:#000;border-radius:6px"></video>
-      <button class="btn-add" style="margin-top:8px" onclick="manualCaptureFrame()">📸 CHỤP KHUNG HÌNH</button>
+      <button class="btn-add" id="btnCaptureFrame" style="margin-top:8px" onclick="manualCaptureFrame()">📸 CAPTURE FRAME</button>
     </div>
 
     <div class="row" style="margin-top:10px">
       <div class="col form-group">
-        <label for="trackingCode">Mã Vận Đơn / Barcode</label>
-        <input id="trackingCode" placeholder="Quét hoặc nhập mã vận đơn..." autocomplete="off">
+        <label for="trackingCode" id="lblTracking">Waybill / Tracking Barcode</label>
+        <input id="trackingCode" placeholder="Scan tracking barcode..." autocomplete="off">
       </div>
     </div>
 
     <div class="row">
       <div class="col form-group">
-        <label for="itemDescription">Tên Sản Phẩm / Hàng Hóa</label>
-        <input id="itemDescription" placeholder="Ví dụ: Điện thoại, Quần áo, Đồ ăn">
+        <label for="itemDescription" id="lblItemDesc">Package Item / Product Type</label>
+        <input id="itemDescription" placeholder="e.g. Electronics / Documents / Cargo">
       </div>
       <div class="col form-group">
-        <label for="recipient">Người Nhận / Địa Chỉ</label>
-        <input id="recipient" placeholder="Tên khách hàng hoặc kho">
+        <label for="recipient" id="lblRecipient">Customer / Recipient Name</label>
+        <input id="recipient" placeholder="Customer name or hub">
       </div>
     </div>
 
     <div class="row">
       <div class="col form-group">
-        <label for="statusSelect">Trạng Thái Giao Hàng</label>
+        <label for="statusSelect" id="lblStatus">Delivery Status</label>
         <select id="statusSelect">
-          <option value="PICKED_UP">Đã Nhận Hàng</option>
-          <option value="IN_TRANSIT" selected>Đang Giao Hàng</option>
-          <option value="DELIVERED">Giao Thành Công</option>
-          <option value="FAILED">Giao Thất Bại / Sự Cố</option>
+          <option value="PICKED_UP" id="optPicked">Picked Up</option>
+          <option value="IN_TRANSIT" id="optTransit" selected>In Transit</option>
+          <option value="DELIVERED" id="optDelivered">Delivered</option>
+          <option value="FAILED" id="optFailed">Delivery Exception</option>
         </select>
       </div>
     </div>
 
     <div class="form-group">
-      <label for="gpsField">Tọa Độ GPS / Vị Trí Giao</label>
+      <label for="gpsField" id="lblGps">GPS Location / Terminal Tag</label>
       <div class="row" style="margin-bottom:0">
-        <input id="gpsField" placeholder="Tự động lấy GPS hoặc nhập tay...">
+        <input id="gpsField" placeholder="Auto-captured or tap to type location...">
         <button style="width:110px;background:#37474f;color:white" onclick="captureGPS()">📍 GPS</button>
       </div>
     </div>
 
-    <button class="btn-add" id="saveBtn" onclick="addShipment()">➕ LƯU ĐƠN VÀO DANH SÁCH</button>
+    <button class="btn-add" id="saveBtn" onclick="addShipment()">➕ LOG SHIPMENT TO MANIFEST</button>
   </div>
 
   <div class="no-print" style="margin-bottom:10px">
-    <input id="searchFilter" placeholder="🔍 Tìm theo mã đơn, sản phẩm, tài xế, khách hàng..." oninput="renderTable()" style="background:var(--bg-card)">
+    <input id="searchFilter" placeholder="🔍 Search tracking number, product, driver, or customer..." oninput="renderTable()" style="background:var(--bg-card)">
   </div>
 
   <div class="table-wrap">
     <table>
       <thead>
         <tr>
-          <th>Mã Vận Đơn</th>
-          <th>Sản Phẩm</th>
-          <th>Trạng Thái</th>
-          <th>Khách Hàng</th>
-          <th>Tài Xế & GPS</th>
-          <th class="no-print">Thao Tác</th>
+          <th id="thWaybill">Tracking ID</th>
+          <th id="thItem">Item / Product</th>
+          <th id="thStatus">Status</th>
+          <th id="thCustomer">Customer / Recipient</th>
+          <th id="thDriverGps">Driver & GPS</th>
+          <th class="no-print" id="thActions">Actions</th>
         </tr>
       </thead>
       <tbody id="manifestBody"></tbody>
@@ -305,195 +333,260 @@ textarea.report-box {
   </div>
 
   <div class="row no-print" style="margin-top:12px">
-    <div class="col"><button class="btn-excel" onclick="openExportModal('csv')">📊 Xuất File CSV</button></div>
-    <div class="col"><button class="btn-share" onclick="openExportModal('summary')">📄 Báo Cáo Tổng Hợp</button></div>
+    <div class="col"><button class="btn-excel" id="btnExportCsv" onclick="openExportModal('csv')">📊 Export CSV</button></div>
+    <div class="col"><button class="btn-share" id="btnPrintSummary" onclick="openExportModal('summary')">📄 Printable Summary</button></div>
   </div>
 </div>
 
-<!-- SECTION 2: VIETNAM E-COMMERCE & TAXI BOOKING -->
+<!-- SECTION 2: E-COMMERCE & TAXI BOOKING -->
 <div id="sectionMarket" style="display:none">
   <div class="form-box">
-    <h3 style="color:var(--accent-orange);margin-top:0">🛍️ Sàn Thương Mại Điện Tử Việt Nam</h3>
-    <p style="font-size:12px;color:var(--text-muted)">Truy cập trực tiếp cửa hàng online chính hãng tại Việt Nam để chọn mua hàng hóa:</p>
+    <h3 style="color:var(--accent-orange);margin-top:0" id="hdrMarketplace">🛍️ Embedded E-Commerce Marketplace</h3>
+    <p style="font-size:12px;color:var(--text-muted)" id="descMarketplace">Access official online web stores directly to purchase items online:</p>
     
     <div class="shop-grid">
       <div class="shop-card">
-        <h4>Shopee Việt Nam</h4>
-        <p>Sàn TMĐT Số 1</p>
-        <button class="btn-shop" onclick="openEmbedStore('https://shopee.vn', 'Shopee VN')">Truy Cập Store</button>
+        <h4>Shopee Vietnam</h4>
+        <p>#1 E-Commerce</p>
+        <button class="btn-shop" onclick="openEmbedStore('https://shopee.vn', 'Shopee VN')">Open Store</button>
       </div>
       <div class="shop-card">
-        <h4>Lazada Việt Nam</h4>
-        <p> Hàng Chính Hãng</p>
-        <button class="btn-shop" onclick="openEmbedStore('https://www.lazada.vn', 'Lazada VN')">Truy Cập Store</button>
+        <h4>Lazada Vietnam</h4>
+        <p>Official Mall</p>
+        <button class="btn-shop" onclick="openEmbedStore('https://www.lazada.vn', 'Lazada VN')">Open Store</button>
       </div>
       <div class="shop-card">
-        <h4>Decathlon Việt Nam</h4>
-        <p>Đồ Thể Thao</p>
-        <button class="btn-shop" onclick="openEmbedStore('https://www.decathlon.vn', 'Decathlon VN')">Truy Cập Store</button>
+        <h4>Decathlon Vietnam</h4>
+        <p>Sports Equipment</p>
+        <button class="btn-shop" onclick="openEmbedStore('https://www.decathlon.vn', 'Decathlon VN')">Open Store</button>
       </div>
       <div class="shop-card">
-        <h4>Muji Việt Nam</h4>
-        <p>Gia Dụng & Thời Trang</p>
-        <button class="btn-shop" onclick="openEmbedStore('https://www.muji.com/vn/', 'Muji VN')">Truy Cập Store</button>
+        <h4>Muji Vietnam</h4>
+        <p>Household & Fashion</p>
+        <button class="btn-shop" onclick="openEmbedStore('https://www.muji.com/vn/', 'Muji VN')">Open Store</button>
       </div>
       <div class="shop-card">
         <h4>Thế Giới Di Động</h4>
-        <p>Điện Thoại & Laptop</p>
-        <button class="btn-shop" onclick="openEmbedStore('https://www.thegioididong.com', 'TGDĐ')">Truy Cập Store</button>
+        <p>Phones & Laptops</p>
+        <button class="btn-shop" onclick="openEmbedStore('https://www.thegioididong.com', 'TGDĐ')">Open Store</button>
       </div>
       <div class="shop-card">
         <h4>Nguyễn Kim</h4>
-        <p>Điện Máy & Tủ Lạnh</p>
-        <button class="btn-shop" onclick="openEmbedStore('https://www.nguyenkim.com', 'Nguyễn Kim')">Truy Cập Store</button>
+        <p>Electronics & Appliances</p>
+        <button class="btn-shop" onclick="openEmbedStore('https://www.nguyenkim.com', 'Nguyễn Kim')">Open Store</button>
       </div>
     </div>
   </div>
 
   <div class="form-box">
-    <h3 style="color:var(--accent-green);margin-top:0">🚕 Đặt Xe Taxi & Giao Hàng Nhanh (VNĐ)</h3>
+    <h3 style="color:var(--accent-green);margin-top:0" id="hdrTaxiDispatch">🚕 Taxi Ride & Express Cargo Dispatch (VNĐ)</h3>
     
     <div class="form-group">
-      <label for="taxiTypeSelect">Loại Xe / Dịch Vụ Vận Chuyển</label>
+      <label for="taxiTypeSelect" id="lblTaxiType">Vehicle / Transportation Service</label>
       <select id="taxiTypeSelect" onchange="updateTaxiCostPreview()">
-        <option value="Taxi 4 Chỗ (Tiêu Chuẩn)">Taxi 4 Chỗ (Tiêu Chuẩn) - 15.000 ₫/km</option>
-        <option value="Taxi 7 Chỗ (Gia Đình)">Taxi 7 Chỗ (Rộng Rãi) - 18.000 ₫/km</option>
-        <option value="Xe Máy Giao Hàng Siêu Tốc">Xe Máy Giao Hàng Siêu Tốc - 20.000 ₫/chuyến</option>
-        <option value="Xe Tải Giao Hàng 1 Tấn">Xe Tải Chở Hàng 1 Tấn - 350.000 ₫/chuyến</option>
+        <option value="4-Seat Taxi (Standard)">4-Seat Taxi (Standard) - 15.000 ₫/km</option>
+        <option value="7-Seat Taxi (Family)">7-Seat Taxi (Family) - 18.000 ₫/km</option>
+        <option value="Express Motorbike Delivery">Express Motorbike Delivery - 20.000 ₫/trip</option>
+        <option value="1-Ton Freight Truck">1-Ton Freight Truck - 350.000 ₫/trip</option>
       </select>
     </div>
 
     <div class="row">
       <div class="col form-group">
-        <label for="pickupAddr">Điểm Đón / Nhận Hàng</label>
-        <input id="pickupAddr" placeholder="VD: Quận 1, TP.HCM">
+        <label for="pickupAddr" id="lblPickup">Pickup Location</label>
+        <input id="pickupAddr" placeholder="e.g. District 1, HCMC">
       </div>
       <div class="col form-group">
-        <label for="dropoffAddr">Điểm Đến / Giao Hàng</label>
-        <input id="dropoffAddr" placeholder="VD: Quận 7, TP.HCM">
+        <label for="dropoffAddr" id="lblDropoff">Dropoff Address</label>
+        <input id="dropoffAddr" placeholder="e.g. District 7, HCMC">
       </div>
     </div>
 
     <div class="form-group">
-      <label for="distanceKm">Khoảng Cách Ước Tính (Km)</label>
+      <label for="distanceKm" id="lblDistance">Estimated Distance (Km)</label>
       <input id="distanceKm" type="number" value="5" oninput="updateTaxiCostPreview()">
     </div>
 
     <div style="background:var(--bg-main);padding:10px;border-radius:6px;margin-bottom:10px;text-align:center">
-      <span style="font-size:12px;color:var(--text-muted)">Tổng Cước Phí Dự Kiến: </span>
+      <span style="font-size:12px;color:var(--text-muted)" id="lblEstimatedFare">Estimated Price: </span>
       <b id="taxiPricePreview" style="font-size:16px;color:var(--accent-green)">75.000 ₫</b>
     </div>
 
-    <button class="btn-add" onclick="bookTaxiDispatchVN()">🚀 XÁC NHẬN ĐẶT XE & TẠO ĐƠN GIAO</button>
+    <button class="btn-add" id="btnConfirmTaxi" onclick="bookTaxiDispatchVN()">🚀 CONFIRM RIDE & DISPATCH WAYBILL</button>
   </div>
 </div>
 
 <!-- SECTION 3: CUSTOMER SERVICE & DISPUTE CENTER -->
 <div id="sectionSupport" style="display:none">
   <div class="form-box">
-    <h3 style="color:var(--accent-blue);margin-top:0">🎧 Trung Tâm Hỗ Trợ & Khiếu Nại Đơn Hàng</h3>
-    <p style="font-size:12px;color:var(--text-muted)">Cần hỗ trợ sự cố, đổi địa chỉ giao hàng hoặc phản hồi dịch vụ? Liên hệ ngay:</p>
+    <h3 style="color:var(--accent-blue);margin-top:0" id="hdrSupport">🎧 Dispatch & Dispute Support Center</h3>
+    <p style="font-size:12px;color:var(--text-muted)" id="descSupport">Need help with an emergency, dispute, or address change? Connect instantly with our team:</p>
     
     <div style="margin: 15px 0;">
-      <label for="supportWaybill">Mã Vận Đơn / Đơn Hàng (Không bắt buộc)</label>
-      <input id="supportWaybill" placeholder="VD: WAYBILL-8921" style="margin-bottom:10px">
+      <label for="supportWaybill" id="lblSupportWaybill">Reference Waybill / Tracking ID (Optional)</label>
+      <input id="supportWaybill" placeholder="e.g. WAYBILL-8921" style="margin-bottom:10px">
       
-      <label for="supportIssue">Nội Dung Sự Cố / Yêu Cầu Đổi Địa Chỉ</label>
-      <textarea id="supportIssue" placeholder="Nhập chi tiết sự cố hoặc địa chỉ giao hàng mới..." style="height:90px;margin-bottom:10px"></textarea>
+      <label for="supportIssue" id="lblSupportIssue">Describe Issue / Dispute / Address Change</label>
+      <textarea id="supportIssue" placeholder="Type delivery dispute, emergency note, or new address..." style="height:90px;margin-bottom:10px"></textarea>
     </div>
 
     <div class="row" style="margin-bottom:10px">
       <div class="col">
-        <button class="btn-call" onclick="callSupportHotline()">📞 GỌI HOTLINE TỔNG ĐÀI</button>
+        <button class="btn-call" id="btnCallSupport" onclick="callSupportHotline()">📞 CALL DISPATCH HOTLINE</button>
       </div>
       <div class="col">
-        <button class="btn-wa" onclick="openWhatsAppSupport()">💬 CHAT QUA WHATSAPP</button>
+        <button class="btn-wa" id="btnWaSupport" onclick="openWhatsAppSupport()">💬 CHAT VIA WHATSAPP / ZALO</button>
       </div>
     </div>
 
-    <button class="btn-share" onclick="submitSupportTicket()">📩 GỬI YÊU CẦU HỖ TRỢ</button>
+    <button class="btn-share" id="btnSubmitTicket" onclick="submitSupportTicket()">📩 SUBMIT SUPPORT TICKET</button>
   </div>
 
   <div class="form-box">
-    <h4 style="color:var(--accent-green);margin-top:0">Thông Tin Liên Hệ Doanh Nghiệp</h4>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>Doanh Nghiệp:</b> <span id="lblDisplayCompany">LogiScan Việt Nam</span></p>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>Hotline:</b> <span id="lblDisplayPhone">1900 1234</span></p>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>WhatsApp / Zalo:</b> <span id="lblDisplayWhatsApp">0901234567</span></p>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>Email:</b> <span id="lblDisplayEmail">cskh@logiscan.vn</span></p>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>Website:</b> <span id="lblDisplayWebsite">www.logiscan.vn</span></p>
+    <h4 style="color:var(--accent-green);margin-top:0" id="hdrCompanyDetails">Official Contact Details</h4>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblCompany">Company:</b> <span id="lblDisplayCompany">LogiScan Global Logistics</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblHotline">Support Phone:</b> <span id="lblDisplayPhone">1900 1234</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblWhatsApp">WhatsApp / Zalo:</b> <span id="lblDisplayWhatsApp">0901234567</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblEmail">Email:</b> <span id="lblDisplayEmail">cskh@logiscan.vn</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblWebsite">Website:</b> <span id="lblDisplayWebsite">www.logiscan.vn</span></p>
   </div>
 </div>
 
 <!-- SECTION 4: COMPANY CONTROL PANEL -->
 <div id="sectionAdmin" style="display:none">
   <div class="form-box">
-    <h3 style="color:var(--accent-green);margin-top:0">⚙️ Cấu Hình Doanh Nghiệp (Tự Quản Lý)</h3>
-    <p style="font-size:12px;color:var(--text-muted)">Nhập số điện thoại, Zalo/WhatsApp và thông tin công ty của bạn. Thông tin sẽ tự động áp dụng toàn bộ ứng dụng!</p>
+    <h3 style="color:var(--accent-green);margin-top:0" id="hdrAdminControl">⚙️ Company Self-Service Control Panel</h3>
+    <p style="font-size:12px;color:var(--text-muted)" id="descAdminControl">Configure your business contact details. Changing these details instantly updates all support routing across the app!</p>
 
     <div class="form-group">
-      <label for="cfgCompanyName">Tên Công Ty / Cửa Hàng</label>
-      <input id="cfgCompanyName" placeholder="VD: Giao Hàng Tốc Hành VN">
+      <label for="cfgCompanyName" id="lblCfgName">Business / Company Name</label>
+      <input id="cfgCompanyName" placeholder="e.g. Apex Express Logistics">
     </div>
 
     <div class="row">
       <div class="col form-group">
-        <label for="cfgPhone">Số Hotline Gọi Điện</label>
-        <input id="cfgPhone" placeholder="VD: 1900 1234 hoặc 0901234567">
+        <label for="cfgPhone" id="lblCfgPhone">Dispatch Hotline (Calls)</label>
+        <input id="cfgPhone" placeholder="e.g. 1900 1234 or +84901234567">
       </div>
       <div class="col form-group">
-        <label for="cfgWhatsApp">Số Zalo / WhatsApp</label>
-        <input id="cfgWhatsApp" placeholder="VD: 0901234567">
+        <label for="cfgWhatsApp" id="lblCfgWhatsApp">WhatsApp / Zalo Number</label>
+        <input id="cfgWhatsApp" placeholder="e.g. 0901234567">
       </div>
     </div>
 
     <div class="form-group">
-      <label for="cfgEmail">Email Hỗ Trợ Khách Hàng</label>
-      <input id="cfgEmail" placeholder="VD: cskh@domain.vn">
+      <label for="cfgEmail" id="lblCfgEmail">Support Email Address</label>
+      <input id="cfgEmail" placeholder="e.g. cskh@domain.com">
     </div>
 
     <div class="form-group">
-      <label for="cfgWebsite">Địa Chỉ Website</label>
-      <input id="cfgWebsite" placeholder="VD: https://domain.vn">
+      <label for="cfgWebsite" id="lblCfgWebsite">Website URL</label>
+      <input id="cfgWebsite" placeholder="e.g. https://domain.com">
     </div>
 
-    <button class="btn-add" onclick="saveCompanyConfig()">💾 LƯU CẤU HÌNH DOANH NGHIỆP</button>
+    <button class="btn-add" id="btnSaveConfig" onclick="saveCompanyConfig()">💾 SAVE COMPANY CONFIGURATION</button>
   </div>
 </div>
 
 <!-- EMBEDDED E-COMMERCE MODAL -->
 <div id="shopBrowserModal">
-  <h3 id="shopModalTitle" style="color:var(--accent-orange);margin-top:0">Cửa Hàng Online</h3>
+  <h3 id="shopModalTitle" style="color:var(--accent-orange);margin-top:0">Online Store</h3>
   <iframe id="shopIframe" style="width:100%;height:65vh;border:1px solid var(--border-color);border-radius:8px;background:#fff;margin-bottom:10px"></iframe>
-  <button class="btn-del" onclick="closeEmbedStore()">✕ Đóng Cửa Hàng & Quay Lại</button>
+  <button class="btn-del" id="btnCloseShop" onclick="closeEmbedStore()">✕ Close Store & Return</button>
 </div>
 
 <!-- EXPORT MODAL -->
 <div id="exportModal" class="no-print">
-  <h3 id="modalTitle" style="color:var(--accent-green);margin-top:0">Xuất Báo Cáo Vận Đơn</h3>
-  <p id="modalSub" style="font-size:12px;color:var(--text-muted)">Định dạng hỗ trợ phần mềm Kế toán & Excel:</p>
+  <h3 id="modalTitle" style="color:var(--accent-green);margin-top:0">Manifest Export Hub</h3>
+  <p id="modalSub" style="font-size:12px;color:var(--text-muted)">Formats ready for Logistics ERPs & Spreadsheets:</p>
   
   <textarea id="csvPreview" class="report-box" readonly></textarea>
 
-  <button class="btn-add" style="margin-bottom:8px" onclick="copyCSVToClipboard()">📋 SAO CHÉP DỮ LIỆU</button>
-  <button class="btn-share" style="margin-bottom:8px" onclick="shareReportText()">📲 CHIA SẺ QUA ZALO / EMAIL</button>
-  <button class="btn-del" onclick="document.getElementById('exportModal').style.display='none'">✕ Đóng Cửa Sổ</button>
+  <button class="btn-add" id="btnCopyData" style="margin-bottom:8px" onclick="copyCSVToClipboard()">📋 COPY DATA TO CLIPBOARD</button>
+  <button class="btn-share" id="btnShareReport" style="margin-bottom:8px" onclick="shareReportText()">📲 SHARE VIA WHATSAPP / ZALO / EMAIL</button>
+  <button class="btn-del" id="btnCloseExport" onclick="document.getElementById('exportModal').style.display='none'">✕ Close Window</button>
 </div>
 
 <script>
 "use strict";
 
-const STORAGE_KEY = "logiScanPro_manifest_vn_v1";
-const CONFIG_KEY = "logiScanPro_config_vn_v1";
+const STORAGE_KEY = "logiScanPro_manifest_v4";
+const CONFIG_KEY = "logiScanPro_config_v4";
+const LANG_KEY = "logiScanPro_lang_v1";
 
 let items = [];
 let editingId = null;
+let currentLang = "en";
 
 let companyConfig = {
-  name: "LogiScan Việt Nam",
+  name: "LogiScan Global Logistics",
   phone: "19001234",
   whatsapp: "0901234567",
   email: "cskh@logiscan.vn",
   website: "https://logiscan.vn"
+};
+
+const i18n = {
+  en: {
+    tagline: "LOGISTICS & ON-DEMAND SUPER-APP PLATFORM",
+    tabManifest: "📦 Manifest", tabMarket: "🛒 E-Shop & Taxi", tabSupport: "🎧 Support", tabControl: "⚙️ Control",
+    kpiTotal: "TOTAL", kpiPicked: "PICKED UP", kpiTransit: "IN TRANSIT", kpiDelivered: "DELIVERED",
+    lblDriver: "Driver / Officer", lblVehicle: "Vehicle / Route ID", btnOpenCam: "📷 OPEN CAMERA SCANNER", btnStopCam: "✕ STOP CAMERA", btnCaptureFrame: "📸 CAPTURE FRAME",
+    lblTracking: "Waybill / Tracking Barcode", lblItemDesc: "Package Item / Product Type", lblRecipient: "Customer / Recipient Name",
+    lblStatus: "Delivery Status", optPicked: "Picked Up", optTransit: "In Transit", optDelivered: "Delivered", optFailed: "Delivery Exception",
+    lblGps: "GPS Location / Terminal Tag", btnLogShipment: "➕ LOG SHIPMENT TO MANIFEST", phSearch: "🔍 Search tracking number, product, driver, or customer...",
+    thWaybill: "Tracking ID", thItem: "Item / Product", thStatus: "Status", thCustomer: "Customer / Recipient", thDriverGps: "Driver & GPS", thActions: "Actions",
+    btnExportCsv: "📊 Export CSV", btnPrintSummary: "📄 Printable Summary",
+    hdrMarketplace: "🛍️ Embedded E-Commerce Marketplace", descMarketplace: "Access official online web stores directly to purchase items online:",
+    hdrTaxiDispatch: "🚕 Taxi Ride & Express Cargo Dispatch (VNĐ)", lblTaxiType: "Vehicle / Transportation Service", lblPickup: "Pickup Location", lblDropoff: "Dropoff Address", lblDistance: "Estimated Distance (Km)", lblEstimatedFare: "Estimated Price: ", btnConfirmTaxi: "🚀 CONFIRM RIDE & DISPATCH WAYBILL",
+    hdrSupport: "🎧 Dispatch & Dispute Support Center", descSupport: "Need help with an emergency, dispute, or address change? Connect instantly with our team:",
+    lblSupportWaybill: "Reference Waybill / Tracking ID (Optional)", lblSupportIssue: "Describe Issue / Dispute / Address Change",
+    btnCallSupport: "📞 CALL DISPATCH HOTLINE", btnWaSupport: "💬 CHAT VIA WHATSAPP / ZALO", btnSubmitTicket: "📩 SUBMIT SUPPORT TICKET",
+    hdrCompanyDetails: "Official Contact Details", lblCompany: "Company:", lblHotline: "Support Phone:", lblWhatsApp: "WhatsApp / Zalo:", lblEmail: "Email:", lblWebsite: "Website:",
+    hdrAdminControl: "⚙️ Company Self-Service Control Panel", descAdminControl: "Configure your business contact details. Changing these details instantly updates all support routing across the app!",
+    lblCfgName: "Business / Company Name", lblCfgPhone: "Dispatch Hotline (Calls)", lblCfgWhatsApp: "WhatsApp / Zalo Number", lblCfgEmail: "Support Email Address", lblCfgWebsite: "Website URL", btnSaveConfig: "💾 SAVE COMPANY CONFIGURATION",
+    btnCloseShop: "✕ Close Store & Return", btnCopyData: "📋 COPY DATA TO CLIPBOARD", btnShareReport: "📲 SHARE VIA WHATSAPP / ZALO / EMAIL", btnCloseExport: "✕ Close Window"
+  },
+  vi: {
+    tagline: "GIAO HÀNG & SIÊU ỨNG DỤNG THƯƠNG MẠI ĐIỆN TỬ",
+    tabManifest: "📦 Đơn Hàng", tabMarket: "🛒 Mua Sắm & Đặt Xe", tabSupport: "🎧 Hỗ Trợ", tabControl: "⚙️ Cấu Hình",
+    kpiTotal: "TỔNG ĐƠN", kpiPicked: "ĐÃ NHẬN", kpiTransit: "ĐANG GIAO", kpiDelivered: "THÀNH CÔNG",
+    lblDriver: "Tài Xế / Nhân Viên", lblVehicle: "Mã Xe / Tuyến", btnOpenCam: "📷 MỞ CAMERA QUÉT MÃ", btnStopCam: "✕ TẮT CAMERA", btnCaptureFrame: "📸 CHỤP KHUNG HÌNH",
+    lblTracking: "Mã Vận Đơn / Barcode", lblItemDesc: "Tên Sản Phẩm / Hàng Hóa", lblRecipient: "Người Nhận / Địa Chỉ",
+    lblStatus: "Trạng Thái Giao Hàng", optPicked: "Đã Nhận Hàng", optTransit: "Đang Giao Hàng", optDelivered: "Giao Thành Công", optFailed: "Giao Thất Bại / Sự Cố",
+    lblGps: "Tọa Độ GPS / Vị Trí Giao", btnLogShipment: "➕ LƯU ĐƠN VÀO DANH SÁCH", phSearch: "🔍 Tìm theo mã đơn, sản phẩm, tài xế, khách hàng...",
+    thWaybill: "Mã Vận Đơn", thItem: "Sản Phẩm", thStatus: "Trạng Thái", thCustomer: "Khách Hàng", thDriverGps: "Tài Xế & GPS", thActions: "Thao Tác",
+    btnExportCsv: "📊 Xuất File CSV", btnPrintSummary: "📄 Báo Cáo Tổng Hợp",
+    hdrMarketplace: "🛍️ Sàn Thương Mại Điện Tử Trực Tuyến", descMarketplace: "Truy cập trực tiếp cửa hàng online chính hãng tại Việt Nam để chọn mua hàng hóa:",
+    hdrTaxiDispatch: "🚕 Đặt Xe Taxi & Giao Hàng Nhanh (VNĐ)", lblTaxiType: "Loại Xe / Dịch Vụ Vận Chuyển", lblPickup: "Điểm Đón / Nhận Hàng", lblDropoff: "Điểm Đến / Giao Hàng", lblDistance: "Khoảng Cách Ước Tính (Km)", lblEstimatedFare: "Tổng Cước Phí Dự Kiến: ", btnConfirmTaxi: "🚀 XÁC NHẬN ĐẶT XE & TẠO ĐƠN GIAO",
+    hdrSupport: "🎧 Trung Tâm Hỗ Trợ & Khiếu Nại Đơn Hàng", descSupport: "Cần hỗ trợ sự cố, đổi địa chỉ giao hàng hoặc phản hồi dịch vụ? Liên hệ ngay:",
+    lblSupportWaybill: "Mã Vận Đơn / Đơn Hàng (Không bắt buộc)", lblSupportIssue: "Nội Dung Sự Cố / Yêu Cầu Đổi Địa Chỉ",
+    btnCallSupport: "📞 GỌI HOTLINE TỔNG ĐÀI", btnWaSupport: "💬 CHAT QUA WHATSAPP / ZALO", btnSubmitTicket: "📩 GỬI YÊU CẦU HỖ TRỢ",
+    hdrCompanyDetails: "Thông Tin Liên Hệ Doanh Nghiệp", lblCompany: "Doanh Nghiệp:", lblHotline: "Hotline:", lblWhatsApp: "WhatsApp / Zalo:", lblEmail: "Email:", lblWebsite: "Website:",
+    hdrAdminControl: "⚙️ Cấu Hình Doanh Nghiệp (Tự Quản Lý)", descAdminControl: "Nhập số điện thoại, Zalo/WhatsApp và thông tin công ty của bạn. Thông tin sẽ tự động áp dụng toàn bộ ứng dụng!",
+    lblCfgName: "Tên Công Ty / Cửa Hàng", lblCfgPhone: "Số Hotline Gọi Điện", lblCfgWhatsApp: "Số Zalo / WhatsApp", lblCfgEmail: "Email Hỗ Trợ Khách Hàng", lblCfgWebsite: "Địa Chỉ Website", btnSaveConfig: "💾 LƯU CẤU HÌNH DOANH NGHIỆP",
+    btnCloseShop: "✕ Đóng Cửa Hàng & Quay Lại", btnCopyData: "📋 SAO CHÉP DỮ LIỆU", btnShareReport: "📲 CHIA SẺ QUA ZALO / EMAIL", btnCloseExport: "✕ Đóng Cửa Sổ"
+  },
+  zh: {
+    tagline: "物流追溯与即时服务超级应用平台",
+    tabManifest: "📦 运单列表", tabMarket: "🛒 商城与打车", tabSupport: "🎧 客服中心", tabControl: "⚙️ 公司设置",
+    kpiTotal: "总运单", kpiPicked: "已揽收", kpiTransit: "运输中", kpiDelivered: "已送达",
+    lblDriver: "司机 / 派送员", lblVehicle: "车辆 / 路线 ID", btnOpenCam: "📷 打开摄像头扫码", btnStopCam: "✕ 关闭摄像头", btnCaptureFrame: "📸 捕获图像",
+    lblTracking: "运单号 / 条形码", lblItemDesc: "包裹物品 / 产品类型", lblRecipient: "收件人 / 目的地",
+    lblStatus: "派送状态", optPicked: "已揽收", optTransit: "派送中", optDelivered: "已送达", optFailed: "派送异常",
+    lblGps: "GPS 定位 / 站点标记", btnLogShipment: "➕ 添加运单至列表", phSearch: "🔍 搜索运单号、物品、司机或收件人...",
+    thWaybill: "运单号", thItem: "物品", thStatus: "状态", thCustomer: "收件人", thDriverGps: "司机与 GPS", thActions: "操作",
+    btnExportCsv: "📊 导出 CSV", btnPrintSummary: "📄 打印汇总报告",
+    hdrMarketplace: "🛍️ 内置电商在线商城", descMarketplace: "直接访问官方在线商城采购商品：",
+    hdrTaxiDispatch: "🚕 出租车叫车与快运派送 (VNĐ)", lblTaxiType: "车辆 / 运输服务类型", lblPickup: "接载 / 取货地点", lblDropoff: "送达 / 目的地", lblDistance: "预计距离 (公里)", lblEstimatedFare: "预计费用: ", btnConfirmTaxi: "🚀 确认叫车并生成运单",
+    hdrSupport: "🎧 调度与争议客服中心", descSupport: "需要紧急协助、修改地址或处理争议？请即刻联系我们：",
+    lblSupportWaybill: "参考运单号 (选填)", lblSupportIssue: "描述问题 / 争议 / 修改地址",
+    btnCallSupport: "📞 拨打调度热线", btnWaSupport: "💬 微信 / WhatsApp / Zalo 客服", btnSubmitTicket: "📩 提交客服工单",
+    hdrCompanyDetails: "官方联系方式", lblCompany: "公司名称:", lblHotline: "客服热线:", lblWhatsApp: "WhatsApp / Zalo / 微信:", lblEmail: "电子邮箱:", lblWebsite: "官方网站:",
+    hdrAdminControl: "⚙️ 公司自主管理控制台", descAdminControl: "配置您的企业联系方式。保存后将即时更新应用内所有客服与路由信息！",
+    lblCfgName: "企业 / 公司名称", lblCfgPhone: "调度热线电话", lblCfgWhatsApp: "WhatsApp / Zalo / 微信账号", lblCfgEmail: "客服电子邮箱", lblCfgWebsite: "官方网站 URL", btnSaveConfig: "💾 保存公司配置",
+    btnCloseShop: "✕ 关闭商城并返回", btnCopyData: "📋 复制数据至剪贴板", btnShareReport: "📲 分享报告 (微信/Zalo/邮箱)", btnCloseExport: "✕ 关闭窗口"
+  }
 };
 
 function getValue(id) { return document.getElementById(id).value.trim(); }
@@ -501,6 +594,95 @@ function setValue(id, val) { document.getElementById(id).value = val; }
 
 function formatVND(amount) {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+}
+
+function setLanguage(lang) {
+  currentLang = lang;
+  try { localStorage.setItem(LANG_KEY, lang); } catch(e){}
+
+  document.getElementById("langBtnEn").classList.toggle("active", lang === 'en');
+  document.getElementById("langBtnVi").classList.toggle("active", lang === 'vi');
+  document.getElementById("langBtnZh").classList.toggle("active", lang === 'zh');
+
+  const dict = i18n[lang];
+  document.getElementById("tabScannerBtn").textContent = dict.tabManifest;
+  document.getElementById("tabMarketBtn").textContent = dict.tabMarket;
+  document.getElementById("tabSupportBtn").textContent = dict.tabSupport;
+  document.getElementById("tabAdminBtn").textContent = dict.tabControl;
+
+  document.getElementById("lblKpiTotal").textContent = dict.kpiTotal;
+  document.getElementById("lblKpiPicked").textContent = dict.kpiPicked;
+  document.getElementById("lblKpiTransit").textContent = dict.kpiTransit;
+  document.getElementById("lblKpiDelivered").textContent = dict.kpiDelivered;
+
+  document.getElementById("lblDriver").textContent = dict.lblDriver;
+  document.getElementById("lblVehicle").textContent = dict.lblVehicle;
+  document.getElementById("startScanBtn").textContent = dict.btnOpenCam;
+  document.getElementById("stopScanBtn").textContent = dict.btnStopCam;
+  document.getElementById("btnCaptureFrame").textContent = dict.btnCaptureFrame;
+  document.getElementById("lblTracking").textContent = dict.lblTracking;
+  document.getElementById("lblItemDesc").textContent = dict.lblItemDesc;
+  document.getElementById("lblRecipient").textContent = dict.lblRecipient;
+  document.getElementById("lblStatus").textContent = dict.lblStatus;
+  document.getElementById("optPicked").textContent = dict.optPicked;
+  document.getElementById("optTransit").textContent = dict.optTransit;
+  document.getElementById("optDelivered").textContent = dict.optDelivered;
+  document.getElementById("optFailed").textContent = dict.optFailed;
+  document.getElementById("lblGps").textContent = dict.lblGps;
+  document.getElementById("saveBtn").textContent = dict.btnLogShipment;
+  document.getElementById("searchFilter").placeholder = dict.phSearch;
+
+  document.getElementById("thWaybill").textContent = dict.thWaybill;
+  document.getElementById("thItem").textContent = dict.thItem;
+  document.getElementById("thStatus").textContent = dict.thStatus;
+  document.getElementById("thCustomer").textContent = dict.thCustomer;
+  document.getElementById("thDriverGps").textContent = dict.thDriverGps;
+  document.getElementById("thActions").textContent = dict.thActions;
+
+  document.getElementById("btnExportCsv").textContent = dict.btnExportCsv;
+  document.getElementById("btnPrintSummary").textContent = dict.btnPrintSummary;
+
+  document.getElementById("hdrMarketplace").textContent = dict.hdrMarketplace;
+  document.getElementById("descMarketplace").textContent = dict.descMarketplace;
+  document.getElementById("hdrTaxiDispatch").textContent = dict.hdrTaxiDispatch;
+  document.getElementById("lblTaxiType").textContent = dict.lblTaxiType;
+  document.getElementById("lblPickup").textContent = dict.lblPickup;
+  document.getElementById("lblDropoff").textContent = dict.lblDropoff;
+  document.getElementById("lblDistance").textContent = dict.lblDistance;
+  document.getElementById("lblEstimatedFare").textContent = dict.lblEstimatedFare;
+  document.getElementById("btnConfirmTaxi").textContent = dict.btnConfirmTaxi;
+
+  document.getElementById("hdrSupport").textContent = dict.hdrSupport;
+  document.getElementById("descSupport").textContent = dict.descSupport;
+  document.getElementById("lblSupportWaybill").textContent = dict.lblSupportWaybill;
+  document.getElementById("lblSupportIssue").textContent = dict.lblSupportIssue;
+  document.getElementById("btnCallSupport").textContent = dict.btnCallSupport;
+  document.getElementById("btnWaSupport").textContent = dict.btnWaSupport;
+  document.getElementById("btnSubmitTicket").textContent = dict.btnSubmitTicket;
+
+  document.getElementById("hdrCompanyDetails").textContent = dict.hdrCompanyDetails;
+  document.getElementById("lblCompany").textContent = dict.lblCompany;
+  document.getElementById("lblHotline").textContent = dict.lblHotline;
+  document.getElementById("lblWhatsApp").textContent = dict.lblWhatsApp;
+  document.getElementById("lblEmail").textContent = dict.lblEmail;
+  document.getElementById("lblWebsite").textContent = dict.lblWebsite;
+
+  document.getElementById("hdrAdminControl").textContent = dict.hdrAdminControl;
+  document.getElementById("descAdminControl").textContent = dict.descAdminControl;
+  document.getElementById("lblCfgName").textContent = dict.lblCfgName;
+  document.getElementById("lblCfgPhone").textContent = dict.lblCfgPhone;
+  document.getElementById("lblCfgWhatsApp").textContent = dict.lblCfgWhatsApp;
+  document.getElementById("lblCfgEmail").textContent = dict.lblCfgEmail;
+  document.getElementById("lblCfgWebsite").textContent = dict.lblCfgWebsite;
+  document.getElementById("btnSaveConfig").textContent = dict.btnSaveConfig;
+
+  document.getElementById("btnCloseShop").textContent = dict.btnCloseShop;
+  document.getElementById("btnCopyData").textContent = dict.btnCopyData;
+  document.getElementById("btnShareReport").textContent = dict.btnShareReport;
+  document.getElementById("btnCloseExport").textContent = dict.btnCloseExport;
+
+  loadCompanyConfig();
+  renderTable();
 }
 
 function showMessage(msg, isError = false) {
@@ -513,6 +695,8 @@ function loadCompanyConfig() {
   try {
     const saved = localStorage.getItem(CONFIG_KEY);
     if (saved) companyConfig = Object.assign(companyConfig, JSON.parse(saved));
+    const savedLang = localStorage.getItem(LANG_KEY);
+    if (savedLang) currentLang = savedLang;
   } catch(e) {}
 
   setValue("cfgCompanyName", companyConfig.name);
@@ -521,7 +705,7 @@ function loadCompanyConfig() {
   setValue("cfgEmail", companyConfig.email);
   setValue("cfgWebsite", companyConfig.website);
 
-  document.getElementById("companyTaglineHeader").textContent = companyConfig.name.toUpperCase() + " - GIAO HÀNG & SIÊU ỨNG DỤNG";
+  document.getElementById("companyTaglineHeader").textContent = companyConfig.name.toUpperCase() + " - " + i18n[currentLang].tagline;
   document.getElementById("lblDisplayCompany").textContent = companyConfig.name;
   document.getElementById("lblDisplayPhone").textContent = companyConfig.phone;
   document.getElementById("lblDisplayWhatsApp").textContent = companyConfig.whatsapp;
@@ -530,7 +714,7 @@ function loadCompanyConfig() {
 }
 
 function saveCompanyConfig() {
-  companyConfig.name = getValue("cfgCompanyName") || "LogiScan Việt Nam";
+  companyConfig.name = getValue("cfgCompanyName") || "LogiScan Global Logistics";
   companyConfig.phone = getValue("cfgPhone") || "19001234";
   companyConfig.whatsapp = getValue("cfgWhatsApp") || "0901234567";
   companyConfig.email = getValue("cfgEmail") || "cskh@logiscan.vn";
@@ -538,7 +722,7 @@ function saveCompanyConfig() {
 
   try {
     localStorage.setItem(CONFIG_KEY, JSON.stringify(companyConfig));
-    alert("Đã lưu cấu hình doanh nghiệp thành công!");
+    alert("Company configuration saved successfully!");
   } catch(e) {}
 
   loadCompanyConfig();
@@ -581,7 +765,7 @@ function switchTab(tabName) {
 }
 
 function openEmbedStore(url, name) {
-  document.getElementById("shopModalTitle").textContent = "🛍️ Mua Sắm Trực Tuyến: " + name;
+  document.getElementById("shopModalTitle").textContent = "🛍️ Online Store: " + name;
   document.getElementById("shopIframe").src = url;
   document.getElementById("shopBrowserModal").style.display = "block";
 }
@@ -596,26 +780,26 @@ function updateTaxiCostPreview() {
   const dist = parseFloat(getValue("distanceKm")) || 1;
   let total = 20000;
 
-  if (type.includes("4 Chỗ")) total = dist * 15000;
-  else if (type.includes("7 Chỗ")) total = dist * 18000;
-  else if (type.includes("Xe Máy")) total = 20000 + (dist > 3 ? (dist - 3) * 5000 : 0);
-  else if (type.includes("Xe Tải")) total = 350000 + (dist > 10 ? (dist - 10) * 15000 : 0);
+  if (type.includes("4-Seat") || type.includes("4 Chỗ")) total = dist * 15000;
+  else if (type.includes("7-Seat") || type.includes("7 Chỗ")) total = dist * 18000;
+  else if (type.includes("Motorbike") || type.includes("Xe Máy")) total = 20000 + (dist > 3 ? (dist - 3) * 5000 : 0);
+  else if (type.includes("Freight") || type.includes("Xe Tải")) total = 350000 + (dist > 10 ? (dist - 10) * 15000 : 0);
 
   document.getElementById("taxiPricePreview").textContent = formatVND(total);
 }
 
 function bookTaxiDispatchVN() {
   const type = document.getElementById("taxiTypeSelect").value;
-  const pickup = getValue("pickupAddr") || "Quận 1, TP.HCM";
-  const dropoff = getValue("dropoffAddr") || "Quận 7, TP.HCM";
+  const pickup = getValue("pickupAddr") || "District 1, HCMC";
+  const dropoff = getValue("dropoffAddr") || "District 7, HCMC";
   const price = document.getElementById("taxiPricePreview").textContent;
 
   const code = "VN-" + Math.floor(100000 + Math.random() * 900000);
-  const driver = "Tài xế #104";
-  const vehicle = "XE-59B";
+  const driver = "Driver #104";
+  const vehicle = "VAN-59B";
   const recipient = `${pickup} ➔ ${dropoff}`;
-  const gps = "Tổng Đài Đặt Xe VN";
-  const time = new Date().toLocaleString("vi-VN");
+  const gps = "Online Ride Dispatch";
+  const time = new Date().toLocaleString();
 
   const item = { id: code, item: `${type} (${price})`, status: "IN_TRANSIT", driver, vehicle, recipient, gps, time };
   items.unshift(item);
@@ -623,7 +807,7 @@ function bookTaxiDispatchVN() {
   renderTable();
   updateKPIs();
   playBeep(false);
-  alert(`Đặt dịch vụ thành công!\nMã đơn: ${code}\nDịch vụ: ${type}\nChi phí: ${price}`);
+  alert(`Service booked successfully!\nWaybill: ${code}\nService: ${type}\nCost: ${price}`);
   switchTab('scanner');
 }
 
@@ -633,10 +817,10 @@ function callSupportHotline() {
 }
 
 function openWhatsAppSupport() {
-  const waybill = getValue("supportWaybill") || "Yêu cầu chung";
-  const issue = getValue("supportIssue") || "Cần hỗ trợ sự cố giao hàng / Đổi địa chỉ";
+  const waybill = getValue("supportWaybill") || "General Inquiry";
+  const issue = getValue("supportIssue") || "Need delivery support / address change";
   const cleanNumber = companyConfig.whatsapp.replace(/[^0-9]/g, '');
-  const text = encodeURIComponent(`*Hỗ Trợ Đơn Hàng ${companyConfig.name}*\nMã Đơn: ${waybill}\nNội Dung: ${issue}`);
+  const text = encodeURIComponent(`*${companyConfig.name} Support Ticket*\nWaybill: ${waybill}\nIssue: ${issue}`);
   
   if (cleanNumber) {
     window.open(`https://wa.me/${cleanNumber}?text=${text}`, '_blank');
@@ -648,8 +832,8 @@ function openWhatsAppSupport() {
 function submitSupportTicket() {
   const waybill = getValue("supportWaybill");
   const issue = getValue("supportIssue");
-  if (!issue) { alert("Vui lòng nhập nội dung sự cố."); return; }
-  alert(`Đã gửi yêu cầu hỗ trợ tới ${companyConfig.name} cho đơn hàng ${waybill || 'Chung'}. Bộ phận CSKH sẽ liên hệ lại ngay!`);
+  if (!issue) { alert("Please describe your issue."); return; }
+  alert(`Support ticket submitted to ${companyConfig.name} for Waybill: ${waybill || 'General'}. Our team will contact you shortly!`);
   setValue("supportIssue", "");
   setValue("supportWaybill", "");
 }
@@ -678,24 +862,24 @@ function playBeep(error = false) {
 
 function captureGPS() {
   if (!("geolocation" in navigator)) {
-    setValue("gpsField", "Thiết Bị Cầm Tay (" + new Date().toLocaleTimeString("vi-VN") + ")");
-    showMessage("Đã định vị qua mốc thời gian thiết bị.");
+    setValue("gpsField", "Terminal Tag (" + new Date().toLocaleTimeString() + ")");
+    showMessage("Logged via device timestamp.");
     return;
   }
   
-  showMessage("Đang lấy tín hiệu GPS...");
+  showMessage("Checking GPS signal...");
 
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const coords = pos.coords.latitude.toFixed(5) + ", " + pos.coords.longitude.toFixed(5);
       setValue("gpsField", coords);
-      showMessage("Đã khóa GPS: " + coords);
+      showMessage("GPS Locked: " + coords);
       playBeep(false);
     },
     (err) => {
-      const fallbackNote = "Trạm Giao Hàng (" + new Date().toLocaleTimeString("vi-VN") + ")";
+      const fallbackNote = "Terminal Stamp (" + new Date().toLocaleTimeString() + ")";
       setValue("gpsField", fallbackNote);
-      showMessage("Chưa bật GPS. Đã ghi nhận mốc thời gian trạm.");
+      showMessage("GPS unavailable. Logged station stamp.");
     },
     { enableHighAccuracy: false, timeout: 6000, maximumAge: 120000 }
   );
@@ -714,12 +898,12 @@ function parseTrackingCode(raw) {
 
 function applyBarcode(raw) {
   const parsed = parseTrackingCode(raw);
-  if (!parsed.code) { playBeep(true); showMessage("Mã barcode trống.", true); return; }
+  if (!parsed.code) { playBeep(true); showMessage("Empty barcode.", true); return; }
   setValue("trackingCode", parsed.code);
   if (parsed.recipient) setValue("recipient", parsed.recipient);
   if (parsed.item) setValue("itemDescription", parsed.item);
   playBeep(false);
-  showMessage("Đã quét: " + parsed.code);
+  showMessage("Scanned: " + parsed.code);
   captureGPS();
 }
 
@@ -755,7 +939,7 @@ async function startCameraScanner() {
     }
   } catch (err) {
     stopCameraScanner();
-    showMessage("Lỗi truy cập camera.", true);
+    showMessage("Camera access error.", true);
   }
 }
 
@@ -777,8 +961,8 @@ async function manualCaptureFrame() {
         return;
       }
     }
-    showMessage("Không tìm thấy mã barcode trong hình.", true);
-  } catch (e) { showMessage("Chụp khung hình thất bại.", true); }
+    showMessage("No barcode found in frame.", true);
+  } catch (e) { showMessage("Capture failed.", true); }
 }
 
 function stopCameraScanner() {
@@ -801,8 +985,8 @@ function loadData() {
     items = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     if (!items.length) {
       items = [
-        { id: "VN-892100", item: "Đồ Thể Thao Decathlon", status: "IN_TRANSIT", driver: "Tài xế #104", vehicle: "XE-59B", recipient: "Quận 1 ➔ Quận 7", gps: "Trạm Trung Chuyển", time: new Date().toLocaleString("vi-VN") },
-        { id: "VN-551020", item: "Laptop TGDĐ", status: "DELIVERED", driver: "Tài xế #104", vehicle: "XE-59B", recipient: "Nguyễn Văn A", gps: "TP. Hồ Chí Minh", time: new Date().toLocaleString("vi-VN") }
+        { id: "VN-892100", item: "Decathlon Sports Gear", status: "IN_TRANSIT", driver: "Driver #104", vehicle: "VAN-59B", recipient: "District 1 ➔ District 7", gps: "Central Hub", time: new Date().toLocaleString() },
+        { id: "VN-551020", item: "TGDĐ Laptop", status: "DELIVERED", driver: "Driver #104", vehicle: "VAN-59B", recipient: "John Smith", gps: "Ho Chi Minh City", time: new Date().toLocaleString() }
       ];
     }
   } catch(e) { items = []; }
@@ -810,15 +994,15 @@ function loadData() {
 
 function addShipment() {
   const code = getValue("trackingCode");
-  const itemDesc = getValue("itemDescription") || "Hàng Hóa Tiêu Chuẩn";
-  const driver = getValue("driverName") || "Tài xế #1";
-  const vehicle = getValue("vehicleId") || "XE-59B";
+  const itemDesc = getValue("itemDescription") || "Standard Cargo";
+  const driver = getValue("driverName") || "Driver #1";
+  const vehicle = getValue("vehicleId") || "VAN-59B";
   const status = document.getElementById("statusSelect").value;
   const recipient = getValue("recipient") || "-";
-  const gps = getValue("gpsField") || "Trạm Giao Hàng";
-  const time = new Date().toLocaleString("vi-VN");
+  const gps = getValue("gpsField") || "Terminal Scan";
+  const time = new Date().toLocaleString();
 
-  if (!code) { showMessage("Vui lòng nhập hoặc quét mã vận đơn.", true); return; }
+  if (!code) { showMessage("Please enter or scan a waybill code.", true); return; }
 
   const item = { id: code, item: itemDesc, status, driver, vehicle, recipient, gps, time };
   if (editingId !== null) items = items.filter(i => i.id !== editingId);
@@ -833,11 +1017,11 @@ function addShipment() {
   renderTable();
   updateKPIs();
   playBeep(false);
-  showMessage("Đã lưu đơn: " + code);
+  showMessage("Logged: " + code);
 }
 
 function deleteItem(code) {
-  if (!confirm("Xóa mã vận đơn " + code + "?")) return;
+  if (!confirm("Delete tracking code " + code + "?")) return;
   items = items.filter(i => i.id !== code);
   saveData(); renderTable(); updateKPIs();
 }
@@ -848,6 +1032,7 @@ function renderTable() {
   body.replaceChildren();
 
   const filtered = items.filter(i => [i.id, i.item, i.driver, i.vehicle, i.recipient, i.status].join(" ").toLowerCase().includes(query));
+  const dict = i18n[currentLang];
 
   filtered.forEach(item => {
     const row = document.createElement("tr");
@@ -857,10 +1042,10 @@ function renderTable() {
     if (item.status === "DELIVERED") pillClass = "st-deliv";
     if (item.status === "FAILED") pillClass = "st-fail";
 
-    let stText = "Đang Giao";
-    if (item.status === "PICKED_UP") stText = "Đã Nhận";
-    if (item.status === "DELIVERED") stText = "Thành Công";
-    if (item.status === "FAILED") stText = "Sự Cố";
+    let stText = dict.optTransit;
+    if (item.status === "PICKED_UP") stText = dict.optPicked;
+    if (item.status === "DELIVERED") stText = dict.optDelivered;
+    if (item.status === "FAILED") stText = dict.optFailed;
 
     row.innerHTML = `
       <td><b>${item.id}</b></td>
@@ -868,7 +1053,7 @@ function renderTable() {
       <td><span class="status-pill ${pillClass}">${stText}</span></td>
       <td>${item.recipient}</td>
       <td><small>${item.driver} (${item.vehicle})<br>${item.gps}</small></td>
-      <td class="no-print"><button class="btn-del" style="padding:4px 8px;font-size:10px" onclick="deleteItem('${item.id}')">Xóa</button></td>
+      <td class="no-print"><button class="btn-del" style="padding:4px 8px;font-size:10px" onclick="deleteItem('${item.id}')">Del</button></td>
     `;
     body.appendChild(row);
   });
@@ -882,7 +1067,7 @@ function updateKPIs() {
 }
 
 function getCSVString() {
-  const headings = ["Ma Van Don", "Ten San Pham", "Trang Thai", "Tai Xe", "Xe", "Khach Hang", "GPS", "Thoi Gian"];
+  const headings = ["Tracking ID", "Item Description", "Status", "Driver", "Vehicle", "Recipient", "GPS", "Timestamp"];
   let csvRows = [headings.join(",")];
   items.forEach(i => {
     csvRows.push([`"${i.id}"`, `"${i.item}"`, `"${i.status}"`, `"${i.driver}"`, `"${i.vehicle}"`, `"${i.recipient}"`, `"${i.gps}"`, `"${i.time}"`].join(","));
@@ -891,30 +1076,31 @@ function getCSVString() {
 }
 
 function getSummaryString() {
-  let text = `=== BÁO CÁO VẬN ĐƠN ${companyConfig.name.toUpperCase()} ===\n`;
-  text += "Thời gian xuất: " + new Date().toLocaleString("vi-VN") + "\n";
-  text += "Tổng đơn hàng: " + items.length + "\n";
-  text += "Hotline CSKH: " + companyConfig.phone + "\n";
+  let text = `=== ${companyConfig.name.toUpperCase()} MANIFEST REPORT ===\n`;
+  text += "Generated: " + new Date().toLocaleString() + "\n";
+  text += "Total Shipments: " + items.length + "\n";
+  text += "Support Hotline: " + companyConfig.phone + "\n";
   text += "----------------------------------------\n\n";
   items.forEach((i, idx) => {
-    text += `#${idx+1} | Mã: ${i.id} | Sản phẩm: ${i.item}\n`;
-    text += `Trạng thái: ${i.status} | Khách hàng: ${i.recipient}\n`;
-    text += `Tài xế: ${i.driver} (${i.vehicle}) | Vị trí: ${i.gps}\n`;
-    text += `Thời gian: ${i.time}\n`;
+    text += `#${idx+1} | ID: ${i.id} | Item: ${i.item}\n`;
+    text += `Status: ${i.status} | Customer: ${i.recipient}\n`;
+    text += `Driver: ${i.driver} (${i.vehicle}) | Loc: ${i.gps}\n`;
+    text += `Time: ${i.time}\n`;
     text += "----------------------------------------\n";
   });
   return text;
 }
 
 function openExportModal(type) {
-  if (!items.length) { alert("Chưa có dữ liệu để xuất."); return; }
+  if (!items.length) { alert("No records to export."); return; }
+  const dict = i18n[currentLang];
   if (type === 'summary') {
-    document.getElementById("modalTitle").textContent = "📄 Báo Cáo Tổng Hợp Vận Đơn";
-    document.getElementById("modalSub").textContent = "Sẵn sàng để chia sẻ qua Zalo / Email / SMS:";
+    document.getElementById("modalTitle").textContent = "📄 " + dict.btnPrintSummary;
+    document.getElementById("modalSub").textContent = "Ready to copy or share via WhatsApp/Zalo/Email:";
     document.getElementById("csvPreview").value = getSummaryString();
   } else {
-    document.getElementById("modalTitle").textContent = "📊 Xuất Dữ Liệu CSV / Bảng Tính";
-    document.getElementById("modalSub").textContent = "Định dạng cho Excel & Phần mềm Kế toán:";
+    document.getElementById("modalTitle").textContent = "📊 " + dict.btnExportCsv;
+    document.getElementById("modalSub").textContent = "Formats ready for Logistics ERPs & Spreadsheets:";
     document.getElementById("csvPreview").value = getCSVString();
   }
   document.getElementById("exportModal").style.display = "block";
@@ -924,13 +1110,13 @@ async function copyCSVToClipboard() {
   const text = document.getElementById("csvPreview").value;
   try {
     await navigator.clipboard.writeText(text);
-    alert("Đã sao chép báo cáo vào bộ nhớ tạm!");
+    alert("Report copied to clipboard successfully!");
     document.getElementById("exportModal").style.display = "none";
   } catch(e) {
     const ta = document.getElementById("csvPreview");
     ta.select();
     document.execCommand("copy");
-    alert("Đã sao chép báo cáo vào bộ nhớ tạm!");
+    alert("Report copied to clipboard!");
     document.getElementById("exportModal").style.display = "none";
   }
 }
@@ -939,7 +1125,7 @@ async function shareReportText() {
   const text = document.getElementById("csvPreview").value;
   if (navigator.share) {
     try {
-      await navigator.share({ title: `Báo Cáo ${companyConfig.name}`, text: text });
+      await navigator.share({ title: `${companyConfig.name} Report`, text: text });
       document.getElementById("exportModal").style.display = "none";
       return;
     } catch(e){}
@@ -947,7 +1133,12 @@ async function shareReportText() {
   copyCSVToClipboard();
 }
 
-loadCompanyConfig();
+try {
+  const savedLang = localStorage.getItem(LANG_KEY);
+  if (savedLang) currentLang = savedLang;
+} catch(e){}
+
+setLanguage(currentLang);
 loadData();
 renderTable();
 updateKPIs();
