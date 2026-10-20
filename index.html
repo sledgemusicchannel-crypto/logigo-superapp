@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0b1320">
-<title>LogiScan Pro Super-App - Enterprise Logistics & On-Demand Marketplace</title>
+<title>LogiScan Pro Vietnam - Siêu Ứng Dụng Giao Hàng & Thương Mại Điện Tử</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://unpkg.com/@zxing/library@0.19.1"></script>
 
@@ -38,7 +38,7 @@ header {
 }
 header h1 {
   margin: 0;
-  font-size: 22px;
+  font-size: 20px;
   color: var(--text-main);
   display: flex;
   align-items: center;
@@ -59,8 +59,8 @@ header p {
 }
 .tab-btn {
   flex: 1;
-  padding: 8px 4px;
-  font-size: 11px;
+  padding: 8px 2px;
+  font-size: 10px;
   font-weight: bold;
   background: var(--bg-card);
   color: var(--text-muted);
@@ -88,8 +88,8 @@ header p {
   padding: 8px;
   text-align: center;
 }
-.kpi-card .val { font-size: 18px; font-weight: bold; margin-bottom: 2px; }
-.kpi-card .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+.kpi-card .val { font-size: 16px; font-weight: bold; margin-bottom: 2px; }
+.kpi-card .lbl { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
 
 .form-box {
   background: var(--bg-card);
@@ -116,7 +116,7 @@ input, select, textarea {
 button {
   width: 100%;
   padding: 12px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: bold;
   border: 0;
   border-radius: 6px;
@@ -173,15 +173,15 @@ th { background: #1a2d48; color: var(--text-main); }
   padding: 10px;
   text-align: center;
 }
-.shop-card h4 { margin: 0 0 4px; font-size: 13px; color: var(--text-main); }
+.shop-card h4 { margin: 0 0 4px; font-size: 12px; color: var(--text-main); }
 .shop-card p { margin: 0 0 8px; font-size: 11px; color: var(--accent-green); font-weight: bold; }
 
-#exportModal {
+#exportModal, #shopBrowserModal {
   display: none;
   background: rgba(0,0,0,0.95);
   position: fixed;
   inset: 0;
-  padding: 20px 15px;
+  padding: 15px 10px;
   overflow-y: auto;
   z-index: 1000;
   text-align: center;
@@ -201,103 +201,103 @@ textarea.report-box {
 <body>
 
 <header class="no-print">
-  <h1>⚡ LogiScan Pro</h1>
-  <p id="companyTaglineHeader">ENTERPRISE LOGISTICS & ON-DEMAND SUPER-APP</p>
+  <h1>⚡ LogiScan Pro VN</h1>
+  <p id="companyTaglineHeader">GIAO HÀNG & THƯƠNG MẠI ĐIỆN TỬ VIỆT NAM</p>
 </header>
 
 <div class="nav-tabs no-print">
-  <button class="tab-btn active" id="tabScannerBtn" onclick="switchTab('scanner')">📦 Manifest</button>
-  <button class="tab-btn" id="tabMarketBtn" onclick="switchTab('market')">🛒 E-Shop</button>
-  <button class="tab-btn" id="tabSupportBtn" onclick="switchTab('support')">🎧 Support</button>
-  <button class="tab-btn" id="tabAdminBtn" onclick="switchTab('admin')">⚙️ Control</button>
+  <button class="tab-btn active" id="tabScannerBtn" onclick="switchTab('scanner')">📦 Đơn Hàng</button>
+  <button class="tab-btn" id="tabMarketBtn" onclick="switchTab('market')">🛒 Mua Sắm & Đặt Xe</button>
+  <button class="tab-btn" id="tabSupportBtn" onclick="switchTab('support')">🎧 Hỗ Trợ</button>
+  <button class="tab-btn" id="tabAdminBtn" onclick="switchTab('admin')">⚙️ Cấu Hình</button>
 </div>
 
 <!-- SECTION 1: MANIFEST & SCANNER -->
 <div id="sectionScanner">
   <div class="kpi-grid no-print">
-    <div class="kpi-card"><div class="val" id="kpiTotal">0</div><div class="lbl">TOTAL</div></div>
-    <div class="kpi-card"><div class="val" style="color:var(--accent-blue)" id="kpiPicked">0</div><div class="lbl">PICKED UP</div></div>
-    <div class="kpi-card"><div class="val" style="color:var(--accent-orange)" id="kpiTransit">0</div><div class="lbl">IN TRANSIT</div></div>
-    <div class="kpi-card"><div class="val" style="color:var(--accent-green)" id="kpiDelivered">0</div><div class="lbl">DELIVERED</div></div>
+    <div class="kpi-card"><div class="val" id="kpiTotal">0</div><div class="lbl">TỔNG ĐƠN</div></div>
+    <div class="kpi-card"><div class="val" style="color:var(--accent-blue)" id="kpiPicked">0</div><div class="lbl">ĐÃ NHẬN</div></div>
+    <div class="kpi-card"><div class="val" style="color:var(--accent-orange)" id="kpiTransit">0</div><div class="lbl">ĐANG GIAO</div></div>
+    <div class="kpi-card"><div class="val" style="color:var(--accent-green)" id="kpiDelivered">0</div><div class="lbl">THÀNH CÔNG</div></div>
   </div>
 
-  <div id="alertBox" class="alert no-print">Ready for scanning. Hardware Laser Supported.</div>
+  <div id="alertBox" class="alert no-print">Sẵn sàng quét mã. Hỗ trợ máy quét Laser cầm tay.</div>
 
   <div class="form-box no-print">
     <div class="row">
       <div class="col form-group">
-        <label for="driverName">Driver / Officer</label>
-        <input id="driverName" value="Driver #104" maxlength="60">
+        <label for="driverName">Tài Xế / Nhân Viên</label>
+        <input id="driverName" value="Tài xế #104" maxlength="60">
       </div>
       <div class="col form-group">
-        <label for="vehicleId">Vehicle / Route ID</label>
-        <input id="vehicleId" value="VAN-08" maxlength="60">
+        <label for="vehicleId">Mã Xe / Tuyến</label>
+        <input id="vehicleId" value="XE-59B" maxlength="60">
       </div>
     </div>
 
-    <button class="btn-scan" id="startScanBtn" onclick="startCameraScanner()">📷 OPEN CAMERA SCANNER</button>
-    <button class="btn-del" id="stopScanBtn" onclick="stopCameraScanner()" style="display:none">✕ STOP CAMERA</button>
+    <button class="btn-scan" id="startScanBtn" onclick="startCameraScanner()">📷 MỞ CAMERA QUÉT MÃ</button>
+    <button class="btn-del" id="stopScanBtn" onclick="stopCameraScanner()" style="display:none">✕ TẮT CAMERA</button>
 
     <div id="cameraPanel" style="display:none;margin-top:8px;background:#050c18;padding:8px;border-radius:8px">
       <video id="cameraVideo" playsinline muted autoplay style="width:100%;max-height:260px;object-fit:contain;background:#000;border-radius:6px"></video>
-      <button class="btn-add" style="margin-top:8px" onclick="manualCaptureFrame()">📸 CAPTURE FRAME</button>
+      <button class="btn-add" style="margin-top:8px" onclick="manualCaptureFrame()">📸 CHỤP KHUNG HÌNH</button>
     </div>
 
     <div class="row" style="margin-top:10px">
       <div class="col form-group">
-        <label for="trackingCode">Waybill / Tracking Barcode</label>
-        <input id="trackingCode" placeholder="Scan tracking barcode..." autocomplete="off">
+        <label for="trackingCode">Mã Vận Đơn / Barcode</label>
+        <input id="trackingCode" placeholder="Quét hoặc nhập mã vận đơn..." autocomplete="off">
       </div>
     </div>
 
     <div class="row">
       <div class="col form-group">
-        <label for="itemDescription">Package Item / Product Type</label>
-        <input id="itemDescription" placeholder="e.g. Electronics / Documents / Cargo">
+        <label for="itemDescription">Tên Sản Phẩm / Hàng Hóa</label>
+        <input id="itemDescription" placeholder="Ví dụ: Điện thoại, Quần áo, Đồ ăn">
       </div>
       <div class="col form-group">
-        <label for="recipient">Customer / Recipient Name</label>
-        <input id="recipient" placeholder="Customer name or hub">
+        <label for="recipient">Người Nhận / Địa Chỉ</label>
+        <input id="recipient" placeholder="Tên khách hàng hoặc kho">
       </div>
     </div>
 
     <div class="row">
       <div class="col form-group">
-        <label for="statusSelect">Delivery Status</label>
+        <label for="statusSelect">Trạng Thái Giao Hàng</label>
         <select id="statusSelect">
-          <option value="PICKED_UP">Picked Up</option>
-          <option value="IN_TRANSIT" selected>In Transit</option>
-          <option value="DELIVERED">Delivered</option>
-          <option value="FAILED">Delivery Exception</option>
+          <option value="PICKED_UP">Đã Nhận Hàng</option>
+          <option value="IN_TRANSIT" selected>Đang Giao Hàng</option>
+          <option value="DELIVERED">Giao Thành Công</option>
+          <option value="FAILED">Giao Thất Bại / Sự Cố</option>
         </select>
       </div>
     </div>
 
     <div class="form-group">
-      <label for="gpsField">GPS Location / Terminal Tag</label>
+      <label for="gpsField">Tọa Độ GPS / Vị Trí Giao</label>
       <div class="row" style="margin-bottom:0">
-        <input id="gpsField" placeholder="Auto-captured or tap to type location...">
+        <input id="gpsField" placeholder="Tự động lấy GPS hoặc nhập tay...">
         <button style="width:110px;background:#37474f;color:white" onclick="captureGPS()">📍 GPS</button>
       </div>
     </div>
 
-    <button class="btn-add" id="saveBtn" onclick="addShipment()">➕ LOG SHIPMENT TO MANIFEST</button>
+    <button class="btn-add" id="saveBtn" onclick="addShipment()">➕ LƯU ĐƠN VÀO DANH SÁCH</button>
   </div>
 
   <div class="no-print" style="margin-bottom:10px">
-    <input id="searchFilter" placeholder="🔍 Search tracking number, product, driver, or customer..." oninput="renderTable()" style="background:var(--bg-card)">
+    <input id="searchFilter" placeholder="🔍 Tìm theo mã đơn, sản phẩm, tài xế, khách hàng..." oninput="renderTable()" style="background:var(--bg-card)">
   </div>
 
   <div class="table-wrap">
     <table>
       <thead>
         <tr>
-          <th>Tracking ID</th>
-          <th>Item / Product</th>
-          <th>Status</th>
-          <th>Customer / Recipient</th>
-          <th>Driver & GPS</th>
-          <th class="no-print">Actions</th>
+          <th>Mã Vận Đơn</th>
+          <th>Sản Phẩm</th>
+          <th>Trạng Thái</th>
+          <th>Khách Hàng</th>
+          <th>Tài Xế & GPS</th>
+          <th class="no-print">Thao Tác</th>
         </tr>
       </thead>
       <tbody id="manifestBody"></tbody>
@@ -305,179 +305,203 @@ textarea.report-box {
   </div>
 
   <div class="row no-print" style="margin-top:12px">
-    <div class="col"><button class="btn-excel" onclick="openExportModal('csv')">📊 Export Hub (CSV)</button></div>
-    <div class="col"><button class="btn-share" onclick="openExportModal('summary')">📄 Printable Summary</button></div>
+    <div class="col"><button class="btn-excel" onclick="openExportModal('csv')">📊 Xuất File CSV</button></div>
+    <div class="col"><button class="btn-share" onclick="openExportModal('summary')">📄 Báo Cáo Tổng Hợp</button></div>
   </div>
 </div>
 
-<!-- SECTION 2: E-COMMERCE & ON-DEMAND SERVICES -->
+<!-- SECTION 2: VIETNAM E-COMMERCE & TAXI BOOKING -->
 <div id="sectionMarket" style="display:none">
   <div class="form-box">
-    <h3 style="color:var(--accent-orange);margin-top:0">🛒 E-Commerce Shop & Instant Booking</h3>
-    <p style="font-size:12px;color:var(--text-muted)">Purchase items online or book on-demand courier, food delivery, and taxi rides with automatic manifest dispatch:</p>
+    <h3 style="color:var(--accent-orange);margin-top:0">🛍️ Sàn Thương Mại Điện Tử Việt Nam</h3>
+    <p style="font-size:12px;color:var(--text-muted)">Truy cập trực tiếp cửa hàng online chính hãng tại Việt Nam để chọn mua hàng hóa:</p>
     
     <div class="shop-grid">
       <div class="shop-card">
-        <h4>📦 Express Parcel Dispatch</h4>
-        <p>$15.00 / Waybill</p>
-        <button class="btn-shop" onclick="bookOnDemandService('Parcel Dispatch', 'Instant Courier Cargo')">Book Dispatch</button>
+        <h4>Shopee Việt Nam</h4>
+        <p>Sàn TMĐT Số 1</p>
+        <button class="btn-shop" onclick="openEmbedStore('https://shopee.vn', 'Shopee VN')">Truy Cập Store</button>
       </div>
       <div class="shop-card">
-        <h4>🍔 Gourmet Food Delivery</h4>
-        <p>$24.50 / Meal Box</p>
-        <button class="btn-shop" onclick="bookOnDemandService('Food Delivery', 'Hot Meal & Beverage')">Order Meal</button>
+        <h4>Lazada Việt Nam</h4>
+        <p> Hàng Chính Hãng</p>
+        <button class="btn-shop" onclick="openEmbedStore('https://www.lazada.vn', 'Lazada VN')">Truy Cập Store</button>
       </div>
       <div class="shop-card">
-        <h4>🚕 City Taxi Ride</h4>
-        <p>$12.00 / Trip</p>
-        <button class="btn-shop" onclick="bookOnDemandService('Taxi Ride', 'Passenger Transit')">Book Ride</button>
+        <h4>Decathlon Việt Nam</h4>
+        <p>Đồ Thể Thao</p>
+        <button class="btn-shop" onclick="openEmbedStore('https://www.decathlon.vn', 'Decathlon VN')">Truy Cập Store</button>
       </div>
       <div class="shop-card">
-        <h4>💻 MacBook Pro M3</h4>
-        <p>$1,899.00</p>
-        <button class="btn-shop" onclick="bookOnDemandService('E-Shop Purchase', 'MacBook Pro M3')">Buy & Ship</button>
+        <h4>Muji Việt Nam</h4>
+        <p>Gia Dụng & Thời Trang</p>
+        <button class="btn-shop" onclick="openEmbedStore('https://www.muji.com/vn/', 'Muji VN')">Truy Cập Store</button>
+      </div>
+      <div class="shop-card">
+        <h4>Thế Giới Di Động</h4>
+        <p>Điện Thoại & Laptop</p>
+        <button class="btn-shop" onclick="openEmbedStore('https://www.thegioididong.com', 'TGDĐ')">Truy Cập Store</button>
+      </div>
+      <div class="shop-card">
+        <h4>Nguyễn Kim</h4>
+        <p>Điện Máy & Tủ Lạnh</p>
+        <button class="btn-shop" onclick="openEmbedStore('https://www.nguyenkim.com', 'Nguyễn Kim')">Truy Cập Store</button>
       </div>
     </div>
   </div>
 
   <div class="form-box">
-    <h4 style="color:var(--accent-blue);margin-top:0">📝 Custom Service Booking</h4>
+    <h3 style="color:var(--accent-green);margin-top:0">🚕 Đặt Xe Taxi & Giao Hàng Nhanh (VNĐ)</h3>
+    
     <div class="form-group">
-      <label for="customServiceType">Service / Product Category</label>
-      <select id="customServiceType">
-        <option value="E-Commerce Goods">E-Commerce Goods</option>
-        <option value="Food & Groceries">Food & Groceries</option>
-        <option value="Taxi Passenger Ride">Taxi Passenger Ride</option>
-        <option value="Freight & Cargo">Freight & Cargo</option>
+      <label for="taxiTypeSelect">Loại Xe / Dịch Vụ Vận Chuyển</label>
+      <select id="taxiTypeSelect" onchange="updateTaxiCostPreview()">
+        <option value="Taxi 4 Chỗ (Tiêu Chuẩn)">Taxi 4 Chỗ (Tiêu Chuẩn) - 15.000 ₫/km</option>
+        <option value="Taxi 7 Chỗ (Gia Đình)">Taxi 7 Chỗ (Rộng Rãi) - 18.000 ₫/km</option>
+        <option value="Xe Máy Giao Hàng Siêu Tốc">Xe Máy Giao Hàng Siêu Tốc - 20.000 ₫/chuyến</option>
+        <option value="Xe Tải Giao Hàng 1 Tấn">Xe Tải Chở Hàng 1 Tấn - 350.000 ₫/chuyến</option>
       </select>
     </div>
-    <div class="form-group">
-      <label for="customItemName">Item / Description</label>
-      <input id="customItemName" placeholder="e.g. Organic Groceries / Office Furniture">
+
+    <div class="row">
+      <div class="col form-group">
+        <label for="pickupAddr">Điểm Đón / Nhận Hàng</label>
+        <input id="pickupAddr" placeholder="VD: Quận 1, TP.HCM">
+      </div>
+      <div class="col form-group">
+        <label for="dropoffAddr">Điểm Đến / Giao Hàng</label>
+        <input id="dropoffAddr" placeholder="VD: Quận 7, TP.HCM">
+      </div>
     </div>
+
     <div class="form-group">
-      <label for="customCustomer">Customer Name & Dropoff Address</label>
-      <input id="customCustomer" placeholder="Jane Doe - 45 Financial Ave">
+      <label for="distanceKm">Khoảng Cách Ước Tính (Km)</label>
+      <input id="distanceKm" type="number" value="5" oninput="updateTaxiCostPreview()">
     </div>
-    <button class="btn-add" onclick="submitCustomBooking()">🚀 PLACE ORDER & DISPATCH TO MANIFEST</button>
+
+    <div style="background:var(--bg-main);padding:10px;border-radius:6px;margin-bottom:10px;text-align:center">
+      <span style="font-size:12px;color:var(--text-muted)">Tổng Cước Phí Dự Kiến: </span>
+      <b id="taxiPricePreview" style="font-size:16px;color:var(--accent-green)">75.000 ₫</b>
+    </div>
+
+    <button class="btn-add" onclick="bookTaxiDispatchVN()">🚀 XÁC NHẬN ĐẶT XE & TẠO ĐƠN GIAO</button>
   </div>
 </div>
 
 <!-- SECTION 3: CUSTOMER SERVICE & DISPUTE CENTER -->
 <div id="sectionSupport" style="display:none">
   <div class="form-box">
-    <h3 style="color:var(--accent-blue);margin-top:0">🎧 Live Dispatch & Support Center</h3>
-    <p style="font-size:12px;color:var(--text-muted)">Need help with a package dispute, emergency, or address change? Connect instantly with our operations team:</p>
+    <h3 style="color:var(--accent-blue);margin-top:0">🎧 Trung Tâm Hỗ Trợ & Khiếu Nại Đơn Hàng</h3>
+    <p style="font-size:12px;color:var(--text-muted)">Cần hỗ trợ sự cố, đổi địa chỉ giao hàng hoặc phản hồi dịch vụ? Liên hệ ngay:</p>
     
     <div style="margin: 15px 0;">
-      <label for="supportWaybill">Reference Waybill / Tracking ID (Optional)</label>
-      <input id="supportWaybill" placeholder="e.g. WAYBILL-8921" style="margin-bottom:10px">
+      <label for="supportWaybill">Mã Vận Đơn / Đơn Hàng (Không bắt buộc)</label>
+      <input id="supportWaybill" placeholder="VD: WAYBILL-8921" style="margin-bottom:10px">
       
-      <label for="supportIssue">Describe Issue / Dispute / Address Change</label>
-      <textarea id="supportIssue" placeholder="Type delivery dispute, emergency note, or new address..." style="height:90px;margin-bottom:10px"></textarea>
+      <label for="supportIssue">Nội Dung Sự Cố / Yêu Cầu Đổi Địa Chỉ</label>
+      <textarea id="supportIssue" placeholder="Nhập chi tiết sự cố hoặc địa chỉ giao hàng mới..." style="height:90px;margin-bottom:10px"></textarea>
     </div>
 
     <div class="row" style="margin-bottom:10px">
       <div class="col">
-        <button class="btn-call" onclick="callSupportHotline()">📞 CALL DISPATCH HOTLINE</button>
+        <button class="btn-call" onclick="callSupportHotline()">📞 GỌI HOTLINE TỔNG ĐÀI</button>
       </div>
       <div class="col">
-        <button class="btn-wa" onclick="openWhatsAppSupport()">💬 CHAT VIA WHATSAPP</button>
+        <button class="btn-wa" onclick="openWhatsAppSupport()">💬 CHAT QUA WHATSAPP</button>
       </div>
     </div>
 
-    <button class="btn-share" onclick="submitSupportTicket()">📩 SUBMIT DISPUTE TICKET TO CLOUD</button>
+    <button class="btn-share" onclick="submitSupportTicket()">📩 GỬI YÊU CẦU HỖ TRỢ</button>
   </div>
 
   <div class="form-box">
-    <h4 style="color:var(--accent-green);margin-top:0">Official Contact Details</h4>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>Company:</b> <span id="lblDisplayCompany">LogiScan Global Logistics</span></p>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>Support Phone:</b> <span id="lblDisplayPhone">+1 800 555 LOGI</span></p>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>WhatsApp:</b> <span id="lblDisplayWhatsApp">+1 800 555 LOGI</span></p>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>Email:</b> <span id="lblDisplayEmail">support@logiscan.com</span></p>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>Website:</b> <span id="lblDisplayWebsite">www.logiscan.com</span></p>
+    <h4 style="color:var(--accent-green);margin-top:0">Thông Tin Liên Hệ Doanh Nghiệp</h4>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>Doanh Nghiệp:</b> <span id="lblDisplayCompany">LogiScan Việt Nam</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>Hotline:</b> <span id="lblDisplayPhone">1900 1234</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>WhatsApp / Zalo:</b> <span id="lblDisplayWhatsApp">0901234567</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>Email:</b> <span id="lblDisplayEmail">cskh@logiscan.vn</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b>Website:</b> <span id="lblDisplayWebsite">www.logiscan.vn</span></p>
   </div>
 </div>
 
 <!-- SECTION 4: COMPANY CONTROL PANEL -->
 <div id="sectionAdmin" style="display:none">
   <div class="form-box">
-    <h3 style="color:var(--accent-green);margin-top:0">⚙️ Company Self-Service Control Panel</h3>
-    <p style="font-size:12px;color:var(--text-muted)">Configure your business contact details. Changing these details instantly updates all support routing and app branding across the entire software!</p>
+    <h3 style="color:var(--accent-green);margin-top:0">⚙️ Cấu Hình Doanh Nghiệp (Tự Quản Lý)</h3>
+    <p style="font-size:12px;color:var(--text-muted)">Nhập số điện thoại, Zalo/WhatsApp và thông tin công ty của bạn. Thông tin sẽ tự động áp dụng toàn bộ ứng dụng!</p>
 
     <div class="form-group">
-      <label for="cfgCompanyName">Business / Company Name</label>
-      <input id="cfgCompanyName" placeholder="e.g. Apex Express Logistics">
+      <label for="cfgCompanyName">Tên Công Ty / Cửa Hàng</label>
+      <input id="cfgCompanyName" placeholder="VD: Giao Hàng Tốc Hành VN">
     </div>
 
     <div class="row">
       <div class="col form-group">
-        <label for="cfgPhone">Dispatch Phone Number (for calls)</label>
-        <input id="cfgPhone" placeholder="e.g. +1234567890">
+        <label for="cfgPhone">Số Hotline Gọi Điện</label>
+        <input id="cfgPhone" placeholder="VD: 1900 1234 hoặc 0901234567">
       </div>
       <div class="col form-group">
-        <label for="cfgWhatsApp">WhatsApp Number (with country code)</label>
-        <input id="cfgWhatsApp" placeholder="e.g. 1234567890">
+        <label for="cfgWhatsApp">Số Zalo / WhatsApp</label>
+        <input id="cfgWhatsApp" placeholder="VD: 0901234567">
       </div>
     </div>
 
     <div class="form-group">
-      <label for="cfgEmail">Support Email Address</label>
-      <input id="cfgEmail" placeholder="e.g. support@yourcompany.com">
+      <label for="cfgEmail">Email Hỗ Trợ Khách Hàng</label>
+      <input id="cfgEmail" placeholder="VD: cskh@domain.vn">
     </div>
 
     <div class="form-group">
-      <label for="cfgWebsite">Website URL</label>
-      <input id="cfgWebsite" placeholder="e.g. https://yourcompany.com">
+      <label for="cfgWebsite">Địa Chỉ Website</label>
+      <input id="cfgWebsite" placeholder="VD: https://domain.vn">
     </div>
 
-    <div class="row">
-      <div class="col form-group">
-        <label for="cfgFacebook">Facebook Page URL</label>
-        <input id="cfgFacebook" placeholder="https://facebook.com/yourpage">
-      </div>
-      <div class="col form-group">
-        <label for="cfgInstagram">Instagram Handle / URL</label>
-        <input id="cfgInstagram" placeholder="https://instagram.com/yourpage">
-      </div>
-    </div>
-
-    <button class="btn-add" onclick="saveCompanyConfig()">💾 SAVE COMPANY CONFIGURATION</button>
+    <button class="btn-add" onclick="saveCompanyConfig()">💾 LƯU CẤU HÌNH DOANH NGHIỆP</button>
   </div>
 </div>
 
+<!-- EMBEDDED E-COMMERCE MODAL -->
+<div id="shopBrowserModal">
+  <h3 id="shopModalTitle" style="color:var(--accent-orange);margin-top:0">Cửa Hàng Online</h3>
+  <iframe id="shopIframe" style="width:100%;height:65vh;border:1px solid var(--border-color);border-radius:8px;background:#fff;margin-bottom:10px"></iframe>
+  <button class="btn-del" onclick="closeEmbedStore()">✕ Đóng Cửa Hàng & Quay Lại</button>
+</div>
+
+<!-- EXPORT MODAL -->
 <div id="exportModal" class="no-print">
-  <h3 id="modalTitle" style="color:var(--accent-green);margin-top:0">LogiScan Export & Manifest Hub</h3>
-  <p id="modalSub" style="font-size:12px;color:var(--text-muted)">Formats ready for Logistics ERPs & Spreadsheets:</p>
+  <h3 id="modalTitle" style="color:var(--accent-green);margin-top:0">Xuất Báo Cáo Vận Đơn</h3>
+  <p id="modalSub" style="font-size:12px;color:var(--text-muted)">Định dạng hỗ trợ phần mềm Kế toán & Excel:</p>
   
   <textarea id="csvPreview" class="report-box" readonly></textarea>
 
-  <button class="btn-add" style="margin-bottom:8px" onclick="copyCSVToClipboard()">📋 COPY DATA TO CLIPBOARD</button>
-  <button class="btn-share" style="margin-bottom:8px" onclick="shareReportText()">📲 SHARE MANIFEST (WhatsApp / Email / App)</button>
-  <button class="btn-del" onclick="document.getElementById('exportModal').style.display='none'">✕ Close Window</button>
+  <button class="btn-add" style="margin-bottom:8px" onclick="copyCSVToClipboard()">📋 SAO CHÉP DỮ LIỆU</button>
+  <button class="btn-share" style="margin-bottom:8px" onclick="shareReportText()">📲 CHIA SẺ QUA ZALO / EMAIL</button>
+  <button class="btn-del" onclick="document.getElementById('exportModal').style.display='none'">✕ Đóng Cửa Sổ</button>
 </div>
 
 <script>
 "use strict";
 
-const STORAGE_KEY = "logiScanPro_manifest_v3";
-const CONFIG_KEY = "logiScanPro_config_v1";
+const STORAGE_KEY = "logiScanPro_manifest_vn_v1";
+const CONFIG_KEY = "logiScanPro_config_vn_v1";
 
 let items = [];
 let editingId = null;
 
 let companyConfig = {
-  name: "LogiScan Global Logistics",
-  phone: "+1800555LOGI",
-  whatsapp: "1800555LOGI",
-  email: "support@logiscan.com",
-  website: "https://logiscan.com",
-  facebook: "https://facebook.com",
-  instagram: "https://instagram.com"
+  name: "LogiScan Việt Nam",
+  phone: "19001234",
+  whatsapp: "0901234567",
+  email: "cskh@logiscan.vn",
+  website: "https://logiscan.vn"
 };
 
 function getValue(id) { return document.getElementById(id).value.trim(); }
 function setValue(id, val) { document.getElementById(id).value = val; }
+
+function formatVND(amount) {
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+}
 
 function showMessage(msg, isError = false) {
   const box = document.getElementById("alertBox");
@@ -496,10 +520,8 @@ function loadCompanyConfig() {
   setValue("cfgWhatsApp", companyConfig.whatsapp);
   setValue("cfgEmail", companyConfig.email);
   setValue("cfgWebsite", companyConfig.website);
-  setValue("cfgFacebook", companyConfig.facebook);
-  setValue("cfgInstagram", companyConfig.instagram);
 
-  document.getElementById("companyTaglineHeader").textContent = companyConfig.name.toUpperCase() + " - LOGISTICS & SUPER-APP";
+  document.getElementById("companyTaglineHeader").textContent = companyConfig.name.toUpperCase() + " - GIAO HÀNG & SIÊU ỨNG DỤNG";
   document.getElementById("lblDisplayCompany").textContent = companyConfig.name;
   document.getElementById("lblDisplayPhone").textContent = companyConfig.phone;
   document.getElementById("lblDisplayWhatsApp").textContent = companyConfig.whatsapp;
@@ -508,17 +530,15 @@ function loadCompanyConfig() {
 }
 
 function saveCompanyConfig() {
-  companyConfig.name = getValue("cfgCompanyName") || "LogiScan Logistics";
-  companyConfig.phone = getValue("cfgPhone") || "+1800555LOGI";
-  companyConfig.whatsapp = getValue("cfgWhatsApp") || "1800555LOGI";
-  companyConfig.email = getValue("cfgEmail") || "support@logiscan.com";
-  companyConfig.website = getValue("cfgWebsite") || "https://logiscan.com";
-  companyConfig.facebook = getValue("cfgFacebook") || "https://facebook.com";
-  companyConfig.instagram = getValue("cfgInstagram") || "https://instagram.com";
+  companyConfig.name = getValue("cfgCompanyName") || "LogiScan Việt Nam";
+  companyConfig.phone = getValue("cfgPhone") || "19001234";
+  companyConfig.whatsapp = getValue("cfgWhatsApp") || "0901234567";
+  companyConfig.email = getValue("cfgEmail") || "cskh@logiscan.vn";
+  companyConfig.website = getValue("cfgWebsite") || "https://logiscan.vn";
 
   try {
     localStorage.setItem(CONFIG_KEY, JSON.stringify(companyConfig));
-    alert("Company configuration saved successfully!");
+    alert("Đã lưu cấu hình doanh nghiệp thành công!");
   } catch(e) {}
 
   loadCompanyConfig();
@@ -560,62 +580,63 @@ function switchTab(tabName) {
   }
 }
 
-function bookOnDemandService(category, itemName) {
-  const code = "ORD-" + Math.floor(10000 + Math.random() * 90000);
-  const driver = "Driver #104";
-  const vehicle = "VAN-08";
-  const recipient = "Retail Customer (" + category + ")";
-  const gps = "Online Checkout Pin";
-  const time = new Date().toLocaleString();
-
-  const item = { id: code, item: itemName, status: "IN_TRANSIT", driver, vehicle, recipient, gps, time };
-  items.unshift(item);
-  saveData();
-  renderTable();
-  updateKPIs();
-  playBeep(false);
-  alert(`Successfully booked ${itemName}! Generated Waybill: ${code}`);
-  switchTab('scanner');
+function openEmbedStore(url, name) {
+  document.getElementById("shopModalTitle").textContent = "🛍️ Mua Sắm Trực Tuyến: " + name;
+  document.getElementById("shopIframe").src = url;
+  document.getElementById("shopBrowserModal").style.display = "block";
 }
 
-function submitCustomBooking() {
-  const category = getValue("customServiceType");
-  const itemName = getValue("customItemName") || "Standard Service";
-  const recipient = getValue("customCustomer") || "General Dispatch";
-  
-  if (!getValue("customCustomer")) {
-    alert("Please enter customer name and delivery address.");
-    return;
-  }
+function closeEmbedStore() {
+  document.getElementById("shopIframe").src = "about:blank";
+  document.getElementById("shopBrowserModal").style.display = "none";
+}
 
-  const code = "BOOK-" + Math.floor(10000 + Math.random() * 90000);
-  const driver = "Driver #104";
-  const vehicle = "VAN-08";
-  const gps = "Marketplace Hub";
-  const time = new Date().toLocaleString();
+function updateTaxiCostPreview() {
+  const type = document.getElementById("taxiTypeSelect").value;
+  const dist = parseFloat(getValue("distanceKm")) || 1;
+  let total = 20000;
 
-  const item = { id: code, item: `${category}: ${itemName}`, status: "PICKED_UP", driver, vehicle, recipient, gps, time };
+  if (type.includes("4 Chỗ")) total = dist * 15000;
+  else if (type.includes("7 Chỗ")) total = dist * 18000;
+  else if (type.includes("Xe Máy")) total = 20000 + (dist > 3 ? (dist - 3) * 5000 : 0);
+  else if (type.includes("Xe Tải")) total = 350000 + (dist > 10 ? (dist - 10) * 15000 : 0);
+
+  document.getElementById("taxiPricePreview").textContent = formatVND(total);
+}
+
+function bookTaxiDispatchVN() {
+  const type = document.getElementById("taxiTypeSelect").value;
+  const pickup = getValue("pickupAddr") || "Quận 1, TP.HCM";
+  const dropoff = getValue("dropoffAddr") || "Quận 7, TP.HCM";
+  const price = document.getElementById("taxiPricePreview").textContent;
+
+  const code = "VN-" + Math.floor(100000 + Math.random() * 900000);
+  const driver = "Tài xế #104";
+  const vehicle = "XE-59B";
+  const recipient = `${pickup} ➔ ${dropoff}`;
+  const gps = "Tổng Đài Đặt Xe VN";
+  const time = new Date().toLocaleString("vi-VN");
+
+  const item = { id: code, item: `${type} (${price})`, status: "IN_TRANSIT", driver, vehicle, recipient, gps, time };
   items.unshift(item);
   saveData();
   renderTable();
   updateKPIs();
   playBeep(false);
-  alert(`Booking confirmed! Waybill ${code} added to manifest.`);
-  setValue("customItemName", "");
-  setValue("customCustomer", "");
+  alert(`Đặt dịch vụ thành công!\nMã đơn: ${code}\nDịch vụ: ${type}\nChi phí: ${price}`);
   switchTab('scanner');
 }
 
 function callSupportHotline() {
   const phone = companyConfig.phone.replace(/[^0-9+]/g, '');
-  window.location.href = "tel:" + (phone || "+1800555LOGI");
+  window.location.href = "tel:" + (phone || "19001234");
 }
 
 function openWhatsAppSupport() {
-  const waybill = getValue("supportWaybill") || "General Inquiry";
-  const issue = getValue("supportIssue") || "Address change / Dispute assistance needed.";
+  const waybill = getValue("supportWaybill") || "Yêu cầu chung";
+  const issue = getValue("supportIssue") || "Cần hỗ trợ sự cố giao hàng / Đổi địa chỉ";
   const cleanNumber = companyConfig.whatsapp.replace(/[^0-9]/g, '');
-  const text = encodeURIComponent(`*${companyConfig.name} Support Ticket*\nWaybill: ${waybill}\nIssue: ${issue}`);
+  const text = encodeURIComponent(`*Hỗ Trợ Đơn Hàng ${companyConfig.name}*\nMã Đơn: ${waybill}\nNội Dung: ${issue}`);
   
   if (cleanNumber) {
     window.open(`https://wa.me/${cleanNumber}?text=${text}`, '_blank');
@@ -627,8 +648,8 @@ function openWhatsAppSupport() {
 function submitSupportTicket() {
   const waybill = getValue("supportWaybill");
   const issue = getValue("supportIssue");
-  if (!issue) { alert("Please describe your issue or dispute."); return; }
-  alert(`Support ticket submitted to ${companyConfig.name} for Waybill: ${waybill || 'General'}. Dispatch will contact you shortly.`);
+  if (!issue) { alert("Vui lòng nhập nội dung sự cố."); return; }
+  alert(`Đã gửi yêu cầu hỗ trợ tới ${companyConfig.name} cho đơn hàng ${waybill || 'Chung'}. Bộ phận CSKH sẽ liên hệ lại ngay!`);
   setValue("supportIssue", "");
   setValue("supportWaybill", "");
 }
@@ -657,24 +678,24 @@ function playBeep(error = false) {
 
 function captureGPS() {
   if (!("geolocation" in navigator)) {
-    setValue("gpsField", "Mobile Terminal (" + new Date().toLocaleTimeString() + ")");
-    showMessage("Location logged via local timestamp.");
+    setValue("gpsField", "Thiết Bị Cầm Tay (" + new Date().toLocaleTimeString("vi-VN") + ")");
+    showMessage("Đã định vị qua mốc thời gian thiết bị.");
     return;
   }
   
-  showMessage("Checking GPS signal...");
+  showMessage("Đang lấy tín hiệu GPS...");
 
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const coords = pos.coords.latitude.toFixed(5) + ", " + pos.coords.longitude.toFixed(5);
       setValue("gpsField", coords);
-      showMessage("GPS Locked: " + coords);
+      showMessage("Đã khóa GPS: " + coords);
       playBeep(false);
     },
     (err) => {
-      const fallbackNote = "Terminal Scan (" + new Date().toLocaleTimeString() + ")";
+      const fallbackNote = "Trạm Giao Hàng (" + new Date().toLocaleTimeString("vi-VN") + ")";
       setValue("gpsField", fallbackNote);
-      showMessage("GPS unavailable. Logged standard terminal stamp.");
+      showMessage("Chưa bật GPS. Đã ghi nhận mốc thời gian trạm.");
     },
     { enableHighAccuracy: false, timeout: 6000, maximumAge: 120000 }
   );
@@ -693,12 +714,12 @@ function parseTrackingCode(raw) {
 
 function applyBarcode(raw) {
   const parsed = parseTrackingCode(raw);
-  if (!parsed.code) { playBeep(true); showMessage("Empty barcode.", true); return; }
+  if (!parsed.code) { playBeep(true); showMessage("Mã barcode trống.", true); return; }
   setValue("trackingCode", parsed.code);
   if (parsed.recipient) setValue("recipient", parsed.recipient);
   if (parsed.item) setValue("itemDescription", parsed.item);
   playBeep(false);
-  showMessage("Scanned: " + parsed.code);
+  showMessage("Đã quét: " + parsed.code);
   captureGPS();
 }
 
@@ -734,7 +755,7 @@ async function startCameraScanner() {
     }
   } catch (err) {
     stopCameraScanner();
-    showMessage("Camera restriction or error.", true);
+    showMessage("Lỗi truy cập camera.", true);
   }
 }
 
@@ -756,8 +777,8 @@ async function manualCaptureFrame() {
         return;
       }
     }
-    showMessage("No barcode found in frame.", true);
-  } catch (e) { showMessage("Capture failed.", true); }
+    showMessage("Không tìm thấy mã barcode trong hình.", true);
+  } catch (e) { showMessage("Chụp khung hình thất bại.", true); }
 }
 
 function stopCameraScanner() {
@@ -780,8 +801,8 @@ function loadData() {
     items = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     if (!items.length) {
       items = [
-        { id: "WAYBILL-8921", item: "Electronics / Laptop", status: "IN_TRANSIT", driver: "Driver #104", vehicle: "VAN-08", recipient: "Central Hub", gps: "Central Depot", time: new Date().toLocaleString() },
-        { id: "PKG-55102", item: "Documents / Contract", status: "DELIVERED", driver: "Driver #104", vehicle: "VAN-08", recipient: "John Smith", gps: "Downtown Station", time: new Date().toLocaleString() }
+        { id: "VN-892100", item: "Đồ Thể Thao Decathlon", status: "IN_TRANSIT", driver: "Tài xế #104", vehicle: "XE-59B", recipient: "Quận 1 ➔ Quận 7", gps: "Trạm Trung Chuyển", time: new Date().toLocaleString("vi-VN") },
+        { id: "VN-551020", item: "Laptop TGDĐ", status: "DELIVERED", driver: "Tài xế #104", vehicle: "XE-59B", recipient: "Nguyễn Văn A", gps: "TP. Hồ Chí Minh", time: new Date().toLocaleString("vi-VN") }
       ];
     }
   } catch(e) { items = []; }
@@ -789,15 +810,15 @@ function loadData() {
 
 function addShipment() {
   const code = getValue("trackingCode");
-  const itemDesc = getValue("itemDescription") || "Standard Cargo";
-  const driver = getValue("driverName") || "Driver #1";
-  const vehicle = getValue("vehicleId") || "VAN-1";
+  const itemDesc = getValue("itemDescription") || "Hàng Hóa Tiêu Chuẩn";
+  const driver = getValue("driverName") || "Tài xế #1";
+  const vehicle = getValue("vehicleId") || "XE-59B";
   const status = document.getElementById("statusSelect").value;
   const recipient = getValue("recipient") || "-";
-  const gps = getValue("gpsField") || "Terminal Scan";
-  const time = new Date().toLocaleString();
+  const gps = getValue("gpsField") || "Trạm Giao Hàng";
+  const time = new Date().toLocaleString("vi-VN");
 
-  if (!code) { showMessage("Enter or scan a tracking ID.", true); return; }
+  if (!code) { showMessage("Vui lòng nhập hoặc quét mã vận đơn.", true); return; }
 
   const item = { id: code, item: itemDesc, status, driver, vehicle, recipient, gps, time };
   if (editingId !== null) items = items.filter(i => i.id !== editingId);
@@ -812,11 +833,11 @@ function addShipment() {
   renderTable();
   updateKPIs();
   playBeep(false);
-  showMessage("Logged: " + code);
+  showMessage("Đã lưu đơn: " + code);
 }
 
 function deleteItem(code) {
-  if (!confirm("Delete tracking code " + code + "?")) return;
+  if (!confirm("Xóa mã vận đơn " + code + "?")) return;
   items = items.filter(i => i.id !== code);
   saveData(); renderTable(); updateKPIs();
 }
@@ -836,13 +857,18 @@ function renderTable() {
     if (item.status === "DELIVERED") pillClass = "st-deliv";
     if (item.status === "FAILED") pillClass = "st-fail";
 
+    let stText = "Đang Giao";
+    if (item.status === "PICKED_UP") stText = "Đã Nhận";
+    if (item.status === "DELIVERED") stText = "Thành Công";
+    if (item.status === "FAILED") stText = "Sự Cố";
+
     row.innerHTML = `
       <td><b>${item.id}</b></td>
       <td>${item.item}</td>
-      <td><span class="status-pill ${pillClass}">${item.status.replace("_"," ")}</span></td>
+      <td><span class="status-pill ${pillClass}">${stText}</span></td>
       <td>${item.recipient}</td>
       <td><small>${item.driver} (${item.vehicle})<br>${item.gps}</small></td>
-      <td class="no-print"><button class="btn-del" style="padding:4px 8px;font-size:10px" onclick="deleteItem('${item.id}')">Del</button></td>
+      <td class="no-print"><button class="btn-del" style="padding:4px 8px;font-size:10px" onclick="deleteItem('${item.id}')">Xóa</button></td>
     `;
     body.appendChild(row);
   });
@@ -856,7 +882,7 @@ function updateKPIs() {
 }
 
 function getCSVString() {
-  const headings = ["Tracking ID", "Item Description", "Status", "Driver", "Vehicle", "Recipient", "GPS", "Timestamp"];
+  const headings = ["Ma Van Don", "Ten San Pham", "Trang Thai", "Tai Xe", "Xe", "Khach Hang", "GPS", "Thoi Gian"];
   let csvRows = [headings.join(",")];
   items.forEach(i => {
     csvRows.push([`"${i.id}"`, `"${i.item}"`, `"${i.status}"`, `"${i.driver}"`, `"${i.vehicle}"`, `"${i.recipient}"`, `"${i.gps}"`, `"${i.time}"`].join(","));
@@ -865,30 +891,30 @@ function getCSVString() {
 }
 
 function getSummaryString() {
-  let text = `=== ${companyConfig.name.toUpperCase()} MANIFEST REPORT ===\n`;
-  text += "Generated: " + new Date().toLocaleString() + "\n";
-  text += "Total Shipments: " + items.length + "\n";
-  text += "Support Hotline: " + companyConfig.phone + "\n";
+  let text = `=== BÁO CÁO VẬN ĐƠN ${companyConfig.name.toUpperCase()} ===\n`;
+  text += "Thời gian xuất: " + new Date().toLocaleString("vi-VN") + "\n";
+  text += "Tổng đơn hàng: " + items.length + "\n";
+  text += "Hotline CSKH: " + companyConfig.phone + "\n";
   text += "----------------------------------------\n\n";
   items.forEach((i, idx) => {
-    text += `#${idx+1} | ID: ${i.id} | Item: ${i.item}\n`;
-    text += `Status: ${i.status} | Customer: ${i.recipient}\n`;
-    text += `Driver: ${i.driver} (${i.vehicle}) | Loc: ${i.gps}\n`;
-    text += `Time: ${i.time}\n`;
+    text += `#${idx+1} | Mã: ${i.id} | Sản phẩm: ${i.item}\n`;
+    text += `Trạng thái: ${i.status} | Khách hàng: ${i.recipient}\n`;
+    text += `Tài xế: ${i.driver} (${i.vehicle}) | Vị trí: ${i.gps}\n`;
+    text += `Thời gian: ${i.time}\n`;
     text += "----------------------------------------\n";
   });
   return text;
 }
 
 function openExportModal(type) {
-  if (!items.length) { alert("No records to export."); return; }
+  if (!items.length) { alert("Chưa có dữ liệu để xuất."); return; }
   if (type === 'summary') {
-    document.getElementById("modalTitle").textContent = "📄 Printable Manifest Summary";
-    document.getElementById("modalSub").textContent = "Ready to copy or share via WhatsApp/Email/Apps:";
+    document.getElementById("modalTitle").textContent = "📄 Báo Cáo Tổng Hợp Vận Đơn";
+    document.getElementById("modalSub").textContent = "Sẵn sàng để chia sẻ qua Zalo / Email / SMS:";
     document.getElementById("csvPreview").value = getSummaryString();
   } else {
-    document.getElementById("modalTitle").textContent = "📊 Export CSV / Spreadsheet Data";
-    document.getElementById("modalSub").textContent = "Formats ready for Logistics ERPs & Spreadsheets:";
+    document.getElementById("modalTitle").textContent = "📊 Xuất Dữ Liệu CSV / Bảng Tính";
+    document.getElementById("modalSub").textContent = "Định dạng cho Excel & Phần mềm Kế toán:";
     document.getElementById("csvPreview").value = getCSVString();
   }
   document.getElementById("exportModal").style.display = "block";
@@ -898,13 +924,13 @@ async function copyCSVToClipboard() {
   const text = document.getElementById("csvPreview").value;
   try {
     await navigator.clipboard.writeText(text);
-    alert("Report copied to clipboard successfully!");
+    alert("Đã sao chép báo cáo vào bộ nhớ tạm!");
     document.getElementById("exportModal").style.display = "none";
   } catch(e) {
     const ta = document.getElementById("csvPreview");
     ta.select();
     document.execCommand("copy");
-    alert("Report copied to clipboard!");
+    alert("Đã sao chép báo cáo vào bộ nhớ tạm!");
     document.getElementById("exportModal").style.display = "none";
   }
 }
@@ -913,7 +939,7 @@ async function shareReportText() {
   const text = document.getElementById("csvPreview").value;
   if (navigator.share) {
     try {
-      await navigator.share({ title: `${companyConfig.name} Manifest Report`, text: text });
+      await navigator.share({ title: `Báo Cáo ${companyConfig.name}`, text: text });
       document.getElementById("exportModal").style.display = "none";
       return;
     } catch(e){}
