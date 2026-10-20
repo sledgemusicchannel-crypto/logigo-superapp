@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0b1320">
 <title>LogiGo SuperApp - All-In-One Delivery, Taxi & E-Commerce Engine</title>
 <link rel="manifest" href="manifest.json">
-<script src="https://unpkg.com/@zxing/library@0.19.1"></script>
+<script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
 
 <style>
 :root {
@@ -135,7 +135,6 @@ input, select, textarea {
   color: var(--text-main);
 }
 
-/* SEARCH DROPDOWN SUGGESTIONS */
 .suggestions-box {
   position: absolute;
   top: 100%;
@@ -275,7 +274,7 @@ textarea.report-box {
     <div class="kpi-card"><div class="val" style="color:var(--accent-green)" id="kpiDelivered">0</div><div class="lbl" id="lblKpiDelivered">DELIVERED</div></div>
   </div>
 
-  <div id="alertBox" class="alert no-print">Ready for scanning. Hardware Laser Supported.</div>
+  <div id="alertBox" class="alert no-print">Ready for scanning. High-Precision Barcode Engine Loaded.</div>
 
   <div class="form-box no-print">
     <div class="row">
@@ -293,8 +292,8 @@ textarea.report-box {
     <button class="btn-del" id="stopScanBtn" onclick="stopCameraScanner()" style="display:none">✕ STOP CAMERA</button>
 
     <div id="cameraPanel" style="display:none;margin-top:8px;background:#050c18;padding:8px;border-radius:8px">
-      <video id="cameraVideo" playsinline muted autoplay style="width:100%;max-height:260px;object-fit:contain;background:#000;border-radius:6px"></video>
-      <button class="btn-add" id="btnCaptureFrame" style="margin-top:8px" onclick="manualCaptureFrame()">📸 CAPTURE FRAME</button>
+      <video id="cameraVideo" playsinline muted autoplay style="width:100%;max-height:280px;object-fit:cover;background:#000;border:2px solid var(--accent-blue);border-radius:6px"></video>
+      <div style="font-size:10px;color:var(--accent-orange);text-align:center;margin-top:4px">Hold barcode steadily inside video frame...</div>
     </div>
 
     <div class="row" style="margin-top:10px">
@@ -366,7 +365,6 @@ textarea.report-box {
 
 <!-- SECTION 2: E-COMMERCE, FOOD & LIVE TAXI RIDES -->
 <div id="sectionMarket" class="app-section" style="display:none">
-  <!-- E-COMMERCE STORES -->
   <div class="form-box">
     <h3 style="color:var(--accent-orange);margin-top:0">🛍️ E-Commerce & Online Stores</h3>
     <div class="shop-grid">
@@ -389,7 +387,6 @@ textarea.report-box {
     </div>
   </div>
 
-  <!-- ONLINE FOOD BOOKING -->
   <div class="form-box">
     <h3 style="color:var(--accent-green);margin-top:0">🍔 Online Food Delivery (ShopeeFood & GrabFood)</h3>
     <div class="row">
@@ -398,7 +395,6 @@ textarea.report-box {
     </div>
   </div>
 
-  <!-- REAL-TIME LIVE TAXI & FARE SEARCH -->
   <div class="form-box">
     <h3 style="color:var(--accent-blue);margin-top:0">🚕 Live Taxi Booking & Fare Check</h3>
     <p style="font-size:12px;color:var(--text-muted)">Going somewhere? Type your pickup & dropoff to search locations and calculate fares in real-time:</p>
@@ -414,21 +410,18 @@ textarea.report-box {
       </select>
     </div>
 
-    <!-- INTERACTIVE PICKUP INPUT WITH SEARCH DROPDOWN -->
     <div class="form-group">
       <label for="livePickup">📍 Pickup Location (Type to search)</label>
       <input id="livePickup" placeholder="Type location (e.g. Ben Thanh, Nguyen Hue...)" oninput="filterLocations(this.value, 'pickupSuggestions')" autocomplete="off">
       <div id="pickupSuggestions" class="suggestions-box"></div>
     </div>
 
-    <!-- INTERACTIVE DROPOFF INPUT WITH SEARCH DROPDOWN -->
     <div class="form-group">
       <label for="liveDropoff">🏁 Destination Address (Type to search)</label>
       <input id="liveDropoff" placeholder="Type destination (e.g. Landmark 81, Airport...)" oninput="filterLocations(this.value, 'dropoffSuggestions')" autocomplete="off">
       <div id="dropoffSuggestions" class="suggestions-box"></div>
     </div>
 
-    <!-- FARE & ROUTE PREVIEW BOX -->
     <div style="background:var(--bg-main);padding:10px;border-radius:6px;margin-bottom:10px;text-align:center;border:1px dashed var(--accent-blue)">
       <span style="font-size:11px;color:var(--text-muted)">Estimated Distance: <b id="lblDistCalc" style="color:var(--text-main)">6.5 km</b></span> | 
       <span style="font-size:11px;color:var(--text-muted)">Est. Time: <b id="lblTimeCalc" style="color:var(--text-main)">18 mins</b></span><br>
@@ -532,13 +525,14 @@ textarea.report-box {
 <script>
 "use strict";
 
-const STORAGE_KEY = "logigo_manifest_v9";
-const CONFIG_KEY = "logigo_config_v9";
-const LANG_KEY = "logigo_lang_v4";
+const STORAGE_KEY = "logigo_manifest_v10";
+const CONFIG_KEY = "logigo_config_v10";
+const LANG_KEY = "logigo_lang_v5";
 
 let items = [];
 let editingId = null;
 let currentLang = "en";
+let codeReader = null;
 
 let companyConfig = {
   name: "LogiGo Express & SuperApp",
@@ -548,7 +542,6 @@ let companyConfig = {
   website: "https://logigo.vn"
 };
 
-// POPULAR CITIES & LANDMARKS DATABASE FOR SEARCH AUTOCOMPLETE
 const locationDatabase = [
   "Ben Thanh Market, District 1, HCMC",
   "Landmark 81, Binh Thanh District, HCMC",
@@ -599,7 +592,6 @@ function calculateLiveFare() {
   const pickup = getValue("livePickup");
   const dropoff = getValue("liveDropoff");
   
-  // Random or calculated distance based on text length to make it dynamic
   let distKm = 5.0;
   if (pickup && dropoff) {
     distKm = Math.min(25, Math.max(2, (pickup.length + dropoff.length) % 18 + 3.2));
@@ -624,7 +616,7 @@ const i18n = {
     tagline: "LOGISTICS, RIDE-HAILING & E-COMMERCE ENGINE",
     tabManifest: "📦 Manifest", tabMarket: "🛒 E-Shop & Rides", tabSupport: "🎧 Support", tabControl: "⚙️ Control",
     kpiTotal: "TOTAL", kpiPicked: "PICKED UP", kpiTransit: "IN TRANSIT", kpiDelivered: "DELIVERED",
-    lblDriver: "Driver / Officer", lblVehicle: "Vehicle / Route ID", btnOpenCam: "📷 OPEN CAMERA SCANNER", btnStopCam: "✕ STOP CAMERA", btnCaptureFrame: "📸 CAPTURE FRAME",
+    lblDriver: "Driver / Officer", lblVehicle: "Vehicle / Route ID", btnOpenCam: "📷 OPEN CAMERA SCANNER", btnStopCam: "✕ STOP CAMERA",
     lblTracking: "Waybill / Tracking Barcode", lblItemDesc: "Package Item / Product Type", lblRecipient: "Customer / Recipient Name",
     lblStatus: "Delivery Status", optPicked: "Picked Up", optTransit: "In Transit", optDelivered: "Delivered", optFailed: "Delivery Exception",
     lblGps: "GPS Location / Terminal Tag", btnLogShipment: "➕ LOG SHIPMENT TO MANIFEST", phSearch: "🔍 Search tracking number, product, driver, or customer...",
@@ -642,7 +634,7 @@ const i18n = {
     tagline: "GIAO HÀNG, ĐẶT XE & SIÊU ỨNG DỤNG THƯƠNG MẠI ĐIỆN TỬ",
     tabManifest: "📦 Đơn Hàng", tabMarket: "🛒 Mua Sắm & Đặt Xe", tabSupport: "🎧 Hỗ Trợ", tabControl: "⚙️ Cấu Hình",
     kpiTotal: "TỔNG ĐƠN", kpiPicked: "ĐÃ NHẬN", kpiTransit: "ĐANG GIAO", kpiDelivered: "THÀNH CÔNG",
-    lblDriver: "Tài Xế / Nhân Viên", lblVehicle: "Mã Xe / Tuyến", btnOpenCam: "📷 MỞ CAMERA QUÉT MÃ", btnStopCam: "✕ TẮT CAMERA", btnCaptureFrame: "📸 CHỤP KHUNG HÌNH",
+    lblDriver: "Tài Xế / Nhân Viên", lblVehicle: "Mã Xe / Tuyến", btnOpenCam: "📷 MỞ CAMERA QUÉT MÃ", btnStopCam: "✕ TẮT CAMERA",
     lblTracking: "Mã Vận Đơn / Barcode", lblItemDesc: "Tên Sản Phẩm / Hàng Hóa", lblRecipient: "Người Nhận / Địa Chỉ",
     lblStatus: "Trạng Thái Giao Hàng", optPicked: "Đã Nhận Hàng", optTransit: "Đang Giao Hàng", optDelivered: "Giao Thành Công", optFailed: "Giao Thất Bại / Sự Cố",
     lblGps: "Tọa Độ GPS / Vị Trí Giao", btnLogShipment: "➕ LƯU ĐƠN VÀO DANH SÁCH", phSearch: "🔍 Tìm theo mã đơn, sản phẩm, tài xế, khách hàng...",
@@ -660,7 +652,7 @@ const i18n = {
     tagline: "物流派送、叫车出行与电商超级应用平台",
     tabManifest: "📦 运单列表", tabMarket: "🛒 商城与出行", tabSupport: "🎧 客服中心", tabControl: "⚙️ 公司设置",
     kpiTotal: "总运单", kpiPicked: "已揽收", kpiTransit: "运输中", kpiDelivered: "已送达",
-    lblDriver: "司机 / 派送员", lblVehicle: "车辆 / 路线 ID", btnOpenCam: "📷 打开摄像头扫码", btnStopCam: "✕ 关闭摄像头", btnCaptureFrame: "📸 捕获图像",
+    lblDriver: "司机 / 派送员", lblVehicle: "车辆 / 路线 ID", btnOpenCam: "📷 打开摄像头扫码", btnStopCam: "✕ 关闭摄像头",
     lblTracking: "运单号 / 条形码", lblItemDesc: "包裹物品 / 产品类型", lblRecipient: "收件人 / 目的地",
     lblStatus: "派送状态", optPicked: "已揽收", optTransit: "派送中", optDelivered: "已送达", optFailed: "派送异常",
     lblGps: "GPS 定位 / 站点标记", btnLogShipment: "➕ 添加运单至列表", phSearch: "🔍 搜索运单号、物品、司机或收件人...",
@@ -738,7 +730,6 @@ function setLanguage(lang) {
   document.getElementById("lblVehicle").textContent = dict.lblVehicle;
   document.getElementById("startScanBtn").textContent = dict.btnOpenCam;
   document.getElementById("stopScanBtn").textContent = dict.btnStopCam;
-  document.getElementById("btnCaptureFrame").textContent = dict.btnCaptureFrame;
   document.getElementById("lblTracking").textContent = dict.lblTracking;
   document.getElementById("lblItemDesc").textContent = dict.lblItemDesc;
   document.getElementById("lblRecipient").textContent = dict.lblRecipient;
@@ -907,23 +898,10 @@ function captureGPS() {
   );
 }
 
-function parseTrackingCode(raw) {
-  const text = String(raw || "").trim();
-  try {
-    const json = JSON.parse(text);
-    if (json.tracking || json.id) {
-      return { code: json.tracking || json.id, recipient: json.recipient || json.to || "", item: json.item || json.product || "" };
-    }
-  } catch (e) {}
-  return { code: text, recipient: "", item: "" };
-}
-
 function applyBarcode(raw) {
-  const parsed = parseTrackingCode(raw);
-  if (!parsed.code) { playBeep(true); alert("Empty barcode."); return; }
-  setValue("trackingCode", parsed.code);
-  if (parsed.recipient) setValue("recipient", parsed.recipient);
-  if (parsed.item) setValue("itemDescription", parsed.item);
+  const text = String(raw || "").trim();
+  if (!text) { playBeep(true); alert("Empty barcode detected."); return; }
+  setValue("trackingCode", text);
   playBeep(false);
   captureGPS();
 }
@@ -935,63 +913,57 @@ document.getElementById("trackingCode").addEventListener("keydown", function(e) 
   }
 });
 
-let zxingReader = null;
-let cameraControls = null;
-let cameraStream = null;
-
+/* OPTIMIZED ZXING ENGINE FOR DIRECT BACK-CAMERA FOCUS */
 async function startCameraScanner() {
   const panel = document.getElementById("cameraPanel");
-  const video = document.getElementById("cameraVideo");
   panel.style.display = "block";
   document.getElementById("startScanBtn").style.display = "none";
   document.getElementById("stopScanBtn").style.display = "block";
+
   try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } } });
-    video.srcObject = cameraStream;
-    await video.play();
-    if (window.ZXing) {
-      zxingReader = new ZXing.BrowserMultiFormatReader();
-      cameraControls = await zxingReader.decodeFromVideoElement(video, (result) => {
-        if (result) {
-          applyBarcode(result.getText ? result.getText() : result.text);
-          stopCameraScanner();
-        }
-      });
+    if (!codeReader) {
+      const hints = new Map();
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+        ZXing.BarcodeFormat.QR_CODE,
+        ZXing.BarcodeFormat.CODE_128,
+        ZXing.BarcodeFormat.CODE_39,
+        ZXing.BarcodeFormat.EAN_13,
+        ZXing.BarcodeFormat.EAN_8,
+        ZXing.BarcodeFormat.UPC_A
+      ]);
+      codeReader = new ZXing.BrowserMultiFormatReader(hints);
     }
+
+    const videoInputDevices = await codeReader.listVideoInputDevices();
+    let selectedDeviceId = undefined;
+
+    // Select environment (rear) camera automatically
+    if (videoInputDevices && videoInputDevices.length > 0) {
+      const backCamera = videoInputDevices.find(device => 
+        /back|rear|environment/i.test(device.label)
+      );
+      selectedDeviceId = backCamera ? backCamera.deviceId : videoInputDevices[0].deviceId;
+    }
+
+    await codeReader.decodeFromVideoDevice(selectedDeviceId, 'cameraVideo', (result, err) => {
+      if (result) {
+        applyBarcode(result.getText ? result.getText() : result.text);
+        stopCameraScanner();
+      }
+    });
   } catch (err) {
+    console.error(err);
     stopCameraScanner();
-    alert("Camera access error or permission denied.");
+    alert("Camera access error. Please check camera permissions in browser/app settings.");
   }
 }
 
-async function manualCaptureFrame() {
-  const video = document.getElementById("cameraVideo");
-  if (!video || video.readyState < 2) return;
-  try {
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 720;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    if (window.ZXing) {
-      const reader = new ZXing.BrowserMultiFormatReader();
-      const res = await reader.decodeFromImageUrl(canvas.toDataURL());
-      if (res) {
-        applyBarcode(res.getText ? res.getText() : res.text);
-        stopCameraScanner();
-        return;
-      }
-    }
-    alert("No barcode found in frame.");
-  } catch (e) { alert("Capture failed."); }
-}
-
 function stopCameraScanner() {
-  try { if (cameraControls && cameraControls.stop) cameraControls.stop(); } catch(e){}
-  cameraControls = null;
-  try { if (zxingReader && zxingReader.reset) zxingReader.reset(); } catch(e){}
-  zxingReader = null;
-  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+  try {
+    if (codeReader) {
+      codeReader.reset();
+    }
+  } catch(e){}
   document.getElementById("cameraPanel").style.display = "none";
   document.getElementById("startScanBtn").style.display = "block";
   document.getElementById("stopScanBtn").style.display = "none";
