@@ -156,6 +156,8 @@ button {
 .btn-call { background: #00c853; color: white; }
 .btn-wa { background: #25d366; color: white; }
 .btn-shop { background: #ff9100; color: #000; }
+.btn-grab { background: #00b14f; color: white; }
+.btn-xanh { background: #003366; color: white; }
 
 .alert {
   text-align: center;
@@ -235,7 +237,7 @@ textarea.report-box {
 
 <div class="nav-tabs no-print">
   <button class="tab-btn active" id="tabScannerBtn" onclick="switchTab('scanner')">📦 Manifest</button>
-  <button class="tab-btn" id="tabMarketBtn" onclick="switchTab('market')">🛒 E-Shop & Taxi</button>
+  <button class="tab-btn" id="tabMarketBtn" onclick="switchTab('market')">🛒 E-Shop & Rides</button>
   <button class="tab-btn" id="tabSupportBtn" onclick="switchTab('support')">🎧 Support</button>
   <button class="tab-btn" id="tabAdminBtn" onclick="switchTab('admin')">⚙️ Control</button>
 </div>
@@ -338,98 +340,74 @@ textarea.report-box {
   </div>
 </div>
 
-<!-- SECTION 2: E-COMMERCE & TAXI BOOKING -->
+<!-- SECTION 2: E-COMMERCE, FOOD & LIVE TAXI RIDES -->
 <div id="sectionMarket" class="app-section" style="display:none">
+  <!-- E-COMMERCE STORES -->
   <div class="form-box">
-    <h3 style="color:var(--accent-orange);margin-top:0" id="hdrMarketplace">🛍️ Direct E-Commerce Store Launch</h3>
-    <p style="font-size:12px;color:var(--text-muted)" id="descMarketplace">Open official online web stores directly to purchase items online:</p>
-    
+    <h3 style="color:var(--accent-orange);margin-top:0">🛍️ E-Commerce & Online Stores</h3>
     <div class="shop-grid">
       <div class="shop-card">
         <h4>Shopee Vietnam</h4>
-        <p>#1 E-Commerce</p>
         <button class="btn-shop" onclick="openDirectStore('https://shopee.vn')">Open Shopee</button>
       </div>
       <div class="shop-card">
         <h4>Lazada Vietnam</h4>
-        <p>Official Mall</p>
         <button class="btn-shop" onclick="openDirectStore('https://www.lazada.vn')">Open Lazada</button>
       </div>
       <div class="shop-card">
-        <h4>Decathlon Vietnam</h4>
-        <p>Sports Equipment</p>
-        <button class="btn-shop" onclick="openDirectStore('https://www.decathlon.vn')">Open Decathlon</button>
-      </div>
-      <div class="shop-card">
-        <h4>Muji Vietnam</h4>
-        <p>Household & Fashion</p>
-        <button class="btn-shop" onclick="openDirectStore('https://www.muji.com/vn/')">Open Muji</button>
-      </div>
-      <div class="shop-card">
         <h4>Thế Giới Di Động</h4>
-        <p>Phones & Laptops</p>
         <button class="btn-shop" onclick="openDirectStore('https://www.thegioididong.com')">Open TGDĐ</button>
       </div>
       <div class="shop-card">
         <h4>Nguyễn Kim</h4>
-        <p>Electronics & Appliances</p>
         <button class="btn-shop" onclick="openDirectStore('https://www.nguyenkim.com')">Open Nguyễn Kim</button>
       </div>
     </div>
   </div>
 
+  <!-- ONLINE FOOD BOOKING -->
   <div class="form-box">
-    <h4 style="color:var(--accent-blue);margin-top:0">📦 Convert E-Commerce Order to LogiGo Waybill</h4>
-    <div class="form-group">
-      <label for="ecomStoreName">Source Store / Platform</label>
-      <input id="ecomStoreName" placeholder="e.g. Shopee / Lazada / Decathlon">
+    <h3 style="color:var(--accent-green);margin-top:0">🍔 Online Food Delivery (ShopeeFood & GrabFood)</h3>
+    <p style="font-size:12px;color:var(--text-muted)">Order meals online and dispatch food orders directly to your delivery manifest:</p>
+    <div class="row">
+      <div class="col"><button class="btn-shop" onclick="openDirectStore('https://shopeefood.vn')">🍕 Order on ShopeeFood</button></div>
+      <div class="col"><button class="btn-grab" onclick="openDirectStore('https://food.grab.com/vn/en/')">🍜 Order on GrabFood</button></div>
     </div>
-    <div class="form-group">
-      <label for="ecomItemDesc">Purchased Product Name / Order Link</label>
-      <input id="ecomItemDesc" placeholder="e.g. Nike Running Shoes / Order #99102">
-    </div>
-    <div class="form-group">
-      <label for="ecomCustomerName">Customer Name & Delivery Address</label>
-      <input id="ecomCustomerName" placeholder="e.g. John Doe - 120 Nguyen Hue, District 1">
-    </div>
-    <button class="btn-add" onclick="createWaybillFromEcom()">🚀 DISPATCH E-COMMERCE ORDER TO MANIFEST</button>
   </div>
 
+  <!-- REAL-TIME LIVE TAXI & RIDE HAILEING (GRAB & XANH SM) -->
   <div class="form-box">
-    <h3 style="color:var(--accent-green);margin-top:0" id="hdrTaxiDispatch">🚕 Taxi Ride & Express Cargo Dispatch (VNĐ)</h3>
+    <h3 style="color:var(--accent-blue);margin-top:0">🚕 Live Taxi Booking (GrabCar, Xanh SM, GrabBike)</h3>
+    <p style="font-size:12px;color:var(--text-muted)">Book real-time rides with driver vehicle specs, license plates, and live pickup maps:</p>
     
     <div class="form-group">
-      <label for="taxiTypeSelect" id="lblTaxiType">Vehicle / Transportation Service</label>
-      <select id="taxiTypeSelect" onchange="updateTaxiCostPreview()">
-        <option value="4-Seat Taxi (Standard)">4-Seat Taxi (Standard) - 15.000 ₫/km</option>
-        <option value="7-Seat Taxi (Family)">7-Seat Taxi (Family) - 18.000 ₫/km</option>
-        <option value="Express Motorbike Delivery">Express Motorbike Delivery - 20.000 ₫/trip</option>
-        <option value="1-Ton Freight Truck">1-Ton Freight Truck - 350.000 ₫/trip</option>
+      <label for="liveRideService">Select Ride Service Provider</label>
+      <select id="liveRideService">
+        <option value="GrabCar 4-Seat (Standard)">GrabCar 4-Seat (Standard)</option>
+        <option value="GrabCar 7-Seat (Family)">GrabCar 7-Seat (Family)</option>
+        <option value="GrabBike (Motorbike)">GrabBike (Motorbike)</option>
+        <option value="Xanh SM Electric Car (VinFast)">Xanh SM Electric Car (VinFast)</option>
+        <option value="Xanh SM Bike (Electric Motorbike)">Xanh SM Bike (Electric Motorbike)</option>
       </select>
     </div>
 
     <div class="row">
       <div class="col form-group">
-        <label for="pickupAddr" id="lblPickup">Pickup Location</label>
-        <input id="pickupAddr" placeholder="e.g. District 1, HCMC">
+        <label for="livePickup">Current Pickup Location</label>
+        <input id="livePickup" placeholder="e.g. Ben Thanh Market, Dist 1">
       </div>
       <div class="col form-group">
-        <label for="dropoffAddr" id="lblDropoff">Dropoff Address</label>
-        <input id="dropoffAddr" placeholder="e.g. District 7, HCMC">
+        <label for="liveDropoff">Destination Address</label>
+        <input id="liveDropoff" placeholder="e.g. Landmark 81, Binh Thanh">
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="distanceKm" id="lblDistance">Estimated Distance (Km)</label>
-      <input id="distanceKm" type="number" value="5" oninput="updateTaxiCostPreview()">
+    <div class="row" style="margin-bottom:10px">
+      <div class="col"><button class="btn-grab" onclick="launchGrabBooking()">🟢 Book via Grab App / Web</button></div>
+      <div class="col"><button class="btn-xanh" onclick="launchXanhBooking()">🔵 Book via Xanh SM App / Web</button></div>
     </div>
 
-    <div style="background:var(--bg-main);padding:10px;border-radius:6px;margin-bottom:10px;text-align:center">
-      <span style="font-size:12px;color:var(--text-muted)" id="lblEstimatedFare">Estimated Price: </span>
-      <b id="taxiPricePreview" style="font-size:16px;color:var(--accent-green)">75.000 ₫</b>
-    </div>
-
-    <button class="btn-add" id="btnConfirmTaxi" onclick="bookTaxiDispatchVN()">🚀 CONFIRM RIDE & DISPATCH WAYBILL</button>
+    <button class="btn-add" onclick="dispatchLiveRideToManifest()">📍 SIMULATE LIVE RIDE & ASSIGN VEHICLE</button>
   </div>
 </div>
 
@@ -520,9 +498,9 @@ textarea.report-box {
 <script>
 "use strict";
 
-const STORAGE_KEY = "logigo_manifest_v7";
-const CONFIG_KEY = "logigo_config_v7";
-const LANG_KEY = "logigo_lang_v2";
+const STORAGE_KEY = "logigo_manifest_v8";
+const CONFIG_KEY = "logigo_config_v8";
+const LANG_KEY = "logigo_lang_v3";
 
 let items = [];
 let editingId = null;
@@ -539,7 +517,7 @@ let companyConfig = {
 const i18n = {
   en: {
     tagline: "LOGISTICS, RIDE-HAILING & E-COMMERCE ENGINE",
-    tabManifest: "📦 Manifest", tabMarket: "🛒 E-Shop & Taxi", tabSupport: "🎧 Support", tabControl: "⚙️ Control",
+    tabManifest: "📦 Manifest", tabMarket: "🛒 E-Shop & Rides", tabSupport: "🎧 Support", tabControl: "⚙️ Control",
     kpiTotal: "TOTAL", kpiPicked: "PICKED UP", kpiTransit: "IN TRANSIT", kpiDelivered: "DELIVERED",
     lblDriver: "Driver / Officer", lblVehicle: "Vehicle / Route ID", btnOpenCam: "📷 OPEN CAMERA SCANNER", btnStopCam: "✕ STOP CAMERA", btnCaptureFrame: "📸 CAPTURE FRAME",
     lblTracking: "Waybill / Tracking Barcode", lblItemDesc: "Package Item / Product Type", lblRecipient: "Customer / Recipient Name",
@@ -547,8 +525,6 @@ const i18n = {
     lblGps: "GPS Location / Terminal Tag", btnLogShipment: "➕ LOG SHIPMENT TO MANIFEST", phSearch: "🔍 Search tracking number, product, driver, or customer...",
     thWaybill: "Tracking ID", thItem: "Item / Product", thStatus: "Status", thCustomer: "Customer / Recipient", thDriverGps: "Driver & GPS", thActions: "Actions",
     btnExportCsv: "📊 Export CSV", btnPrintSummary: "📄 Printable Summary",
-    hdrMarketplace: "🛍️ Direct E-Commerce Store Launch", descMarketplace: "Open official online web stores directly to purchase items online:",
-    hdrTaxiDispatch: "🚕 Taxi Ride & Express Cargo Dispatch (VNĐ)", lblTaxiType: "Vehicle / Transportation Service", lblPickup: "Pickup Location", lblDropoff: "Dropoff Address", lblDistance: "Estimated Distance (Km)", lblEstimatedFare: "Estimated Price: ", btnConfirmTaxi: "🚀 CONFIRM RIDE & DISPATCH WAYBILL",
     hdrSupport: "🎧 Dispatch & Dispute Support Center", descSupport: "Need help with an emergency, dispute, or address change? Connect instantly with our team:",
     lblSupportWaybill: "Reference Waybill / Tracking ID (Optional)", lblSupportIssue: "Describe Issue / Dispute / Address Change",
     btnCallSupport: "📞 CALL DISPATCH HOTLINE", btnWaSupport: "💬 CHAT VIA WHATSAPP / ZALO", btnSubmitTicket: "📩 SUBMIT SUPPORT TICKET",
@@ -567,8 +543,6 @@ const i18n = {
     lblGps: "Tọa Độ GPS / Vị Trí Giao", btnLogShipment: "➕ LƯU ĐƠN VÀO DANH SÁCH", phSearch: "🔍 Tìm theo mã đơn, sản phẩm, tài xế, khách hàng...",
     thWaybill: "Mã Vận Đơn", thItem: "Sản Phẩm", thStatus: "Trạng Thái", thCustomer: "Khách Hàng", thDriverGps: "Tài Xế & GPS", thActions: "Thao Tác",
     btnExportCsv: "📊 Xuất File CSV", btnPrintSummary: "📄 Báo Cáo Tổng Hợp",
-    hdrMarketplace: "🛍️ Mua Sắm Trực Tiếp Trên Cửa Hàng Online", descMarketplace: "Mở trực tiếp ứng dụng / trang web chính hãng để chọn mua hàng hóa:",
-    hdrTaxiDispatch: "🚕 Đặt Xe Taxi & Giao Hàng Nhanh (VNĐ)", lblTaxiType: "Loại Xe / Dịch Vụ Vận Chuyển", lblPickup: "Điểm Đón / Nhận Hàng", lblDropoff: "Điểm Đến / Giao Hàng", lblDistance: "Khoảng Cách Ước Tính (Km)", lblEstimatedFare: "Tổng Cước Phí Dự Kiến: ", btnConfirmTaxi: "🚀 XÁC NHẬN ĐẶT XE & TẠO ĐƠN GIAO",
     hdrSupport: "🎧 Trung Tâm Hỗ Trợ & Khiếu Nại Đơn Hàng", descSupport: "Cần hỗ trợ sự cố, đổi địa chỉ giao hàng hoặc phản hồi dịch vụ? Liên hệ ngay:",
     lblSupportWaybill: "Mã Vận Đơn / Đơn Hàng (Không bắt buộc)", lblSupportIssue: "Nội Dung Sự Cố / Yêu Cầu Đổi Địa Chỉ",
     btnCallSupport: "📞 GỌI HOTLINE TỔNG ĐÀI", btnWaSupport: "💬 CHAT QUA WHATSAPP / ZALO", btnSubmitTicket: "📩 GỬI YÊU CẦU HỖ TRỢ",
@@ -579,7 +553,7 @@ const i18n = {
   },
   zh: {
     tagline: "物流派送、叫车出行与电商超级应用平台",
-    tabManifest: "📦 运单列表", tabMarket: "🛒 商城与打车", tabSupport: "🎧 客服中心", tabControl: "⚙️ 公司设置",
+    tabManifest: "📦 运单列表", tabMarket: "🛒 商城与出行", tabSupport: "🎧 客服中心", tabControl: "⚙️ 公司设置",
     kpiTotal: "总运单", kpiPicked: "已揽收", kpiTransit: "运输中", kpiDelivered: "已送达",
     lblDriver: "司机 / 派送员", lblVehicle: "车辆 / 路线 ID", btnOpenCam: "📷 打开摄像头扫码", btnStopCam: "✕ 关闭摄像头", btnCaptureFrame: "📸 捕获图像",
     lblTracking: "运单号 / 条形码", lblItemDesc: "包裹物品 / 产品类型", lblRecipient: "收件人 / 目的地",
@@ -587,8 +561,6 @@ const i18n = {
     lblGps: "GPS 定位 / 站点标记", btnLogShipment: "➕ 添加运单至列表", phSearch: "🔍 搜索运单号、物品、司机或收件人...",
     thWaybill: "运单号", thItem: "物品", thStatus: "状态", thCustomer: "收件人", thDriverGps: "司机与 GPS", thActions: "操作",
     btnExportCsv: "📊 导出 CSV", btnPrintSummary: "📄 打印汇总报告",
-    hdrMarketplace: "🛍️ 一键直达官方电商平台", descMarketplace: "直接启动官方 App 或网页进行线上采购：",
-    hdrTaxiDispatch: "🚕 出租车叫车与快运派送 (VNĐ)", lblTaxiType: "车辆 / 运输服务类型", lblPickup: "接载 / 取货地点", lblDropoff: "送达 / 目的地", lblDistance: "预计距离 (公里)", lblEstimatedFare: "预计费用: ", btnConfirmTaxi: "🚀 确认叫车并生成运单",
     hdrSupport: "🎧 调度与争议客服中心", descSupport: "需要紧急协助、修改地址或处理争议？请即刻联系我们：",
     lblSupportWaybill: "参考运单号 (选填)", lblSupportIssue: "描述问题 / 争议 / 修改地址",
     btnCallSupport: "📞 拨打调度热线", btnWaSupport: "💬 微信 / WhatsApp / Zalo 客服", btnSubmitTicket: "📩 提交客服工单",
@@ -601,10 +573,6 @@ const i18n = {
 
 function getValue(id) { return document.getElementById(id).value.trim(); }
 function setValue(id, val) { document.getElementById(id).value = val; }
-
-function formatVND(amount) {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
-}
 
 function switchTab(tabName) {
   const sScanner = document.getElementById("sectionScanner");
@@ -688,16 +656,6 @@ function setLanguage(lang) {
   document.getElementById("btnExportCsv").textContent = dict.btnExportCsv;
   document.getElementById("btnPrintSummary").textContent = dict.btnPrintSummary;
 
-  document.getElementById("hdrMarketplace").textContent = dict.hdrMarketplace;
-  document.getElementById("descMarketplace").textContent = dict.descMarketplace;
-  document.getElementById("hdrTaxiDispatch").textContent = dict.hdrTaxiDispatch;
-  document.getElementById("lblTaxiType").textContent = dict.lblTaxiType;
-  document.getElementById("lblPickup").textContent = dict.lblPickup;
-  document.getElementById("lblDropoff").textContent = dict.lblDropoff;
-  document.getElementById("lblDistance").textContent = dict.lblDistance;
-  document.getElementById("lblEstimatedFare").textContent = dict.lblEstimatedFare;
-  document.getElementById("btnConfirmTaxi").textContent = dict.btnConfirmTaxi;
-
   document.getElementById("hdrSupport").textContent = dict.hdrSupport;
   document.getElementById("descSupport").textContent = dict.descSupport;
   document.getElementById("lblSupportWaybill").textContent = dict.lblSupportWaybill;
@@ -734,68 +692,41 @@ function openDirectStore(url) {
   window.open(url, '_blank');
 }
 
-function createWaybillFromEcom() {
-  const store = getValue("ecomStoreName") || "Online Store";
-  const desc = getValue("ecomItemDesc") || "E-Commerce Purchase";
-  const customer = getValue("ecomCustomerName");
-
-  if (!customer) {
-    alert("Please enter customer name and delivery address.");
-    return;
-  }
-
-  const code = "ECOM-" + Math.floor(100000 + Math.random() * 900000);
-  const driver = "Driver #104";
-  const vehicle = "VAN-59B";
-  const gps = "Marketplace Hub";
-  const time = new Date().toLocaleString();
-
-  const item = { id: code, item: `[${store}] ${desc}`, status: "PICKED_UP", driver, vehicle, recipient: customer, gps, time };
-  items.unshift(item);
-  saveData();
-  renderTable();
-  updateKPIs();
-  playBeep(false);
-  alert(`Order tracked successfully! Waybill ${code} dispatched to manifest.`);
-  setValue("ecomStoreName", "");
-  setValue("ecomItemDesc", "");
-  setValue("ecomCustomerName", "");
-  switchTab('scanner');
+function launchGrabBooking() {
+  window.open('https://www.grab.com/vn/en/transport/', '_blank');
 }
 
-function updateTaxiCostPreview() {
-  const type = document.getElementById("taxiTypeSelect").value;
-  const dist = parseFloat(getValue("distanceKm")) || 1;
-  let total = 20000;
-
-  if (type.includes("4-Seat") || type.includes("4 Chỗ")) total = dist * 15000;
-  else if (type.includes("7-Seat") || type.includes("7 Chỗ")) total = dist * 18000;
-  else if (type.includes("Motorbike") || type.includes("Xe Máy")) total = 20000 + (dist > 3 ? (dist - 3) * 5000 : 0);
-  else if (type.includes("Freight") || type.includes("Xe Tải")) total = 350000 + (dist > 10 ? (dist - 10) * 15000 : 0);
-
-  document.getElementById("taxiPricePreview").textContent = formatVND(total);
+function launchXanhBooking() {
+  window.open('https://www.xanhsm.com/', '_blank');
 }
 
-function bookTaxiDispatchVN() {
-  const type = document.getElementById("taxiTypeSelect").value;
-  const pickup = getValue("pickupAddr") || "District 1, HCMC";
-  const dropoff = getValue("dropoffAddr") || "District 7, HCMC";
-  const price = document.getElementById("taxiPricePreview").textContent;
+function dispatchLiveRideToManifest() {
+  const service = getValue("liveRideService");
+  const pickup = getValue("livePickup") || "District 1, HCMC";
+  const dropoff = getValue("liveDropoff") || "District 7, HCMC";
 
-  const code = "VN-" + Math.floor(100000 + Math.random() * 900000);
-  const driver = "Driver #104";
-  const vehicle = "VAN-59B";
+  const driversPool = [
+    { name: "Nguyen Van An", car: "Toyota Vios", plate: "51G-892.10" },
+    { name: "Tran Minh Triet", car: "VinFast VF e34", plate: "51K-334.90" },
+    { name: "Le Hoang Nam", car: "Honda Air Blade", plate: "59-C2 441.82" },
+    { name: "Pham Quoc Huy", car: "VinFast VF 8", plate: "51H-992.45" }
+  ];
+  const assigned = driversPool[Math.floor(Math.random() * driversPool.length)];
+
+  const code = "RIDE-" + Math.floor(100000 + Math.random() * 900000);
+  const driverName = `${assigned.name} (${assigned.car} - ${assigned.plate})`;
+  const vehicleId = service.includes("Xanh") ? "XANH-SM" : "GRAB-FLEET";
   const recipient = `${pickup} ➔ ${dropoff}`;
-  const gps = "Online Ride Dispatch";
+  const gps = "Live Map Pinpoint Active";
   const time = new Date().toLocaleString();
 
-  const item = { id: code, item: `${type} (${price})`, status: "IN_TRANSIT", driver, vehicle, recipient, gps, time };
+  const item = { id: code, item: `[${service}] Live Passenger Ride`, status: "IN_TRANSIT", driver: driverName, vehicle: vehicleId, recipient, gps, time };
   items.unshift(item);
   saveData();
   renderTable();
   updateKPIs();
   playBeep(false);
-  alert(`Service booked successfully!\nWaybill: ${code}\nService: ${type}\nCost: ${price}`);
+  alert(`Ride Booked Successfully!\nDriver: ${assigned.name}\nVehicle: ${assigned.car}\nLicense Plate: ${assigned.plate}\nWaybill: ${code}`);
   switchTab('scanner');
 }
 
@@ -806,7 +737,7 @@ function callSupportHotline() {
 
 function openWhatsAppSupport() {
   const waybill = getValue("supportWaybill") || "General Inquiry";
-  const issue = getValue("supportIssue") || "Need delivery support / address change";
+  const issue = getValue("supportIssue") || "Need support / address change";
   const cleanNumber = companyConfig.whatsapp.replace(/[^0-9]/g, '');
   const text = encodeURIComponent(`*${companyConfig.name} Support Ticket*\nWaybill: ${waybill}\nIssue: ${issue}`);
   
@@ -851,25 +782,25 @@ function playBeep(error = false) {
 function captureGPS() {
   if (!("geolocation" in navigator)) {
     setValue("gpsField", "Terminal Tag (" + new Date().toLocaleTimeString() + ")");
-    showMessage("Logged via device timestamp.");
+    alert("Geolocation is not supported by your browser.");
     return;
   }
   
-  showMessage("Checking GPS signal...");
+  alert("Requesting GPS location access...");
 
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const coords = pos.coords.latitude.toFixed(5) + ", " + pos.coords.longitude.toFixed(5);
       setValue("gpsField", coords);
-      showMessage("GPS Locked: " + coords);
       playBeep(false);
+      alert("GPS Locked successfully: " + coords);
     },
     (err) => {
       const fallbackNote = "Terminal Stamp (" + new Date().toLocaleTimeString() + ")";
       setValue("gpsField", fallbackNote);
-      showMessage("GPS unavailable or blocked. Logged station stamp.");
+      alert("GPS permission denied or unavailable. Logged fallback terminal stamp.");
     },
-    { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
   );
 }
 
@@ -886,12 +817,11 @@ function parseTrackingCode(raw) {
 
 function applyBarcode(raw) {
   const parsed = parseTrackingCode(raw);
-  if (!parsed.code) { playBeep(true); showMessage("Empty barcode.", true); return; }
+  if (!parsed.code) { playBeep(true); alert("Empty barcode."); return; }
   setValue("trackingCode", parsed.code);
   if (parsed.recipient) setValue("recipient", parsed.recipient);
   if (parsed.item) setValue("itemDescription", parsed.item);
   playBeep(false);
-  showMessage("Scanned: " + parsed.code);
   captureGPS();
 }
 
@@ -927,7 +857,7 @@ async function startCameraScanner() {
     }
   } catch (err) {
     stopCameraScanner();
-    showMessage("Camera access error.", true);
+    alert("Camera access error or permission denied.");
   }
 }
 
@@ -949,8 +879,8 @@ async function manualCaptureFrame() {
         return;
       }
     }
-    showMessage("No barcode found in frame.", true);
-  } catch (e) { showMessage("Capture failed.", true); }
+    alert("No barcode found in frame.");
+  } catch (e) { alert("Capture failed."); }
 }
 
 function stopCameraScanner() {
@@ -973,8 +903,8 @@ function loadData() {
     items = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     if (!items.length) {
       items = [
-        { id: "VN-892100", item: "Decathlon Sports Gear", status: "IN_TRANSIT", driver: "Driver #104", vehicle: "VAN-59B", recipient: "District 1 ➔ District 7", gps: "Central Hub", time: new Date().toLocaleString() },
-        { id: "VN-551020", item: "TGDĐ Laptop", status: "DELIVERED", driver: "Driver #104", vehicle: "VAN-59B", recipient: "John Smith", gps: "Ho Chi Minh City", time: new Date().toLocaleString() }
+        { id: "VN-892100", item: "GrabCar 4-Seat Ride", status: "IN_TRANSIT", driver: "Nguyen Van An (Toyota Vios - 51G-892.10)", vehicle: "GRAB-FLEET", recipient: "District 1 ➔ District 7", gps: "10.77653, 106.70098", time: new Date().toLocaleString() },
+        { id: "VN-551020", item: "Xanh SM Electric Car", status: "DELIVERED", driver: "Tran Minh Triet (VinFast VF e34 - 51K-334.90)", vehicle: "XANH-SM", recipient: "Ho Chi Minh City", gps: "10.78288, 106.69821", time: new Date().toLocaleString() }
       ];
     }
   } catch(e) { items = []; }
@@ -990,7 +920,7 @@ function addShipment() {
   const gps = getValue("gpsField") || "Terminal Scan";
   const time = new Date().toLocaleString();
 
-  if (!code) { showMessage("Please enter or scan a waybill code.", true); return; }
+  if (!code) { alert("Please enter or scan a waybill code."); return; }
 
   const item = { id: code, item: itemDesc, status, driver, vehicle, recipient, gps, time };
   if (editingId !== null) items = items.filter(i => i.id !== editingId);
@@ -1005,7 +935,7 @@ function addShipment() {
   renderTable();
   updateKPIs();
   playBeep(false);
-  showMessage("Logged: " + code);
+  alert("Logged successfully: " + code);
 }
 
 function deleteItem(code) {
@@ -1119,6 +1049,43 @@ async function shareReportText() {
     } catch(e){}
   }
   copyCSVToClipboard();
+}
+
+function loadCompanyConfig() {
+  try {
+    const saved = localStorage.getItem(CONFIG_KEY);
+    if (saved) companyConfig = Object.assign(companyConfig, JSON.parse(saved));
+    const savedLang = localStorage.getItem(LANG_KEY);
+    if (savedLang) currentLang = savedLang;
+  } catch(e) {}
+
+  setValue("cfgCompanyName", companyConfig.name);
+  setValue("cfgPhone", companyConfig.phone);
+  setValue("cfgWhatsApp", companyConfig.whatsapp);
+  setValue("cfgEmail", companyConfig.email);
+  setValue("cfgWebsite", companyConfig.website);
+
+  document.getElementById("companyTaglineHeader").textContent = companyConfig.name.toUpperCase() + " - " + i18n[currentLang].tagline;
+  document.getElementById("lblDisplayCompany").textContent = companyConfig.name;
+  document.getElementById("lblDisplayPhone").textContent = companyConfig.phone;
+  document.getElementById("lblDisplayWhatsApp").textContent = companyConfig.whatsapp;
+  document.getElementById("lblDisplayEmail").textContent = companyConfig.email;
+  document.getElementById("lblDisplayWebsite").textContent = companyConfig.website;
+}
+
+function saveCompanyConfig() {
+  companyConfig.name = getValue("cfgCompanyName") || "LogiGo Express & SuperApp";
+  companyConfig.phone = getValue("cfgPhone") || "19001234";
+  companyConfig.whatsapp = getValue("cfgWhatsApp") || "0901234567";
+  companyConfig.email = getValue("cfgEmail") || "cskh@logigo.vn";
+  companyConfig.website = getValue("cfgWebsite") || "https://logigo.vn";
+
+  try {
+    localStorage.setItem(CONFIG_KEY, JSON.stringify(companyConfig));
+    alert("Company configuration saved successfully!");
+  } catch(e) {}
+
+  loadCompanyConfig();
 }
 
 try {
