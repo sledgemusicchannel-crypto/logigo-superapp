@@ -241,7 +241,7 @@ textarea.report-box {
 </div>
 
 <!-- SECTION 1: MANIFEST & SCANNER -->
-<div id="sectionScanner">
+<div id="sectionScanner" class="app-section">
   <div class="kpi-grid no-print">
     <div class="kpi-card"><div class="val" id="kpiTotal">0</div><div class="lbl" id="lblKpiTotal">TOTAL</div></div>
     <div class="kpi-card"><div class="val" style="color:var(--accent-blue)" id="kpiPicked">0</div><div class="lbl" id="lblKpiPicked">PICKED UP</div></div>
@@ -339,7 +339,7 @@ textarea.report-box {
 </div>
 
 <!-- SECTION 2: E-COMMERCE & TAXI BOOKING -->
-<div id="sectionMarket" style="display:none">
+<div id="sectionMarket" class="app-section" style="display:none">
   <div class="form-box">
     <h3 style="color:var(--accent-orange);margin-top:0" id="hdrMarketplace">🛍️ Direct E-Commerce Store Launch</h3>
     <p style="font-size:12px;color:var(--text-muted)" id="descMarketplace">Open official online web stores directly to purchase items online:</p>
@@ -434,7 +434,7 @@ textarea.report-box {
 </div>
 
 <!-- SECTION 3: CUSTOMER SERVICE & DISPUTE CENTER -->
-<div id="sectionSupport" style="display:none">
+<div id="sectionSupport" class="app-section" style="display:none">
   <div class="form-box">
     <h3 style="color:var(--accent-blue);margin-top:0" id="hdrSupport">🎧 Dispatch & Dispute Support Center</h3>
     <p style="font-size:12px;color:var(--text-muted)" id="descSupport">Need help with an emergency, dispute, or address change? Connect instantly with our team:</p>
@@ -470,7 +470,7 @@ textarea.report-box {
 </div>
 
 <!-- SECTION 4: COMPANY CONTROL PANEL -->
-<div id="sectionAdmin" style="display:none">
+<div id="sectionAdmin" class="app-section" style="display:none">
   <div class="form-box">
     <h3 style="color:var(--accent-green);margin-top:0" id="hdrAdminControl">⚙️ Company Self-Service Control Panel</h3>
     <p style="font-size:12px;color:var(--text-muted)" id="descAdminControl">Configure your business contact details. Changing these details instantly updates all support routing across the app!</p>
@@ -520,9 +520,9 @@ textarea.report-box {
 <script>
 "use strict";
 
-const STORAGE_KEY = "logigo_manifest_v6";
-const CONFIG_KEY = "logigo_config_v6";
-const LANG_KEY = "logigo_lang_v1";
+const STORAGE_KEY = "logigo_manifest_v7";
+const CONFIG_KEY = "logigo_config_v7";
+const LANG_KEY = "logigo_lang_v2";
 
 let items = [];
 let editingId = null;
@@ -604,6 +604,42 @@ function setValue(id, val) { document.getElementById(id).value = val; }
 
 function formatVND(amount) {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+}
+
+function switchTab(tabName) {
+  const sScanner = document.getElementById("sectionScanner");
+  const sMarket = document.getElementById("sectionMarket");
+  const sSupport = document.getElementById("sectionSupport");
+  const sAdmin = document.getElementById("sectionAdmin");
+
+  const tScanner = document.getElementById("tabScannerBtn");
+  const tMarket = document.getElementById("tabMarketBtn");
+  const tSupport = document.getElementById("tabSupportBtn");
+  const tAdmin = document.getElementById("tabAdminBtn");
+
+  if (sScanner) sScanner.style.display = "none";
+  if (sMarket) sMarket.style.display = "none";
+  if (sSupport) sSupport.style.display = "none";
+  if (sAdmin) sAdmin.style.display = "none";
+
+  if (tScanner) tScanner.classList.remove("active");
+  if (tMarket) tMarket.classList.remove("active");
+  if (tSupport) tSupport.classList.remove("active");
+  if (tAdmin) tAdmin.classList.remove("active");
+
+  if (tabName === 'scanner') {
+    if (sScanner) sScanner.style.display = "block";
+    if (tScanner) tScanner.classList.add("active");
+  } else if (tabName === 'market') {
+    if (sMarket) sMarket.style.display = "block";
+    if (tMarket) tMarket.classList.add("active");
+  } else if (tabName === 'support') {
+    if (sSupport) sSupport.style.display = "block";
+    if (tSupport) tSupport.classList.add("active");
+  } else if (tabName === 'admin') {
+    if (sAdmin) sAdmin.style.display = "block";
+    if (tAdmin) tAdmin.classList.add("active");
+  }
 }
 
 function setLanguage(lang) {
@@ -831,9 +867,9 @@ function captureGPS() {
     (err) => {
       const fallbackNote = "Terminal Stamp (" + new Date().toLocaleTimeString() + ")";
       setValue("gpsField", fallbackNote);
-      showMessage("GPS unavailable. Logged station stamp.");
+      showMessage("GPS unavailable or blocked. Logged station stamp.");
     },
-    { enableHighAccuracy: false, timeout: 6000, maximumAge: 120000 }
+    { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
   );
 }
 
