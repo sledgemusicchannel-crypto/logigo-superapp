@@ -241,24 +241,6 @@ textarea.report-box {
   font-size: 11px;
   margin-bottom: 10px;
 }
-
-/* Radar & GPS Dispatch Canvas Styles */
-#taxiMapCanvas {
-  width: 100%;
-  height: 180px;
-  background: #050c18;
-  border: 1px solid var(--accent-blue);
-  border-radius: 8px;
-  display: block;
-  margin-bottom: 10px;
-}
-.driver-card {
-  background: var(--bg-input);
-  border: 1px dashed var(--accent-blue);
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 10px;
-}
 </style>
 </head>
 
@@ -291,7 +273,7 @@ textarea.report-box {
     <div class="kpi-card"><div class="val" style="color:var(--accent-green)" id="kpiDelivered">0</div><div class="lbl" id="lblKpiDelivered">DELIVERED</div></div>
   </div>
 
-  <div id="alertBox" class="alert no-print">Ready for scanning. High-Precision Barcode Engine Loaded.</div>
+  <div id="alertBox" class="alert no-print">Ready for scanning. Engine Active.</div>
 
   <div class="form-box no-print">
     <div class="row">
@@ -305,8 +287,8 @@ textarea.report-box {
       </div>
     </div>
 
-    <button class="btn-scan" id="startScanBtn" onclick="startCameraScanner()">📷 OPEN CAMERA SCANNER</button>
-    <button class="btn-del" id="stopScanBtn" onclick="stopCameraScanner()" style="display:none">✕ STOP CAMERA</button>
+    <button class="btn-scan" id="startScanBtn" type="button" onclick="startCameraScanner()">📷 OPEN CAMERA SCANNER</button>
+    <button class="btn-del" id="stopScanBtn" type="button" onclick="stopCameraScanner()" style="display:none">✕ STOP CAMERA</button>
 
     <div id="cameraPanel" style="display:none;margin-top:8px;background:#050c18;padding:8px;border-radius:8px">
       <video id="cameraVideo" playsinline muted autoplay style="width:100%;max-height:280px;object-fit:cover;background:#000;border:2px solid var(--accent-blue);border-radius:6px"></video>
@@ -351,10 +333,1018 @@ textarea.report-box {
       </div>
     </div>
 
-    <button class="btn-add" id="saveBtn" onclick="addShipment()">➕ LOG SHIPMENT TO MANIFEST</button>
+    <button class="btn-add" id="saveBtn" type="button" onclick="addShipment()">➕ LOG SHIPMENT TO MANIFEST</button>
   </div>
 
   <!-- LogiGo Live GPS Widget Card -->
   <div id="logigo-live-gps" class="form-box no-print" style="margin-bottom:12px;">
     <h3 style="margin-top:0;margin-bottom:8px;font-size:14px;color:var(--accent-blue)">📍 LogiGo Live GPS</h3>
-    <p style="margin:4px 0;font-size:11px;">Status: <strong id="lgps-status" style="color:var
+    <p style="margin:4px 0;font-size:11px;">Status: <strong id="lgps-status" style="color:var(--accent-orange)">GPS tracking is stopped.</strong></p>
+    <p style="margin:3px 0;font-size:11px;">Latitude: <span id="lgps-lat" style="font-family:monospace;">--</span></p>
+    <p style="margin:3px 0;font-size:11px;">Longitude: <span id="lgps-lon" style="font-family:monospace;">--</span></p>
+    <p style="margin:3px 0;font-size:11px;">Accuracy: <span id="lgps-accuracy" style="font-family:monospace;">--</span></p>
+    <p style="margin:3px 0 10px 0;font-size:11px;">Last update: <span id="lgps-time" style="font-family:monospace;">--</span></p>
+    <div class="row" style="margin-bottom:0;">
+      <div class="col"><button id="lgps-start" type="button" style="background:#16a34a;color:white;">Start Live GPS</button></div>
+      <div class="col"><button id="lgps-stop" type="button" style="background:#dc2626;color:white;">Stop GPS</button></div>
+    </div>
+  </div>
+
+  <div class="no-print" style="margin-bottom:10px">
+    <input id="searchFilter" placeholder="🔍 Search tracking number, product, driver, or customer..." oninput="renderTable()" style="background:var(--bg-card)">
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th id="thWaybill">Tracking ID</th>
+          <th id="thItem">Item / Product</th>
+          <th id="thStatus">Status</th>
+          <th id="thCustomer">Customer / Recipient</th>
+          <th id="thDriverGps">Driver & GPS</th>
+          <th class="no-print" id="thActions">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="manifestBody"></tbody>
+    </table>
+  </div>
+
+  <div class="row no-print" style="margin-top:12px">
+    <div class="col"><button class="btn-excel" id="btnExportCsv" type="button" onclick="openExportModal('csv')">📊 Export CSV</button></div>
+    <div class="col"><button class="btn-share" id="btnPrintSummary" type="button" onclick="openExportModal('summary')">📄 Printable Summary</button></div>
+  </div>
+</div>
+
+<!-- SECTION 2: E-COMMERCE, FOOD & LIVE TAXI RIDES -->
+<div id="sectionMarket" class="app-section" style="display:none">
+  <div class="form-box">
+    <h3 style="color:var(--accent-orange);margin-top:0">🛍️ E-Commerce & Online Stores</h3>
+    <div class="shop-grid">
+      <div class="shop-card">
+        <h4>Shopee Vietnam</h4>
+        <button class="btn-shop" type="button" onclick="openDirectStore('https://shopee.vn')">Open Shopee</button>
+      </div>
+      <div class="shop-card">
+        <h4>Lazada Vietnam</h4>
+        <button class="btn-shop" type="button" onclick="openDirectStore('https://www.lazada.vn')">Open Lazada</button>
+      </div>
+      <div class="shop-card">
+        <h4>Thế Giới Di Động</h4>
+        <button class="btn-shop" type="button" onclick="openDirectStore('https://www.thegioididong.com')">Open TGDĐ</button>
+      </div>
+      <div class="shop-card">
+        <h4>Nguyễn Kim</h4>
+        <button class="btn-shop" type="button" onclick="openDirectStore('https://www.nguyenkim.com')">Open Nguyễn Kim</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-box">
+    <h3 style="color:var(--accent-green);margin-top:0">🍔 Online Food Delivery</h3>
+    <div class="row">
+      <div class="col"><button class="btn-shop" type="button" onclick="openDirectStore('https://shopeefood.vn')">🍕 Order on ShopeeFood</button></div>
+      <div class="col"><button class="btn-grab" type="button" onclick="openDirectStore('https://food.grab.com/vn/en/')">🍜 Order on GrabFood</button></div>
+    </div>
+  </div>
+
+  <div class="form-box">
+    <h3 style="color:var(--accent-blue);margin-top:0">🚕 Live Taxi Booking & Fare Check</h3>
+    <p style="font-size:12px;color:var(--text-muted)">Type pickup & dropoff to search locations and calculate fares:</p>
+
+    <div class="form-group">
+      <label for="liveRideService">Select Service</label>
+      <select id="liveRideService" onchange="calculateLiveFare()">
+        <option value="GrabCar 4-Seat (15.000₫/km)">GrabCar 4-Seat (Standard)</option>
+        <option value="GrabCar 7-Seat (18.000₫/km)">GrabCar 7-Seat (Family)</option>
+        <option value="GrabBike (12.000₫/km)">GrabBike (Motorbike)</option>
+        <option value="Xanh SM Electric Car (16.000₫/km)">Xanh SM Electric Car (VinFast)</option>
+        <option value="Xanh SM Bike (13.000₫/km)">Xanh SM Bike (Electric Motorbike)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="livePickup">📍 Pickup Location</label>
+      <input id="livePickup" placeholder="Type location (e.g. Ben Thanh...)" oninput="filterLocations(this.value, 'pickupSuggestions')" autocomplete="off">
+      <div id="pickupSuggestions" class="suggestions-box"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="liveDropoff">🏁 Destination Address</label>
+      <input id="liveDropoff" placeholder="Type destination (e.g. Landmark 81...)" oninput="filterLocations(this.value, 'dropoffSuggestions')" autocomplete="off">
+      <div id="dropoffSuggestions" class="suggestions-box"></div>
+    </div>
+
+    <div style="background:var(--bg-main);padding:10px;border-radius:6px;margin-bottom:10px;text-align:center;border:1px dashed var(--accent-blue)">
+      <span style="font-size:11px;color:var(--text-muted)">Estimated Distance: <b id="lblDistCalc" style="color:var(--text-main)">6.5 km</b></span> | 
+      <span style="font-size:11px;color:var(--text-muted)">Est. Time: <b id="lblTimeCalc" style="color:var(--text-main)">18 mins</b></span><br>
+      <span style="font-size:12px;color:var(--accent-orange)">Estimated Fare: </span>
+      <b id="liveFarePreview" style="font-size:16px;color:var(--accent-green)">97.500 ₫</b>
+    </div>
+
+    <div class="row" style="margin-bottom:10px">
+      <div class="col"><button class="btn-grab" type="button" onclick="launchGrabBooking()">🟢 Open Grab App / Web</button></div>
+      <div class="col"><button class="btn-xanh" type="button" onclick="launchXanhBooking()">🔵 Open Xanh SM App</button></div>
+    </div>
+
+    <button class="btn-add" type="button" onclick="dispatchLiveRideToManifest()">🚀 CONFIRM & DISPATCH RIDE TO MANIFEST</button>
+  </div>
+</div>
+
+<!-- SECTION 3: CUSTOMER SERVICE & DISPUTE CENTER -->
+<div id="sectionSupport" class="app-section" style="display:none">
+  <div class="form-box">
+    <h3 style="color:var(--accent-blue);margin-top:0" id="hdrSupport">🎧 Dispatch & Dispute Support Center</h3>
+    <p style="font-size:12px;color:var(--text-muted)" id="descSupport">Need help with an emergency, dispute, or address change? Connect instantly with our team:</p>
+
+    <div style="margin: 15px 0;">
+      <label for="supportWaybill" id="lblSupportWaybill">Reference Waybill / Tracking ID (Optional)</label>
+      <input id="supportWaybill" placeholder="e.g. WAYBILL-8921" style="margin-bottom:10px">
+
+      <label for="supportIssue" id="lblSupportIssue">Describe Issue / Dispute / Address Change</label>
+      <textarea id="supportIssue" placeholder="Type delivery dispute, emergency note, or new address..." style="height:90px;margin-bottom:10px"></textarea>
+    </div>
+
+    <div class="row" style="margin-bottom:10px">
+      <div class="col">
+        <button class="btn-call" id="btnCallSupport" type="button" onclick="callSupportHotline()">📞 CALL DISPATCH HOTLINE</button>
+      </div>
+      <div class="col">
+        <button class="btn-wa" id="btnWaSupport" type="button" onclick="openWhatsAppSupport()">💬 CHAT VIA WHATSAPP / ZALO</button>
+      </div>
+    </div>
+
+    <button class="btn-share" id="btnSubmitTicket" type="button" onclick="submitSupportTicket()">📩 SUBMIT SUPPORT TICKET</button>
+  </div>
+
+  <div class="form-box">
+    <h4 style="color:var(--accent-green);margin-top:0" id="hdrCompanyDetails">Official Contact Details</h4>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblCompany">Company:</b> <span id="lblDisplayCompany">LogiGo Express & SuperApp</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblHotline">Support Phone:</b> <span id="lblDisplayPhone">1900 1234</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblWhatsApp">WhatsApp / Zalo:</b> <span id="lblDisplayWhatsApp">0901234567</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblEmail">Email:</b> <span id="lblDisplayEmail">cskh@logigo.vn</span></p>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblWebsite">Website:</b> <span id="lblDisplayWebsite">www.logigo.vn</span></p>
+  </div>
+</div>
+
+<!-- SECTION 4: COMPANY CONTROL PANEL -->
+<div id="sectionAdmin" class="app-section" style="display:none">
+  <div class="form-box">
+    <h3 style="color:var(--accent-green);margin-top:0" id="hdrAdminControl">⚙️ Company Self-Service Control Panel</h3>
+    <p style="font-size:12px;color:var(--text-muted)" id="descAdminControl">Configure your business contact details in real-time:</p>
+
+    <div class="form-group">
+      <label for="cfgCompanyName" id="lblCfgName">Business / Company Name</label>
+      <input id="cfgCompanyName" placeholder="e.g. LogiGo Express & SuperApp">
+    </div>
+
+    <div class="row">
+      <div class="col form-group">
+        <label for="cfgPhone" id="lblCfgPhone">Dispatch Hotline (Calls)</label>
+        <input id="cfgPhone" placeholder="e.g. 1900 1234">
+      </div>
+      <div class="col form-group">
+        <label for="cfgWhatsApp" id="lblCfgWhatsApp">WhatsApp / Zalo Number</label>
+        <input id="cfgWhatsApp" placeholder="e.g. 0901234567">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="cfgEmail" id="lblCfgEmail">Support Email Address</label>
+      <input id="cfgEmail" placeholder="e.g. cskh@domain.com">
+    </div>
+
+    <div class="form-group">
+      <label for="cfgWebsite" id="lblCfgWebsite">Website URL</label>
+      <input id="cfgWebsite" placeholder="e.g. https://domain.com">
+    </div>
+
+    <button class="btn-add" id="btnSaveConfig" type="button" onclick="saveCompanyConfig()">💾 SAVE COMPANY CONFIGURATION</button>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div id="exportModal" class="no-print">
+  <h3 id="modalTitle" style="color:var(--accent-green);margin-top:0">Manifest Export Hub</h3>
+  <p id="modalSub" style="font-size:12px;color:var(--text-muted)">Formats ready for Logistics ERPs & Spreadsheets:</p>
+
+  <textarea id="csvPreview" class="report-box" readonly></textarea>
+
+  <button class="btn-add" id="btnCopyData" type="button" style="margin-bottom:8px" onclick="copyCSVToClipboard()">📋 COPY DATA TO CLIPBOARD</button>
+  <button class="btn-share" id="btnShareReport" type="button" style="margin-bottom:8px" onclick="shareReportText()">📲 SHARE VIA WHATSAPP / ZALO / EMAIL</button>
+  <button class="btn-del" id="btnCloseExport" type="button" onclick="document.getElementById('exportModal').style.display='none'">✕ Close Window</button>
+</div>
+
+<script>
+"use strict";
+
+const STORAGE_KEY = "logigo_manifest_v11";
+const CONFIG_KEY = "logigo_config_v11";
+const LANG_KEY = "logigo_lang_v6";
+
+let items = [];
+let editingId = null;
+let currentLang = "en";
+let codeReader = null;
+
+let companyConfig = {
+  name: "LogiGo Express & SuperApp",
+  phone: "19001234",
+  whatsapp: "0901234567",
+  email: "cskh@logigo.vn",
+  website: "https://logigo.vn"
+};
+
+const locationDatabase = [
+  "Ben Thanh Market, District 1, HCMC",
+  "Landmark 81, Binh Thanh District, HCMC",
+  "Tan Son Nhat International Airport, Tân Bình, HCMC",
+  "Walking Street Nguyen Hue, District 1, HCMC",
+  "Saigon Centre / Takashimaya, District 1, HCMC",
+  "Independence Palace, District 1, HCMC",
+  "Starlight Bridge, Phu My Hung, District 7, HCMC",
+  "Ho Chi Minh City University of Technology, District 10",
+  "Thao Dien, Thu Duc City, HCMC",
+  "VivoCity Mall, District 7, HCMC"
+];
+
+function getValue(id) { 
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : ""; 
+}
+
+function setValue(id, val) { 
+  const el = document.getElementById(id);
+  if (el) el.value = val; 
+}
+
+function filterLocations(query, boxId) {
+  const box = document.getElementById(boxId);
+  if (!box) return;
+  box.innerHTML = "";
+  if (!query || query.length < 2) {
+    box.style.display = "none";
+    return;
+  }
+
+  const matches = locationDatabase.filter(loc => loc.toLowerCase().includes(query.toLowerCase()));
+  if (matches.length === 0) {
+    box.style.display = "none";
+    return;
+  }
+
+  matches.forEach(match => {
+    const div = document.createElement("div");
+    div.className = "suggestion-item";
+    div.textContent = match;
+    div.onclick = function() {
+      if (boxId === 'pickupSuggestions') {
+        setValue("livePickup", match);
+      } else {
+        setValue("liveDropoff", match);
+      }
+      box.style.display = "none";
+      calculateLiveFare();
+    };
+    box.appendChild(div);
+  });
+  box.style.display = "block";
+}
+
+function calculateLiveFare() {
+  const service = getValue("liveRideService");
+  const pickup = getValue("livePickup");
+  const dropoff = getValue("liveDropoff");
+
+  let distKm = 5.0;
+  if (pickup && dropoff) {
+    distKm = Math.min(25, Math.max(2, (pickup.length + dropoff.length) % 18 + 3.2));
+  }
+
+  let ratePerKm = 15000;
+  if (service.includes("7-Seat")) ratePerKm = 18000;
+  else if (service.includes("Bike")) ratePerKm = 12000;
+  else if (service.includes("Xanh SM Electric")) ratePerKm = 16000;
+  else if (service.includes("Xanh SM Bike")) ratePerKm = 13000;
+
+  let fare = Math.round(distKm * ratePerKm);
+  let estMinutes = Math.round(distKm * 2.5 + 4);
+
+  const lblDist = document.getElementById("lblDistCalc");
+  const lblTime = document.getElementById("lblTimeCalc");
+  const lblFare = document.getElementById("liveFarePreview");
+
+  if (lblDist) lblDist.textContent = distKm.toFixed(1) + " km";
+  if (lblTime) lblTime.textContent = estMinutes + " mins";
+  if (lblFare) lblFare.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fare);
+}
+
+const i18n = {
+  en: {
+    tagline: "LOGISTICS, RIDE-HAILING & E-COMMERCE ENGINE",
+    tabManifest: "📦 Manifest", tabMarket: "🛒 E-Shop & Rides", tabSupport: "🎧 Support", tabControl: "⚙️ Control",
+    kpiTotal: "TOTAL", kpiPicked: "PICKED UP", kpiTransit: "IN TRANSIT", kpiDelivered: "DELIVERED",
+    lblDriver: "Driver / Officer", lblVehicle: "Vehicle / Route ID", btnOpenCam: "📷 OPEN CAMERA SCANNER", btnStopCam: "✕ STOP CAMERA",
+    lblTracking: "Waybill / Tracking Barcode", lblItemDesc: "Package Item / Product Type", lblRecipient: "Customer / Recipient Name",
+    lblStatus: "Delivery Status", optPicked: "Picked Up", optTransit: "In Transit", optDelivered: "Delivered", optFailed: "Delivery Exception",
+    lblGps: "GPS Location / Terminal Tag", btnLogShipment: "➕ LOG SHIPMENT TO MANIFEST", phSearch: "🔍 Search tracking number, product, driver, or customer...",
+    thWaybill: "Tracking ID", thItem: "Item / Product", thStatus: "Status", thCustomer: "Customer / Recipient", thDriverGps: "Driver & GPS", thActions: "Actions",
+    btnExportCsv: "📊 Export CSV", btnPrintSummary: "📄 Printable Summary",
+    hdrSupport: "🎧 Dispatch & Dispute Support Center", descSupport: "Need help with an emergency, dispute, or address change? Connect instantly with our team:",
+    lblSupportWaybill: "Reference Waybill / Tracking ID (Optional)", lblSupportIssue: "Describe Issue / Dispute / Address Change",
+    btnCallSupport: "📞 CALL DISPATCH HOTLINE", btnWaSupport: "💬 CHAT VIA WHATSAPP / ZALO", btnSubmitTicket: "📩 SUBMIT SUPPORT TICKET",
+    hdrCompanyDetails: "Official Contact Details", lblCompany: "Company:", lblHotline: "Support Phone:", lblWhatsApp: "WhatsApp / Zalo:", lblEmail: "Email:", lblWebsite: "Website:",
+    hdrAdminControl: "⚙️ Company Self-Service Control Panel", descAdminControl: "Configure your business contact details. Changing these details instantly updates all support routing across the app!",
+    lblCfgName: "Business / Company Name", lblCfgPhone: "Dispatch Hotline (Calls)", lblCfgWhatsApp: "WhatsApp / Zalo Number", lblCfgEmail: "Support Email Address", lblCfgWebsite: "Website URL", btnSaveConfig: "💾 SAVE COMPANY CONFIGURATION",
+    btnCopyData: "📋 COPY DATA TO CLIPBOARD", btnShareReport: "📲 SHARE VIA WHATSAPP / ZALO / EMAIL", btnCloseExport: "✕ Close Window"
+  },
+  vi: {
+    tagline: "GIAO HÀNG, ĐẶT XE & SIÊU ỨNG DỤNG THƯƠNG MẠI ĐIỆN TỬ",
+    tabManifest: "📦 Đơn Hàng", tabMarket: "🛒 Mua Sắm & Đặt Xe", tabSupport: "🎧 Hỗ Trợ", tabControl: "⚙️ Cấu Hình",
+    kpiTotal: "TỔNG ĐƠN", kpiPicked: "ĐÃ NHẬN", kpiTransit: "ĐANG GIAO", kpiDelivered: "THÀNH CÔNG",
+    lblDriver: "Tài Xế / Nhân Viên", lblVehicle: "Mã Xe / Tuyến", btnOpenCam: "📷 MỞ CAMERA QUÉT MÃ", btnStopCam: "✕ TẮT CAMERA",
+    lblTracking: "Mã Vận Đơn / Barcode", lblItemDesc: "Tên Sản Phẩm / Hàng Hóa", lblRecipient: "Người Nhận / Địa Chỉ",
+    lblStatus: "Trạng Thái Giao Hàng", optPicked: "Đã Nhận Hàng", optTransit: "Đang Giao Hàng", optDelivered: "Giao Thành Công", optFailed: "Giao Thất Bại / Sự Cố",
+    lblGps: "Tọa Độ GPS / Vị Trí Giao", btnLogShipment: "➕ LƯU ĐƠN VÀO DANH SÁCH", phSearch: "🔍 Tìm theo mã đơn, sản phẩm, tài xế, khách hàng...",
+    thWaybill: "Mã Vận Đơn", thItem: "Sản Phẩm", thStatus: "Trạng Thái", thCustomer: "Khách Hàng", thDriverGps: "Tài Xế & GPS", thActions: "Thao Tác",
+    btnExportCsv: "📊 Xuất File CSV", btnPrintSummary: "📄 Báo Cáo Tổng Hợp",
+    hdrSupport: "🎧 Trung Tâm Hỗ Trợ & Khiếu Nại Đơn Hàng", descSupport: "Cần hỗ trợ sự cố, đổi địa chỉ giao hàng hoặc phản hồi dịch vụ? Liên hệ ngay:",
+    lblSupportWaybill: "Mã Vận Đơn / Đơn Hàng (Không bắt buộc)", lblSupportIssue: "Nội Dung Sự Cố / Yêu Cầu Đổi Địa Chỉ",
+    btnCallSupport: "📞 GỌI HOTLINE TỔNG ĐÀI", btnWaSupport: "💬 CHAT QUA WHATSAPP / ZALO", btnSubmitTicket: "📩 GỬI YÊU CẦU HỖ TRỢ",
+    hdrCompanyDetails: "Thông Tin Liên Hệ Doanh Nghiệp", lblCompany: "Doanh Nghiệp:", lblHotline: "Hotline:", lblWhatsApp: "WhatsApp / Zalo:", lblEmail: "Email:", lblWebsite: "Website:",
+    hdrAdminControl: "⚙️ Cấu Hình Doanh Nghiệp (Tự Quản Lý)", descAdminControl: "Nhập số điện thoại, Zalo/WhatsApp và thông tin công ty của bạn. Thông tin sẽ tự động áp dụng toàn bộ ứng dụng!",
+    lblCfgName: "Tên Công Ty / Cửa Hàng", lblCfgPhone: "Số Hotline Gọi Điện", lblCfgWhatsApp: "Số Zalo / WhatsApp", lblCfgEmail: "Email Hỗ Trợ Khách Hàng", lblCfgWebsite: "Địa Chỉ Website", btnSaveConfig: "💾 LƯU CẤU HÌNH DOANH NGHIỆP",
+    btnCopyData: "📋 SAO CHÉP DỮ LIỆU", btnShareReport: "📲 CHIA SẺ QUA ZALO / EMAIL", btnCloseExport: "✕ Đóng Cửa Sổ"
+  },
+  zh: {
+    tagline: "物流派送、叫车出行与电商超级应用平台",
+    tabManifest: "📦 运单列表", tabMarket: "🛒 商城与出行", tabSupport: "🎧 客服中心", tabControl: "⚙️ 公司设置",
+    kpiTotal: "总运单", kpiPicked: "已揽收", kpiTransit: "运输中", kpiDelivered: "已送达",
+    lblDriver: "司机 / 派送员", lblVehicle: "车辆 / 路线 ID", btnOpenCam: "📷 打开摄像头扫码", btnStopCam: "✕ 关闭摄像头",
+    lblTracking: "运单号 / 条形码", lblItemDesc: "包裹物品 / 产品类型", lblRecipient: "收件人 / 目的地",
+    lblStatus: "派送状态", optPicked: "已揽收", optTransit: "派送中", optDelivered: "已送达", optFailed: "派送异常",
+    lblGps: "GPS 定位 / 站点标记", btnLogShipment: "➕ 添加运单至列表", phSearch: "🔍 搜索运单号、物品、司机或收件人...",
+    thWaybill: "运单号", thItem: "物品", thStatus: "状态", thCustomer: "收件人", thDriverGps: "司机与 GPS", thActions: "操作",
+    btnExportCsv: "📊 导出 CSV", btnPrintSummary: "📄 打印汇总报告",
+    hdrSupport: "🎧 调度与争议客服中心", descSupport: "需要紧急协助、修改地址或处理争议？请即刻联系我们：",
+    lblSupportWaybill: "参考运单号 (选填)", lblSupportIssue: "描述问题 / 争议 / 修改地址",
+    btnCallSupport: "📞 拨打调度热线", btnWaSupport: "💬 微信 / WhatsApp / Zalo 客服", btnSubmitTicket: "📩 提交客服工单",
+    hdrCompanyDetails: "官方联系方式", lblCompany: "公司名称:", lblHotline: "客服热线:", lblWhatsApp: "WhatsApp / Zalo / 微信:", lblEmail: "电子邮箱:", lblWebsite: "官方网站:",
+    hdrAdminControl: "⚙️ 公司自主管理控制台", descAdminControl: "配置您的企业联系方式。保存后将即时更新应用内所有客服与路由信息！",
+    lblCfgName: "企业 / 公司名称", lblCfgPhone: "调度热线电话", lblCfgWhatsApp: "WhatsApp / Zalo / 微信账号", lblCfgEmail: "客服电子邮箱", lblCfgWebsite: "官方网站 URL", btnSaveConfig: "💾 保存公司配置",
+    btnCopyData: "📋 复制数据至剪贴板", btnShareReport: "📲 分享报告 (微信/Zalo/邮箱)", btnCloseExport: "✕ 关闭窗口"
+  }
+};
+
+function switchTab(tabName) {
+  const sections = ['sectionScanner', 'sectionMarket', 'sectionSupport', 'sectionAdmin'];
+  const tabs = ['tabScannerBtn', 'tabMarketBtn', 'tabSupportBtn', 'tabAdminBtn'];
+
+  sections.forEach(s => {
+    const el = document.getElementById(s);
+    if (el) el.style.display = "none";
+  });
+
+  tabs.forEach(t => {
+    const el = document.getElementById(t);
+    if (el) el.classList.remove("active");
+  });
+
+  if (tabName === 'scanner') {
+    const s = document.getElementById("sectionScanner");
+    const t = document.getElementById("tabScannerBtn");
+    if (s) s.style.display = "block";
+    if (t) t.classList.add("active");
+  } else if (tabName === 'market') {
+    const s = document.getElementById("sectionMarket");
+    const t = document.getElementById("tabMarketBtn");
+    if (s) s.style.display = "block";
+    if (t) t.classList.add("active");
+  } else if (tabName === 'support') {
+    const s = document.getElementById("sectionSupport");
+    const t = document.getElementById("tabSupportBtn");
+    if (s) s.style.display = "block";
+    if (t) t.classList.add("active");
+  } else if (tabName === 'admin') {
+    const s = document.getElementById("sectionAdmin");
+    const t = document.getElementById("tabAdminBtn");
+    if (s) s.style.display = "block";
+    if (t) t.classList.add("active");
+  }
+}
+
+function setLanguage(lang) {
+  currentLang = lang;
+  try { localStorage.setItem(LANG_KEY, lang); } catch(e){}
+
+  const btnEn = document.getElementById("langBtnEn");
+  const btnVi = document.getElementById("langBtnVi");
+  const btnZh = document.getElementById("langBtnZh");
+
+  if (btnEn) btnEn.classList.toggle("active", lang === 'en');
+  if (btnVi) btnVi.classList.toggle("active", lang === 'vi');
+  if (btnZh) btnZh.classList.toggle("active", lang === 'zh');
+
+  const dict = i18n[lang] || i18n.en;
+
+  const safeSetText = (id, text) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  };
+
+  safeSetText("tabScannerBtn", dict.tabManifest);
+  safeSetText("tabMarketBtn", dict.tabMarket);
+  safeSetText("tabSupportBtn", dict.tabSupport);
+  safeSetText("tabAdminBtn", dict.tabControl);
+
+  safeSetText("lblKpiTotal", dict.kpiTotal);
+  safeSetText("lblKpiPicked", dict.kpiPicked);
+  safeSetText("lblKpiTransit", dict.kpiTransit);
+  safeSetText("lblKpiDelivered", dict.kpiDelivered);
+
+  safeSetText("lblDriver", dict.lblDriver);
+  safeSetText("lblVehicle", dict.lblVehicle);
+  safeSetText("startScanBtn", dict.btnOpenCam);
+  safeSetText("stopScanBtn", dict.btnStopCam);
+  safeSetText("lblTracking", dict.lblTracking);
+  safeSetText("lblItemDesc", dict.lblItemDesc);
+  safeSetText("lblRecipient", dict.lblRecipient);
+  safeSetText("lblStatus", dict.lblStatus);
+  safeSetText("optPicked", dict.optPicked);
+  safeSetText("optTransit", dict.optTransit);
+  safeSetText("optDelivered", dict.optDelivered);
+  safeSetText("optFailed", dict.optFailed);
+  safeSetText("lblGps", dict.lblGps);
+  safeSetText("saveBtn", dict.btnLogShipment);
+
+  const searchEl = document.getElementById("searchFilter");
+  if (searchEl) searchEl.placeholder = dict.phSearch;
+
+  safeSetText("thWaybill", dict.thWaybill);
+  safeSetText("thItem", dict.thItem);
+  safeSetText("thStatus", dict.thStatus);
+  safeSetText("thCustomer", dict.thCustomer);
+  safeSetText("thDriverGps", dict.thDriverGps);
+  safeSetText("thActions", dict.thActions);
+
+  safeSetText("btnExportCsv", dict.btnExportCsv);
+  safeSetText("btnPrintSummary", dict.btnPrintSummary);
+
+  safeSetText("hdrSupport", dict.hdrSupport);
+  safeSetText("descSupport", dict.descSupport);
+  safeSetText("lblSupportWaybill", dict.lblSupportWaybill);
+  safeSetText("lblSupportIssue", dict.lblSupportIssue);
+  safeSetText("btnCallSupport", dict.btnCallSupport);
+  safeSetText("btnWaSupport", dict.btnWaSupport);
+  safeSetText("btnSubmitTicket", dict.btnSubmitTicket);
+
+  safeSetText("hdrCompanyDetails", dict.hdrCompanyDetails);
+  safeSetText("lblCompany", dict.lblCompany);
+  safeSetText("lblHotline", dict.lblHotline);
+  safeSetText("lblWhatsApp", dict.lblWhatsApp);
+  safeSetText("lblEmail", dict.lblEmail);
+  safeSetText("lblWebsite", dict.lblWebsite);
+
+  safeSetText("hdrAdminControl", dict.hdrAdminControl);
+  safeSetText("descAdminControl", dict.descAdminControl);
+  safeSetText("lblCfgName", dict.lblCfgName);
+  safeSetText("lblCfgPhone", dict.lblCfgPhone);
+  safeSetText("lblCfgWhatsApp", dict.lblCfgWhatsApp);
+  safeSetText("lblCfgEmail", dict.lblCfgEmail);
+  safeSetText("lblCfgWebsite", dict.lblCfgWebsite);
+  safeSetText("btnSaveConfig", dict.btnSaveConfig);
+
+  safeSetText("btnCopyData", dict.btnCopyData);
+  safeSetText("btnShareReport", dict.btnShareReport);
+  safeSetText("btnCloseExport", dict.btnCloseExport);
+
+  loadCompanyConfig();
+  renderTable();
+}
+
+function openDirectStore(url) {
+  window.open(url, '_blank');
+}
+
+function launchGrabBooking() {
+  window.open('https://www.grab.com/vn/en/transport/', '_blank');
+}
+
+function launchXanhBooking() {
+  window.open('https://www.xanhsm.com/', '_blank');
+}
+
+function dispatchLiveRideToManifest() {
+  const service = getValue("liveRideService");
+  const pickup = getValue("livePickup") || "Ben Thanh Market, District 1";
+  const dropoff = getValue("liveDropoff") || "Landmark 81, Binh Thanh";
+
+  const driversPool = [
+    { name: "Nguyen Van An", car: "Toyota Vios", plate: "51G-892.10" },
+    { name: "Tran Minh Triet", car: "VinFast VF e34", plate: "51K-334.90" },
+    { name: "Le Hoang Nam", car: "Honda Air Blade", plate: "59-C2 441.82" },
+    { name: "Pham Quoc Huy", car: "VinFast VF 8", plate: "51H-992.45" }
+  ];
+  const assigned = driversPool[Math.floor(Math.random() * driversPool.length)];
+
+  const code = "RIDE-" + Math.floor(100000 + Math.random() * 900000);
+  const driverName = `${assigned.name} (${assigned.car} - ${assigned.plate})`;
+  const vehicleId = service.includes("Xanh") ? "XANH-SM" : "GRAB-FLEET";
+  const recipient = `${pickup} ➔ ${dropoff}`;
+  const gps = "Live Map Pinpoint Active";
+  const time = new Date().toLocaleString();
+
+  const item = { id: code, item: `[${service}] Passenger Ride`, status: "IN_TRANSIT", driver: driverName, vehicle: vehicleId, recipient, gps, time };
+  items.unshift(item);
+  saveData();
+  renderTable();
+  updateKPIs();
+  playBeep(false);
+  alert(`Ride Booked Successfully!\nDriver: ${assigned.name}\nVehicle: ${assigned.car}\nLicense Plate: ${assigned.plate}\nWaybill: ${code}`);
+  switchTab('scanner');
+}
+
+function callSupportHotline() {
+  const phone = companyConfig.phone.replace(/[^0-9+]/g, '');
+  window.location.href = "tel:" + (phone || "19001234");
+}
+
+function openWhatsAppSupport() {
+  const waybill = getValue("supportWaybill") || "General Inquiry";
+  const issue = getValue("supportIssue") || "Need support / address change";
+  const cleanNumber = companyConfig.whatsapp.replace(/[^0-9]/g, '');
+  const text = encodeURIComponent(`*${companyConfig.name} Support Ticket*\nWaybill: ${waybill}\nIssue: ${issue}`);
+
+  if (cleanNumber) {
+    window.open(`https://wa.me/${cleanNumber}?text=${text}`, '_blank');
+  } else {
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  }
+}
+
+function submitSupportTicket() {
+  const waybill = getValue("supportWaybill");
+  const issue = getValue("supportIssue");
+  if (!issue) { alert("Please describe your issue."); return; }
+  alert(`Support ticket submitted to ${companyConfig.name} for Waybill: ${waybill || 'General'}. Our team will contact you shortly!`);
+  setValue("supportIssue", "");
+  setValue("supportWaybill", "");
+}
+
+let audioCtx = null;
+function playBeep(error = false) {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    audioCtx = audioCtx || new AudioContext();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = error ? 300 : 1200;
+    gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.3, audioCtx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.25);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.27);
+    if (navigator.vibrate) navigator.vibrate(error ? [150, 50, 150] : 80);
+  } catch (e) {}
+}
+
+function captureGPS() {
+  if (!window.isSecureContext && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+    alert("⚠️ Browser Security Warning: Geolocation requires HTTPS. Running over unsecured HTTP will block GPS.");
+    setValue("gpsField", "Terminal Stamp (" + new Date().toLocaleTimeString() + ")");
+    return;
+  }
+
+  if (!("geolocation" in navigator)) {
+    setValue("gpsField", "Terminal Tag (" + new Date().toLocaleTimeString() + ")");
+    alert("Geolocation is not supported by your browser.");
+    return;
+  }
+
+  setValue("gpsField", "Acquiring location...");
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const coords = pos.coords.latitude.toFixed(5) + ", " + pos.coords.longitude.toFixed(5);
+      setValue("gpsField", coords);
+      playBeep(false);
+      alert("GPS Locked successfully: " + coords);
+    },
+    (err) => {
+      console.warn("High-accuracy GPS failed, trying fallback network location...", err.message);
+      
+      navigator.geolocation.getCurrentPosition(
+        (posCoarse) => {
+          const coords = posCoarse.coords.latitude.toFixed(5) + ", " + posCoarse.coords.longitude.toFixed(5) + " (Approx)";
+          setValue("gpsField", coords);
+          playBeep(false);
+          alert("Network location captured: " + coords);
+        },
+        (errCoarse) => {
+          const fallbackNote = "Terminal Stamp (" + new Date().toLocaleTimeString() + ")";
+          setValue("gpsField", fallbackNote);
+          alert("Position unavailable. Please step near a window or check phone location settings.");
+        },
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+      );
+    },
+    { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+  );
+}
+
+function applyBarcode(raw) {
+  const text = String(raw || "").trim();
+  if (!text) { playBeep(true); alert("Empty barcode detected."); return; }
+  setValue("trackingCode", text);
+  playBeep(false);
+}
+
+const trackInput = document.getElementById("trackingCode");
+if (trackInput) {
+  trackInput.addEventListener("keydown", function(e) {
+    if (e.key === "Enter" || e.key === "Tab") {
+      e.preventDefault();
+      applyBarcode(this.value);
+    }
+  });
+}
+
+/* OPTIMIZED ZXING ENGINE FOR DIRECT BACK-CAMERA FOCUS */
+async function startCameraScanner() {
+  const panel = document.getElementById("cameraPanel");
+  const startBtn = document.getElementById("startScanBtn");
+  const stopBtn = document.getElementById("stopScanBtn");
+
+  if (panel) panel.style.display = "block";
+  if (startBtn) startBtn.style.display = "none";
+  if (stopBtn) stopBtn.style.display = "block";
+
+  try {
+    if (typeof ZXing === "undefined") {
+      alert("Barcode scanner library failed to load or is offline. Manual typing is enabled.");
+      stopCameraScanner();
+      return;
+    }
+
+    if (!codeReader) {
+      const hints = new Map();
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+        ZXing.BarcodeFormat.QR_CODE,
+        ZXing.BarcodeFormat.CODE_128,
+        ZXing.BarcodeFormat.CODE_39,
+        ZXing.BarcodeFormat.EAN_13,
+        ZXing.BarcodeFormat.EAN_8,
+        ZXing.BarcodeFormat.UPC_A
+      ]);
+      codeReader = new ZXing.BrowserMultiFormatReader(hints);
+    }
+
+    const videoInputDevices = await codeReader.listVideoInputDevices();
+    let selectedDeviceId = undefined;
+
+    if (videoInputDevices && videoInputDevices.length > 0) {
+      const backCamera = videoInputDevices.find(device => 
+        /back|rear|environment/i.test(device.label)
+      );
+      selectedDeviceId = backCamera ? backCamera.deviceId : videoInputDevices[0].deviceId;
+    }
+
+    await codeReader.decodeFromVideoDevice(selectedDeviceId, 'cameraVideo', (result, err) => {
+      if (result) {
+        applyBarcode(result.getText ? result.getText() : result.text);
+        stopCameraScanner();
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    stopCameraScanner();
+    alert("Camera access error. Please check camera permissions in browser/app settings.");
+  }
+}
+
+function stopCameraScanner() {
+  try {
+    if (codeReader) {
+      codeReader.reset();
+    }
+  } catch(e){}
+  const panel = document.getElementById("cameraPanel");
+  const startBtn = document.getElementById("startScanBtn");
+  const stopBtn = document.getElementById("stopScanBtn");
+
+  if (panel) panel.style.display = "none";
+  if (startBtn) startBtn.style.display = "block";
+  if (stopBtn) stopBtn.style.display = "none";
+}
+
+function saveData() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch(e){}
+}
+
+function loadData() {
+  try {
+    items = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    if (!items.length) {
+      items = [
+        { id: "VN-892100", item: "GrabCar 4-Seat Ride", status: "IN_TRANSIT", driver: "Nguyen Van An (Toyota Vios - 51G-892.10)", vehicle: "GRAB-FLEET", recipient: "District 1 ➔ District 7", gps: "10.77653, 106.70098", time: new Date().toLocaleString() },
+        { id: "VN-551020", item: "Xanh SM Electric Car", status: "DELIVERED", driver: "Tran Minh Triet (VinFast VF e34 - 51K-334.90)", vehicle: "XANH-SM", recipient: "Ho Chi Minh City", gps: "10.78288, 106.69821", time: new Date().toLocaleString() }
+      ];
+    }
+  } catch(e) { items = []; }
+}
+
+function addShipment() {
+  const code = getValue("trackingCode");
+  const itemDesc = getValue("itemDescription") || "Standard Cargo";
+  const driver = getValue("driverName") || "Driver #1";
+  const vehicle = getValue("vehicleId") || "VAN-59B";
+  const statusEl = document.getElementById("statusSelect");
+  const status = statusEl ? statusEl.value : "IN_TRANSIT";
+  const recipient = getValue("recipient") || "-";
+  const gps = getValue("gpsField") || "Terminal Scan";
+  const time = new Date().toLocaleString();
+
+  if (!code) { alert("Please enter or scan a waybill code."); return; }
+
+  const item = { id: code, item: itemDesc, status, driver, vehicle, recipient, gps, time };
+  if (editingId !== null) items = items.filter(i => i.id !== editingId);
+  items.unshift(item);
+  editingId = null;
+
+  setValue("trackingCode", "");
+  setValue("itemDescription", "");
+  setValue("recipient", "");
+  setValue("gpsField", "");
+  saveData();
+  renderTable();
+  updateKPIs();
+  playBeep(false);
+  alert("Logged successfully: " + code);
+}
+
+function deleteItem(code) {
+  if (!confirm("Delete tracking code " + code + "?")) return;
+  items = items.filter(i => i.id !== code);
+  saveData(); renderTable(); updateKPIs();
+}
+
+function renderTable() {
+  const body = document.getElementById("manifestBody");
+  if (!body) return;
+  const query = getValue("searchFilter").toLowerCase();
+  body.replaceChildren();
+
+  const filtered = items.filter(i => [i.id, i.item, i.driver, i.vehicle, i.recipient, i.status].join(" ").toLowerCase().includes(query));
+  const dict = i18n[currentLang] || i18n.en;
+
+  filtered.forEach(item => {
+    const row = document.createElement("tr");
+
+    let pillClass = "st-transit";
+    if (item.status === "PICKED_UP") pillClass = "st-picked";
+    if (item.status === "DELIVERED") pillClass = "st-deliv";
+    if (item.status === "FAILED") pillClass = "st-fail";
+
+    let stText = dict.optTransit;
+    if (item.status === "PICKED_UP") stText = dict.optPicked;
+    if (item.status === "DELIVERED") stText = dict.optDelivered;
+    if (item.status === "FAILED") stText = dict.optFailed;
+
+    row.innerHTML = `
+      <td><b>${item.id}</b></td>
+      <td>${item.item}</td>
+      <td><span class="status-pill ${pillClass}">${stText}</span></td>
+      <td>${item.recipient}</td>
+      <td><small>${item.driver} (${item.vehicle})<br>${item.gps}</small></td>
+      <td class="no-print"><button class="btn-del" type="button" style="padding:4px 8px;font-size:10px" onclick="deleteItem('${item.id}')">Del</button></td>
+    `;
+    body.appendChild(row);
+  });
+}
+
+function updateKPIs() {
+  const safeSetVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+  safeSetVal("kpiTotal", items.length);
+  safeSetVal("kpiPicked", items.filter(i => i.status === "PICKED_UP").length);
+  safeSetVal("kpiTransit", items.filter(i => i.status === "IN_TRANSIT").length);
+  safeSetVal("kpiDelivered", items.filter(i => i.status === "DELIVERED").length);
+}
+
+function getCSVString() {
+  const headings = ["Tracking ID", "Item Description", "Status", "Driver", "Vehicle", "Recipient", "GPS", "Timestamp"];
+  let csvRows = [headings.join(",")];
+  items.forEach(i => {
+    csvRows.push([`"${i.id}"`, `"${i.item}"`, `"${i.status}"`, `"${i.driver}"`, `"${i.vehicle}"`, `"${i.recipient}"`, `"${i.gps}"`, `"${i.time}"`].join(","));
+  });
+  return csvRows.join("\n");
+}
+
+function getSummaryString() {
+  let text = `=== ${companyConfig.name.toUpperCase()} MANIFEST REPORT ===\n`;
+  text += "Generated: " + new Date().toLocaleString() + "\n";
+  text += "Total Shipments: " + items.length + "\n";
+  text += "Support Hotline: " + companyConfig.phone + "\n";
+  text += "----------------------------------------\n\n";
+  items.forEach((i, idx) => {
+    text += `#${idx+1} | ID: ${i.id} | Item: ${i.item}\n`;
+    text += `Status: ${i.status} | Customer: ${i.recipient}\n`;
+    text += `Driver: ${i.driver} (${i.vehicle}) | Loc: ${i.gps}\n`;
+    text += `Time: ${i.time}\n`;
+    text += "----------------------------------------\n";
+  });
+  return text;
+}
+
+function openExportModal(type) {
+  if (!items.length) { alert("No records to export."); return; }
+  const dict = i18n[currentLang] || i18n.en;
+  const modalTitle = document.getElementById("modalTitle");
+  const modalSub = document.getElementById("modalSub");
+  const preview = document.getElementById("csvPreview");
+  const modal = document.getElementById("exportModal");
+
+  if (type === 'summary') {
+    if (modalTitle) modalTitle.textContent = "📄 " + dict.btnPrintSummary;
+    if (modalSub) modalSub.textContent = "Ready to copy or share via WhatsApp/Zalo/Email:";
+    if (preview) preview.value = getSummaryString();
+  } else {
+    if (modalTitle) modalTitle.textContent = "📊 " + dict.btnExportCsv;
+    if (modalSub) modalSub.textContent = "Formats ready for Logistics ERPs & Spreadsheets:";
+    if (preview) preview.value = getCSVString();
+  }
+  if (modal) modal.style.display = "block";
+}
+
+async function copyCSVToClipboard() {
+  const ta = document.getElementById("csvPreview");
+  if (!ta) return;
+  const text = ta.value;
+  try {
+    await navigator.clipboard.writeText(text);
+    alert("Report copied to clipboard successfully!");
+    const modal = document.getElementById("exportModal");
+    if (modal) modal.style.display = "none";
+  } catch(e) {
+    ta.select();
+    document.execCommand("copy");
+    alert("Report copied to clipboard!");
+    const modal = document.getElementById("exportModal");
+    if (modal) modal.style.display = "none";
+  }
+}
+
+async function shareReportText() {
+  const ta = document.getElementById("csvPreview");
+  if (!ta) return;
+  const text = ta.value;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: `${companyConfig.name} Report`, text: text });
+      const modal = document.getElementById("exportModal");
+      if (modal) modal.style.display = "none";
+      return;
+    } catch(e){}
+  }
+  copyCSVToClipboard();
+}
+
+function loadCompanyConfig() {
+  try {
+    const saved = localStorage.getItem(CONFIG_KEY);
+    if (saved) companyConfig = Object.assign(companyConfig, JSON.parse(saved));
+    const savedLang = localStorage.getItem(LANG_KEY);
+    if (savedLang) currentLang = savedLang;
+  } catch(e) {}
+
+  setValue("cfgCompanyName", companyConfig.name);
+  setValue("cfgPhone", companyConfig.phone);
+  setValue("cfgWhatsApp", companyConfig.whatsapp);
+  setValue("cfgEmail", companyConfig.email);
+  setValue("cfgWebsite", companyConfig.website);
+
+  const safeSetText = (id, text) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  };
+
+  const currentDict = i18n[currentLang] || i18n.en;
+  safeSetText("companyTaglineHeader", companyConfig.name.toUpperCase() + " - " + currentDict.tagline);
+  safeSetText("lblDisplayCompany", companyConfig.name);
+  safeSetText("lblDisplayPhone", companyConfig.phone);
+  safeSetText("lblDisplayWhatsApp", companyConfig.whatsapp);
+  safeSetText("lblDisplayEmail", companyConfig.email);
+  safeSetText("lblDisplayWebsite", companyConfig.website);
+}
+
+function saveCompanyConfig() {
+  companyConfig.name = getValue("cfgCompanyName") || "LogiGo Express & SuperApp";
+  companyConfig.phone = getValue("cfgPhone") || "19001234";
+  companyConfig.whatsapp = getValue("cfgWhatsApp") || "0901234567";
+  companyConfig.email = getValue("cfgEmail") || "cskh@logigo.vn";
+  companyConfig.website = getValue("cfgWebsite") || "https://logigo.vn";
+
+  try {
+    localStorage.setItem(CONFIG_KEY, JSON.stringify(companyConfig));
+    alert("Company configuration saved successfully!");
+  } catch(e) {}
+
+  loadCompanyConfig();
+}
+
+try {
+  const savedLang = localStorage.getItem(LANG_KEY);
+  if (savedLang) currentLang = savedLang;
+} catch(e){}
+
+setLanguage(currentLang);
+loadData();
+renderTable();
+updateKPIs();
+</script>
+
+<!-- LogiGo Live GPS Tracking Isolated Script -->
+<script>
+(function () {
+  function initLiveGpsWidget() {
+    const status = document.getElementById("lgps-status");
+    const lat = document.getElementById("lgps-lat");
+    const lon = document.getElementById("lgps-lon");
+    const accuracy = document.getElementById("lgps-accuracy");
+    const time = document.getElementById("lgps-time");
+    const startBtn = document.getElementById("lgps-start");
+    const stopBtn = document.getElementById("lgps-stop");
+    
+    if (!status || !startBtn || !stopBtn) return;
+
+    let watchId = null;
+
+    startBtn.onclick = function () {
+      if (!navigator.geolocation) {
+        status.textContent = "Geolocation is not supported by this browser.";
+        status.style.color = "#ef4444";
+        return;
+      }
+
+      if (watchId !== null) return;
+
+      status.textContent = "Requesting GPS location...";
+      status.style.color = "#facc15";
+
+      watchId = navigator.geolocation.watchPosition(
+        function (position) {
+          const c = position.coords;
+
+          if (lat) lat.textContent = c.latitude.toFixed(5);
+          if (lon) lon.textContent = c.longitude.toFixed(5);
+          if (accuracy) accuracy.textContent = "±" + Math.round(c.accuracy) + " metres";
+          if (time) time.textContent = new Date(position.timestamp).toLocaleTimeString();
+
+          status.textContent = "Live GPS is active.";
+          status.style.color = "#4ade80";
+        },
+        function (error) {
+          status.textContent = "GPS error: " + error.message;
+          status.style.color = "#ef4444";
+
+          if (error.code === 1 || error.code === 2) {
+            if (watchId !== null) {
+              navigator.geolocation.clearWatch(watchId);
+              watchId = null;
+            }
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          timeout: 20000
+        }
+      );
+    };
+
+    stopBtn.onclick = function () {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+      status.textContent = "GPS tracking is stopped.";
+      status.style.color = "#facc15";
+    };
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initLiveGpsWidget);
+  } else {
+    initLiveGpsWidget();
+  }
+})();
+</script>
+</body>
+</html>
