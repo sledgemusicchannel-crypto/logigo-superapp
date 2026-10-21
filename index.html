@@ -398,7 +398,7 @@ textarea.report-box {
   <div class="form-box">
     <h3 style="color:var(--accent-blue);margin-top:0">🚕 Live Taxi Booking & Fare Check</h3>
     <p style="font-size:12px;color:var(--text-muted)">Going somewhere? Type your pickup & dropoff to search locations and calculate fares in real-time:</p>
-    
+
     <div class="form-group">
       <label for="liveRideService">Select Service</label>
       <select id="liveRideService" onchange="calculateLiveFare()">
@@ -443,11 +443,11 @@ textarea.report-box {
   <div class="form-box">
     <h3 style="color:var(--accent-blue);margin-top:0" id="hdrSupport">🎧 Dispatch & Dispute Support Center</h3>
     <p style="font-size:12px;color:var(--text-muted)" id="descSupport">Need help with an emergency, dispute, or address change? Connect instantly with our team:</p>
-    
+
     <div style="margin: 15px 0;">
       <label for="supportWaybill" id="lblSupportWaybill">Reference Waybill / Tracking ID (Optional)</label>
       <input id="supportWaybill" placeholder="e.g. WAYBILL-8921" style="margin-bottom:10px">
-      
+
       <label for="supportIssue" id="lblSupportIssue">Describe Issue / Dispute / Address Change</label>
       <textarea id="supportIssue" placeholder="Type delivery dispute, emergency note, or new address..." style="height:90px;margin-bottom:10px"></textarea>
     </div>
@@ -514,7 +514,7 @@ textarea.report-box {
 <div id="exportModal" class="no-print">
   <h3 id="modalTitle" style="color:var(--accent-green);margin-top:0">Manifest Export Hub</h3>
   <p id="modalSub" style="font-size:12px;color:var(--text-muted)">Formats ready for Logistics ERPs & Spreadsheets:</p>
-  
+
   <textarea id="csvPreview" class="report-box" readonly></textarea>
 
   <button class="btn-add" id="btnCopyData" style="margin-bottom:8px" onclick="copyCSVToClipboard()">📋 COPY DATA TO CLIPBOARD</button>
@@ -562,7 +562,7 @@ function filterLocations(query, boxId) {
     box.style.display = "none";
     return;
   }
-  
+
   const matches = locationDatabase.filter(loc => loc.toLowerCase().includes(query.toLowerCase()));
   if (matches.length === 0) {
     box.style.display = "none";
@@ -591,12 +591,12 @@ function calculateLiveFare() {
   const service = getValue("liveRideService");
   const pickup = getValue("livePickup");
   const dropoff = getValue("liveDropoff");
-  
+
   let distKm = 5.0;
   if (pickup && dropoff) {
     distKm = Math.min(25, Math.max(2, (pickup.length + dropoff.length) % 18 + 3.2));
   }
-  
+
   let ratePerKm = 15000;
   if (service.includes("7-Seat")) ratePerKm = 18000;
   else if (service.includes("Bike")) ratePerKm = 12000;
@@ -836,7 +836,7 @@ function openWhatsAppSupport() {
   const issue = getValue("supportIssue") || "Need support / address change";
   const cleanNumber = companyConfig.whatsapp.replace(/[^0-9]/g, '');
   const text = encodeURIComponent(`*${companyConfig.name} Support Ticket*\nWaybill: ${waybill}\nIssue: ${issue}`);
-  
+
   if (cleanNumber) {
     window.open(`https://wa.me/${cleanNumber}?text=${text}`, '_blank');
   } else {
@@ -875,68 +875,39 @@ function playBeep(error = false) {
   } catch (e) {}
 }
 
-
 function captureGPS() {
-  const field = document.getElementById("gpsField");
-
-  if (!window.isSecureContext) {
-    alert("GPS requires a secure HTTPS connection. Open the LogiGo website using its HTTPS address.");
+  // Check for secure context (HTTPS / localhost required by modern mobile browsers)
+  if (!window.isSecureContext && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+    alert("⚠️ Browser Security Warning: Geolocation requires HTTPS. Running over unsecured HTTP will block GPS. Falling back to terminal stamp.");
+    setValue("gpsField", "Terminal Stamp (" + new Date().toLocaleTimeString() + ")");
     return;
   }
 
-  if (!navigator.geolocation) {
-    alert("This app environment does not support location access. The APK may need location support enabled.");
+  if (!("geolocation" in navigator)) {
+    setValue("gpsField", "Terminal Tag (" + new Date().toLocaleTimeString() + ")");
+    alert("Geolocation is not supported by your browser.");
     return;
   }
-
-  field.value = "Requesting device location...";
-  field.placeholder = "Waiting for GPS coordinates...";
 
   navigator.geolocation.getCurrentPosition(
-    function (position) {
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
-      const accuracy = Math.round(position.coords.accuracy);
-
-      field.value =
-        latitude.toFixed(6) + ", " +
-        longitude.toFixed(6) +
-        " (accuracy ±" + accuracy + " m)";
-
+    (pos) => {
+      const coords = pos.coords.latitude.toFixed(5) + ", " + pos.coords.longitude.toFixed(5);
+      setValue("gpsField", coords);
       playBeep(false);
-      alert(
-        "Device location captured successfully.\n" +
-        "Latitude: " + latitude.toFixed(6) + "\n" +
-        "Longitude: " + longitude.toFixed(6) + "\n" +
-        "Estimated accuracy: ±" + accuracy + " metres"
-      );
+      alert("GPS Locked successfully: " + coords);
     },
-    function (error) {
-      field.value = "";
+    (err) => {
+      console.warn("Geolocation error code: " + err.code, err.message);
+      let errorMsg = "GPS unavailable or permission denied.";
+      if (err.code === 1) errorMsg = "Permission denied. Please allow location access in your browser settings.";
+      else if (err.code === 2) errorMsg = "Position unavailable. Please check if device GPS is enabled.";
+      else if (err.code === 3) errorMsg = "GPS request timed out. Please try again outdoors.";
 
-      let message;
-
-      switch (error.code) {
-        case error.PERMISSION_DENIED:
-          message = "Location permission was denied. Allow location access in the browser or app environment.";
-          break;
-        case error.POSITION_UNAVAILABLE:
-          message = "The device could not determine its location. Enable Location and try outdoors.";
-          break;
-        case error.TIMEOUT:
-          message = "Location request timed out. Move near a window or outdoors and try again.";
-          break;
-        default:
-          message = "An unknown location error occurred. Please try again.";
-      }
-
-      alert("GPS NOT CAPTURED\n\n" + message);
+      const fallbackNote = "Terminal Stamp (" + new Date().toLocaleTimeString() + ")";
+      setValue("gpsField", fallbackNote);
+      alert(errorMsg + "\nLogged fallback terminal stamp instead.");
     },
-    {
-      enableHighAccuracy: true,
-      timeout: 30000,
-      maximumAge: 0
-    }
+    { enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 }
   );
 }
 
@@ -945,7 +916,6 @@ function applyBarcode(raw) {
   if (!text) { playBeep(true); alert("Empty barcode detected."); return; }
   setValue("trackingCode", text);
   playBeep(false);
-  // GPS auto-capture removed on scan to prevent permission popup blocks
 }
 
 document.getElementById("trackingCode").addEventListener("keydown", function(e) {
@@ -1070,7 +1040,7 @@ function renderTable() {
 
   filtered.forEach(item => {
     const row = document.createElement("tr");
-    
+
     let pillClass = "st-transit";
     if (item.status === "PICKED_UP") pillClass = "st-picked";
     if (item.status === "DELIVERED") pillClass = "st-deliv";
