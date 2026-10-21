@@ -337,6 +337,20 @@ textarea.report-box {
     <button class="btn-add" id="saveBtn" onclick="addShipment()">➕ LOG SHIPMENT TO MANIFEST</button>
   </div>
 
+  <!-- LogiGo Live GPS Widget Card -->
+  <div id="logigo-live-gps" class="form-box no-print" style="margin-bottom:12px;">
+    <h3 style="margin-top:0;margin-bottom:8px;font-size:14px;color:var(--accent-blue)">📍 LogiGo Live GPS</h3>
+    <p style="margin:4px 0;font-size:11px;">Status: <strong id="lgps-status" style="color:var(--accent-orange)">GPS tracking is stopped.</strong></p>
+    <p style="margin:3px 0;font-size:11px;">Latitude: <span id="lgps-lat" style="font-family:monospace;">--</span></p>
+    <p style="margin:3px 0;font-size:11px;">Longitude: <span id="lgps-lon" style="font-family:monospace;">--</span></p>
+    <p style="margin:3px 0;font-size:11px;">Accuracy: <span id="lgps-accuracy" style="font-family:monospace;">--</span></p>
+    <p style="margin:3px 0 10px 0;font-size:11px;">Last update: <span id="lgps-time" style="font-family:monospace;">--</span></p>
+    <div class="row" style="margin-bottom:0;">
+      <div class="col"><button id="lgps-start" type="button" style="background:#16a34a;color:white;">Start Live GPS</button></div>
+      <div class="col"><button id="lgps-stop" type="button" style="background:#dc2626;color:white;">Stop GPS</button></div>
+    </div>
+  </div>
+
   <div class="no-print" style="margin-bottom:10px">
     <input id="searchFilter" placeholder="🔍 Search tracking number, product, driver, or customer..." oninput="renderTable()" style="background:var(--bg-card)">
   </div>
@@ -1191,6 +1205,83 @@ setLanguage(currentLang);
 loadData();
 renderTable();
 updateKPIs();
+</script>
+
+<!-- LogiGo Live GPS Tracking Isolated Script -->
+<script>
+(function () {
+  function initLiveGpsWidget() {
+    const status = document.getElementById("lgps-status");
+    const lat = document.getElementById("lgps-lat");
+    const lon = document.getElementById("lgps-lon");
+    const accuracy = document.getElementById("lgps-accuracy");
+    const time = document.getElementById("lgps-time");
+    const startBtn = document.getElementById("lgps-start");
+    const stopBtn = document.getElementById("lgps-stop");
+    
+    if (!status || !startBtn || !stopBtn) return;
+
+    let watchId = null;
+
+    startBtn.onclick = function () {
+      if (!navigator.geolocation) {
+        status.textContent = "Geolocation is not supported by this browser.";
+        status.style.color = "#ef4444";
+        return;
+      }
+
+      if (watchId !== null) return;
+
+      status.textContent = "Requesting GPS location...";
+      status.style.color = "#facc15";
+
+      watchId = navigator.geolocation.watchPosition(
+        function (position) {
+          const c = position.coords;
+
+          if (lat) lat.textContent = c.latitude.toFixed(5);
+          if (lon) lon.textContent = c.longitude.toFixed(5);
+          if (accuracy) accuracy.textContent = "±" + Math.round(c.accuracy) + " metres";
+          if (time) time.textContent = new Date(position.timestamp).toLocaleTimeString();
+
+          status.textContent = "Live GPS is active.";
+          status.style.color = "#4ade80";
+        },
+        function (error) {
+          status.textContent = "GPS error: " + error.message;
+          status.style.color = "#ef4444";
+
+          if (error.code === 1 || error.code === 2) {
+            if (watchId !== null) {
+              navigator.geolocation.clearWatch(watchId);
+              watchId = null;
+            }
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          timeout: 20000
+        }
+      );
+    };
+
+    stopBtn.onclick = function () {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+      status.textContent = "GPS tracking is stopped.";
+      status.style.color = "#facc15";
+    };
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initLiveGpsWidget);
+  } else {
+    initLiveGpsWidget();
+  }
+})();
 </script>
 </body>
 </html>
