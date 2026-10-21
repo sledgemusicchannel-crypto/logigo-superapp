@@ -875,26 +875,68 @@ function playBeep(error = false) {
   } catch (e) {}
 }
 
+
 function captureGPS() {
-  if (!("geolocation" in navigator)) {
-    setValue("gpsField", "Terminal Tag (" + new Date().toLocaleTimeString() + ")");
-    alert("Geolocation is not supported by your browser.");
+  const field = document.getElementById("gpsField");
+
+  if (!window.isSecureContext) {
+    alert("GPS requires a secure HTTPS connection. Open the LogiGo website using its HTTPS address.");
     return;
   }
-  
+
+  if (!navigator.geolocation) {
+    alert("This app environment does not support location access. The APK may need location support enabled.");
+    return;
+  }
+
+  field.value = "Requesting device location...";
+  field.placeholder = "Waiting for GPS coordinates...";
+
   navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      const coords = pos.coords.latitude.toFixed(5) + ", " + pos.coords.longitude.toFixed(5);
-      setValue("gpsField", coords);
+    function (position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      const accuracy = Math.round(position.coords.accuracy);
+
+      field.value =
+        latitude.toFixed(6) + ", " +
+        longitude.toFixed(6) +
+        " (accuracy ±" + accuracy + " m)";
+
       playBeep(false);
-      alert("GPS Locked successfully: " + coords);
+      alert(
+        "Device location captured successfully.\n" +
+        "Latitude: " + latitude.toFixed(6) + "\n" +
+        "Longitude: " + longitude.toFixed(6) + "\n" +
+        "Estimated accuracy: ±" + accuracy + " metres"
+      );
     },
-    (err) => {
-      const fallbackNote = "Terminal Stamp (" + new Date().toLocaleTimeString() + ")";
-      setValue("gpsField", fallbackNote);
-      alert("GPS permission denied or unavailable. Logged fallback terminal stamp.");
+    function (error) {
+      field.value = "";
+
+      let message;
+
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          message = "Location permission was denied. Allow location access in the browser or app environment.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          message = "The device could not determine its location. Enable Location and try outdoors.";
+          break;
+        case error.TIMEOUT:
+          message = "Location request timed out. Move near a window or outdoors and try again.";
+          break;
+        default:
+          message = "An unknown location error occurred. Please try again.";
+      }
+
+      alert("GPS NOT CAPTURED\n\n" + message);
     },
-    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    {
+      enableHighAccuracy: true,
+      timeout: 30000,
+      maximumAge: 0
+    }
   );
 }
 
