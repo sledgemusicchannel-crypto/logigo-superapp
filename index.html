@@ -876,9 +876,8 @@ function playBeep(error = false) {
 }
 
 function captureGPS() {
-  // Check for secure context (HTTPS / localhost required by modern mobile browsers)
   if (!window.isSecureContext && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
-    alert("⚠️ Browser Security Warning: Geolocation requires HTTPS. Running over unsecured HTTP will block GPS. Falling back to terminal stamp.");
+    alert("⚠️ Browser Security Warning: Geolocation requires HTTPS. Running over unsecured HTTP will block GPS.");
     setValue("gpsField", "Terminal Stamp (" + new Date().toLocaleTimeString() + ")");
     return;
   }
@@ -889,6 +888,8 @@ function captureGPS() {
     return;
   }
 
+  document.getElementById("gpsField").value = "Acquiring location...";
+
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const coords = pos.coords.latitude.toFixed(5) + ", " + pos.coords.longitude.toFixed(5);
@@ -897,17 +898,24 @@ function captureGPS() {
       alert("GPS Locked successfully: " + coords);
     },
     (err) => {
-      console.warn("Geolocation error code: " + err.code, err.message);
-      let errorMsg = "GPS unavailable or permission denied.";
-      if (err.code === 1) errorMsg = "Permission denied. Please allow location access in your browser settings.";
-      else if (err.code === 2) errorMsg = "Position unavailable. Please check if device GPS is enabled.";
-      else if (err.code === 3) errorMsg = "GPS request timed out. Please try again outdoors.";
-
-      const fallbackNote = "Terminal Stamp (" + new Date().toLocaleTimeString() + ")";
-      setValue("gpsField", fallbackNote);
-      alert(errorMsg + "\nLogged fallback terminal stamp instead.");
+      console.warn("High-accuracy GPS failed, trying fallback network location...", err.message);
+      
+      navigator.geolocation.getCurrentPosition(
+        (posCoarse) => {
+          const coords = posCoarse.coords.latitude.toFixed(5) + ", " + posCoarse.coords.longitude.toFixed(5) + " (Approx)";
+          setValue("gpsField", coords);
+          playBeep(false);
+          alert("Network location captured: " + coords);
+        },
+        (errCoarse) => {
+          const fallbackNote = "Terminal Stamp (" + new Date().toLocaleTimeString() + ")";
+          setValue("gpsField", fallbackNote);
+          alert("Position unavailable. Please step near a window or check phone location settings.");
+        },
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+      );
     },
-    { enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 }
+    { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
   );
 }
 
@@ -1016,173 +1024,3 @@ function addShipment() {
   setValue("trackingCode", "");
   setValue("itemDescription", "");
   setValue("recipient", "");
-  setValue("gpsField", "");
-  saveData();
-  renderTable();
-  updateKPIs();
-  playBeep(false);
-  alert("Logged successfully: " + code);
-}
-
-function deleteItem(code) {
-  if (!confirm("Delete tracking code " + code + "?")) return;
-  items = items.filter(i => i.id !== code);
-  saveData(); renderTable(); updateKPIs();
-}
-
-function renderTable() {
-  const body = document.getElementById("manifestBody");
-  const query = getValue("searchFilter").toLowerCase();
-  body.replaceChildren();
-
-  const filtered = items.filter(i => [i.id, i.item, i.driver, i.vehicle, i.recipient, i.status].join(" ").toLowerCase().includes(query));
-  const dict = i18n[currentLang];
-
-  filtered.forEach(item => {
-    const row = document.createElement("tr");
-
-    let pillClass = "st-transit";
-    if (item.status === "PICKED_UP") pillClass = "st-picked";
-    if (item.status === "DELIVERED") pillClass = "st-deliv";
-    if (item.status === "FAILED") pillClass = "st-fail";
-
-    let stText = dict.optTransit;
-    if (item.status === "PICKED_UP") stText = dict.optPicked;
-    if (item.status === "DELIVERED") stText = dict.optDelivered;
-    if (item.status === "FAILED") stText = dict.optFailed;
-
-    row.innerHTML = `
-      <td><b>${item.id}</b></td>
-      <td>${item.item}</td>
-      <td><span class="status-pill ${pillClass}">${stText}</span></td>
-      <td>${item.recipient}</td>
-      <td><small>${item.driver} (${item.vehicle})<br>${item.gps}</small></td>
-      <td class="no-print"><button class="btn-del" style="padding:4px 8px;font-size:10px" onclick="deleteItem('${item.id}')">Del</button></td>
-    `;
-    body.appendChild(row);
-  });
-}
-
-function updateKPIs() {
-  document.getElementById("kpiTotal").textContent = items.length;
-  document.getElementById("kpiPicked").textContent = items.filter(i => i.status === "PICKED_UP").length;
-  document.getElementById("kpiTransit").textContent = items.filter(i => i.status === "IN_TRANSIT").length;
-  document.getElementById("kpiDelivered").textContent = items.filter(i => i.status === "DELIVERED").length;
-}
-
-function getCSVString() {
-  const headings = ["Tracking ID", "Item Description", "Status", "Driver", "Vehicle", "Recipient", "GPS", "Timestamp"];
-  let csvRows = [headings.join(",")];
-  items.forEach(i => {
-    csvRows.push([`"${i.id}"`, `"${i.item}"`, `"${i.status}"`, `"${i.driver}"`, `"${i.vehicle}"`, `"${i.recipient}"`, `"${i.gps}"`, `"${i.time}"`].join(","));
-  });
-  return csvRows.join("\n");
-}
-
-function getSummaryString() {
-  let text = `=== ${companyConfig.name.toUpperCase()} MANIFEST REPORT ===\n`;
-  text += "Generated: " + new Date().toLocaleString() + "\n";
-  text += "Total Shipments: " + items.length + "\n";
-  text += "Support Hotline: " + companyConfig.phone + "\n";
-  text += "----------------------------------------\n\n";
-  items.forEach((i, idx) => {
-    text += `#${idx+1} | ID: ${i.id} | Item: ${i.item}\n`;
-    text += `Status: ${i.status} | Customer: ${i.recipient}\n`;
-    text += `Driver: ${i.driver} (${i.vehicle}) | Loc: ${i.gps}\n`;
-    text += `Time: ${i.time}\n`;
-    text += "----------------------------------------\n";
-  });
-  return text;
-}
-
-function openExportModal(type) {
-  if (!items.length) { alert("No records to export."); return; }
-  const dict = i18n[currentLang];
-  if (type === 'summary') {
-    document.getElementById("modalTitle").textContent = "📄 " + dict.btnPrintSummary;
-    document.getElementById("modalSub").textContent = "Ready to copy or share via WhatsApp/Zalo/Email:";
-    document.getElementById("csvPreview").value = getSummaryString();
-  } else {
-    document.getElementById("modalTitle").textContent = "📊 " + dict.btnExportCsv;
-    document.getElementById("modalSub").textContent = "Formats ready for Logistics ERPs & Spreadsheets:";
-    document.getElementById("csvPreview").value = getCSVString();
-  }
-  document.getElementById("exportModal").style.display = "block";
-}
-
-async function copyCSVToClipboard() {
-  const text = document.getElementById("csvPreview").value;
-  try {
-    await navigator.clipboard.writeText(text);
-    alert("Report copied to clipboard successfully!");
-    document.getElementById("exportModal").style.display = "none";
-  } catch(e) {
-    const ta = document.getElementById("csvPreview");
-    ta.select();
-    document.execCommand("copy");
-    alert("Report copied to clipboard!");
-    document.getElementById("exportModal").style.display = "none";
-  }
-}
-
-async function shareReportText() {
-  const text = document.getElementById("csvPreview").value;
-  if (navigator.share) {
-    try {
-      await navigator.share({ title: `${companyConfig.name} Report`, text: text });
-      document.getElementById("exportModal").style.display = "none";
-      return;
-    } catch(e){}
-  }
-  copyCSVToClipboard();
-}
-
-function loadCompanyConfig() {
-  try {
-    const saved = localStorage.getItem(CONFIG_KEY);
-    if (saved) companyConfig = Object.assign(companyConfig, JSON.parse(saved));
-    const savedLang = localStorage.getItem(LANG_KEY);
-    if (savedLang) currentLang = savedLang;
-  } catch(e) {}
-
-  setValue("cfgCompanyName", companyConfig.name);
-  setValue("cfgPhone", companyConfig.phone);
-  setValue("cfgWhatsApp", companyConfig.whatsapp);
-  setValue("cfgEmail", companyConfig.email);
-  setValue("cfgWebsite", companyConfig.website);
-
-  document.getElementById("companyTaglineHeader").textContent = companyConfig.name.toUpperCase() + " - " + i18n[currentLang].tagline;
-  document.getElementById("lblDisplayCompany").textContent = companyConfig.name;
-  document.getElementById("lblDisplayPhone").textContent = companyConfig.phone;
-  document.getElementById("lblDisplayWhatsApp").textContent = companyConfig.whatsapp;
-  document.getElementById("lblDisplayEmail").textContent = companyConfig.email;
-  document.getElementById("lblDisplayWebsite").textContent = companyConfig.website;
-}
-
-function saveCompanyConfig() {
-  companyConfig.name = getValue("cfgCompanyName") || "LogiGo Express & SuperApp";
-  companyConfig.phone = getValue("cfgPhone") || "19001234";
-  companyConfig.whatsapp = getValue("cfgWhatsApp") || "0901234567";
-  companyConfig.email = getValue("cfgEmail") || "cskh@logigo.vn";
-  companyConfig.website = getValue("cfgWebsite") || "https://logigo.vn";
-
-  try {
-    localStorage.setItem(CONFIG_KEY, JSON.stringify(companyConfig));
-    alert("Company configuration saved successfully!");
-  } catch(e) {}
-
-  loadCompanyConfig();
-}
-
-try {
-  const savedLang = localStorage.getItem(LANG_KEY);
-  if (savedLang) currentLang = savedLang;
-} catch(e){}
-
-setLanguage(currentLang);
-loadData();
-renderTable();
-updateKPIs();
-</script>
-</body>
-</html>
