@@ -585,9 +585,9 @@ textarea.report-box {
 "use strict";
 
 document.addEventListener("DOMContentLoaded", function () {
-  const STORAGE_KEY = "logigo_manifest_v23";
-  const CONFIG_KEY = "logigo_config_v23";
-  const LANG_KEY = "logigo_lang_v18";
+  const STORAGE_KEY = "logigo_manifest_v24";
+  const CONFIG_KEY = "logigo_config_v24";
+  const LANG_KEY = "logigo_lang_v19";
 
   let items = [];
   let currentLang = "en";
@@ -733,7 +733,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("liveFarePreview").textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fare);
   }
 
-  // --- MULTILINGUAL ENGINE ENGINE FIX ---
+  // --- MULTILINGUAL & COMPANY CONFIG ENGINE ---
   function loadCompanyConfig() {
     try {
       const saved = localStorage.getItem(CONFIG_KEY);
@@ -760,6 +760,21 @@ document.addEventListener("DOMContentLoaded", function () {
     safeSetText("lblDisplayWhatsApp", companyConfig.whatsapp);
     safeSetText("lblDisplayEmail", companyConfig.email);
     safeSetText("lblDisplayWebsite", companyConfig.website);
+  }
+
+  function saveCompanyConfig() {
+    companyConfig.name = getValue("cfgCompanyName") || "LogiGo Express & SuperApp";
+    companyConfig.phone = getValue("cfgPhone") || "19001234";
+    companyConfig.whatsapp = getValue("cfgWhatsApp") || "0901234567";
+    companyConfig.email = getValue("cfgEmail") || "cskh@logigo.vn";
+    companyConfig.website = getValue("cfgWebsite") || "https://logigo.vn";
+
+    try {
+      localStorage.setItem(CONFIG_KEY, JSON.stringify(companyConfig));
+      alert("Company configuration saved successfully!");
+    } catch(e) {}
+
+    loadCompanyConfig();
   }
 
   function setLanguage(lang) {
@@ -1361,6 +1376,22 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("tabSupportBtn").onclick = () => switchTab('support');
   document.getElementById("tabAdminBtn").onclick = () => switchTab('admin');
 
+  // Support & Admin Control Panel Handlers
+  document.getElementById("btnSaveConfig").onclick = saveCompanyConfig;
+  document.getElementById("btnCallSupport").onclick = () => window.location.href = "tel:" + (companyConfig.phone || "19001234");
+  document.getElementById("btnWaSupport").onclick = () => {
+    const text = encodeURIComponent(`*${companyConfig.name} Support Ticket*`);
+    window.open(`https://wa.me/${companyConfig.whatsapp.replace(/[^0-9]/g, '')}?text=${text}`, '_blank');
+  };
+  document.getElementById("btnSubmitTicket").onclick = () => {
+    const issue = getValue("supportIssue");
+    if (!issue) { alert("Please enter your support request details."); return; }
+    alert("Support ticket submitted successfully!");
+    setValue("supportIssue", "");
+    setValue("supportWaybill", "");
+  };
+
+  // External Applications & E-Commerce Handlers
   document.querySelectorAll("[data-url]").forEach(btn => {
     btn.onclick = function() { 
       const targetUrl = this.getAttribute("data-url");
@@ -1373,6 +1404,7 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("btnLaunchGrab").onclick = () => window.open('https://www.grab.com/vn/en/transport/', '_blank');
   document.getElementById("btnLaunchXanh").onclick = () => window.open('https://www.xanhsm.com/', '_blank');
 
+  // Manifest & Report Export Handlers
   document.getElementById("saveBtn").onclick = addShipment;
   document.getElementById("btnExportCsv").onclick = () => openExportModal('csv');
   document.getElementById("btnPrintSummary").onclick = () => openExportModal('summary');
