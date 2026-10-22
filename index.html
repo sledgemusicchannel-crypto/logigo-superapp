@@ -585,9 +585,9 @@ textarea.report-box {
 "use strict";
 
 document.addEventListener("DOMContentLoaded", function () {
-  const STORAGE_KEY = "logigo_manifest_v19";
-  const CONFIG_KEY = "logigo_config_v19";
-  const LANG_KEY = "logigo_lang_v14";
+  const STORAGE_KEY = "logigo_manifest_v20";
+  const CONFIG_KEY = "logigo_config_v20";
+  const LANG_KEY = "logigo_lang_v15";
 
   let items = [];
   let currentLang = "en";
@@ -696,7 +696,7 @@ document.addEventListener("DOMContentLoaded", function () {
               Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
               Math.sin(dLon/2) * Math.sin(dLon/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return (R * c * 1.35); // 1.35 multiplier estimates real city road driving distance
+    return (R * c * 1.35);
   }
 
   function computeAndRenderFare(distanceKm, durationMins) {
@@ -780,6 +780,23 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // --- REVERSE GEOCODING ENGINE ---
+  async function reverseGeocode(lat, lon) {
+    const now = Date.now();
+    if (now - lastGeocodeTime < 4000) return;
+    lastGeocodeTime = now;
+
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+      const data = await res.json();
+      if (data && data.display_name) {
+        const addrEl = document.getElementById("lgps-address");
+        if (addrEl) addrEl.textContent = data.display_name;
+        setValue("gpsField", `${data.display_name} (${lat.toFixed(5)}, ${lon.toFixed(5)})`);
+      }
+    } catch (e) {}
+  }
+
   // --- FARE & ROUTE CALCULATION ENGINE ---
   async function geocodeAndCalculate(pickupQuery, dropoffQuery) {
     const pQuery = pickupQuery || "Ben Thanh Market, HCMC";
@@ -797,9 +814,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (dData && dData.length > 0) {
         dropoffCoords = [parseFloat(dData[0].lat), parseFloat(dData[0].lon)];
       }
-    } catch (e) {
-      console.warn("Geocoding failed, using active marker coordinates.");
-    }
+    } catch (e) {}
 
     if (map) {
       if (pickupMarker) map.removeLayer(pickupMarker);
@@ -825,9 +840,7 @@ document.addEventListener("DOMContentLoaded", function () {
           map.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
           return;
         }
-      } catch (err) {
-        console.warn("OSRM network blocked or rate-limited. Activating Haversine Fallback Engine.");
-      }
+      } catch (err) {}
 
       // Fallback Calculation
       const fallbackKm = calculateHaversineKm(pickupCoords[0], pickupCoords[1], dropoffCoords[0], dropoffCoords[1]);
@@ -988,6 +1001,121 @@ document.addEventListener("DOMContentLoaded", function () {
       };
     });
   }
+
+  // --- REAL-TIME GPS TELEMETRY ENGINE FIXED ---
+  let watchId = null;
+
+  function calculateDistanceMeters(lat1, lon1, lat2, lon2) {
+    const R = 6371e3;
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  function handleGpsPosition(pos) {
+    const c = pos.coords;
+    const latEl = document.getElementById("lgps-lat");
+    const lonEl = document.getElementById("lgps-lon");
+    const accuracyEl = document.getElementById("lgps-accuracy");
+    const timeEl = document.getElementById("lgps-time");
+    const distEl = document.getElementById("lgps-dist");
+    const statusEl = document.getElementById("lgps-status");
+
+    const currentPos = [c.latitude, c.longitude];
+
+    if (latEl) latEl.textContent = c.latitude.toFixed(5);
+    if (lonEl) lonEl.textContent = c.longitude.toFixed(5);
+    if (accuracyEl) accuracyEl.textContent = "±" + Math.round(c.accuracy) + " m";
+    if (timeEl) timeEl.textContent = new Date(pos.timestamp).toLocaleTimeString();
+    if (statusEl) {
+      statusEl.textContent = "Live GPS Active & Tracking.";
+      statusEl.style.color = "#00e676";
+    }
+
+    reverseGeocode(c.latitude, c.longitude);
+
+    if (pathCoordinates.length > 0) {
+      const prevPos = pathCoordinates[pathCoordinates.length - 1];
+      const segmentMeters = calculateDistanceMeters(prevPos[0], prevPos[1], c.latitude, c.longitude);
+      if (segmentMeters > 1) {
+        totalDistanceMeters += segmentMeters;
+      }
+    }
+    pathCoordinates.push(currentPos);
+
+    if (distEl) distEl.textContent = (totalDistanceMeters / 1000).toFixed(2) + " km";
+
+    if (telemetryMap) {
+      if (!driverMarker) {
+        initTelemetryMap();
+      } else {
+        driverMarker.setLatLng(currentPos);
+        pathPolyline.setLatLngs(pathCoordinates);
+        telemetryMap.setView(currentPos, telemetryMap.getZoom());
+      }
+    }
+  }
+
+  document.getElementById("lgps-start").onclick = function() {
+    const statusEl = document.getElementById("lgps-status");
+    if (!navigator.geolocation) {
+      if (statusEl) {
+        statusEl.textContent = "Geolocation is not supported by your browser.";
+        statusEl.style.color = "#ef4444";
+      }
+      return;
+    }
+
+    if (statusEl) {
+      statusEl.textContent = "Acquiring satellite lock...";
+      statusEl.style.color = "#ff9100";
+    }
+
+    initTelemetryMap();
+
+    // Instant single fix first to bypass initial delay
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        handleGpsPosition(pos);
+        // Then start continuous watch
+        if (watchId === null) {
+          watchId = navigator.geolocation.watchPosition(
+            handleGpsPosition,
+            (err) => {
+              if (statusEl) {
+                statusEl.textContent = "GPS signal lost: " + err.message;
+                statusEl.style.color = "#ef4444";
+              }
+            },
+            { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
+          );
+        }
+      },
+      (err) => {
+        if (statusEl) {
+          statusEl.textContent = "GPS Error / Permission Denied: " + err.message;
+          statusEl.style.color = "#ef4444";
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  document.getElementById("lgps-stop").onclick = function() {
+    if (watchId !== null) {
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+    }
+    const statusEl = document.getElementById("lgps-status");
+    if (statusEl) {
+      statusEl.textContent = "GPS tracking is stopped.";
+      statusEl.style.color = "#ff9100";
+    }
+  };
 
   // --- ATTACH EVENT LISTENERS ---
   document.getElementById("tabScannerBtn").onclick = () => switchTab('scanner');
