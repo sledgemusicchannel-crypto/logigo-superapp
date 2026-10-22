@@ -238,6 +238,17 @@ th { background: #1a2d48; color: var(--text-main); }
   z-index: 1;
 }
 
+.address-tag {
+  background: var(--bg-input);
+  border: 1px solid var(--accent-blue);
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 11px;
+  color: var(--accent-green);
+  margin-bottom: 8px;
+  word-break: break-word;
+}
+
 #exportModal {
   display: none;
   background: rgba(0,0,0,0.95);
@@ -352,12 +363,18 @@ textarea.report-box {
     <button class="btn-add" id="saveBtn" type="button">➕ LOG SHIPMENT TO MANIFEST</button>
   </div>
 
-  <!-- LogiGo Live GPS Telemetry Widget Card with Embedded Live Cursor Map -->
+  <!-- LogiGo Live GPS Telemetry Widget Card with Reverse Geocoded Street & District Address -->
   <div id="logigo-live-gps" class="form-box no-print" style="margin-bottom:12px;">
-    <h3 style="margin-top:0;margin-bottom:4px;font-size:14px;color:var(--accent-blue)">📍 LogiGo Real-Time GPS Telemetry & Audit Trail</h3>
-    <p style="margin:0 0 8px 0;font-size:10px;color:var(--text-muted);">Live movement tracking, distance measurement & proof-of-delivery audit trail</p>
+    <h3 style="margin-top:0;margin-bottom:4px;font-size:14px;color:var(--accent-blue)">📍 Real-Time GPS Telemetry & Live Address Audit</h3>
+    <p style="margin:0 0 8px 0;font-size:10px;color:var(--text-muted);">Live movement tracking, road/district reverse lookup & distance audit</p>
     
     <p style="margin:4px 0;font-size:11px;">Status: <strong id="lgps-status" style="color:var(--accent-orange)">GPS tracking is stopped.</strong></p>
+    
+    <!-- Live Geocoded Address Tag -->
+    <div class="address-tag">
+      🏠 <b>Current Address:</b> <span id="lgps-address" style="color:#ffffff;">Waiting for live GPS signal...</span>
+    </div>
+
     <p style="margin:3px 0;font-size:11px;">Latitude: <span id="lgps-lat" style="font-family:monospace;">--</span> | Longitude: <span id="lgps-lon" style="font-family:monospace;">--</span></p>
     <p style="margin:3px 0;font-size:11px;">Accuracy: <span id="lgps-accuracy" style="font-family:monospace;">--</span> | Distance Traveled: <b id="lgps-dist" style="color:var(--accent-green)">0.00 km</b></p>
     <p style="margin:3px 0 8px 0;font-size:11px;">Last update: <span id="lgps-time" style="font-family:monospace;">--</span></p>
@@ -456,7 +473,7 @@ textarea.report-box {
       <div id="dropoffSuggestions" class="suggestions-box"></div>
     </div>
 
-    <!-- Explicit Search & Calculate Route Button -->
+    <!-- Search Button -->
     <button class="btn-search-route" id="btnSearchRoute" type="button">🔍 Search Route & Calculate Fare</button>
 
     <!-- Embedded Live Interactive Map for Taxi Route -->
@@ -566,9 +583,9 @@ textarea.report-box {
 "use strict";
 
 document.addEventListener("DOMContentLoaded", function () {
-  const STORAGE_KEY = "logigo_manifest_v14";
-  const CONFIG_KEY = "logigo_config_v14";
-  const LANG_KEY = "logigo_lang_v9";
+  const STORAGE_KEY = "logigo_manifest_v15";
+  const CONFIG_KEY = "logigo_config_v15";
+  const LANG_KEY = "logigo_lang_v10";
 
   let items = [];
   let currentLang = "en";
@@ -579,8 +596,8 @@ document.addEventListener("DOMContentLoaded", function () {
   let pickupMarker = null;
   let dropoffMarker = null;
   let routeLine = null;
-  let pickupCoords = [10.77653, 106.70098]; // Default Ben Thanh
-  let dropoffCoords = [10.78288, 106.69821]; // Default Landmark 81
+  let pickupCoords = [10.77653, 106.70098];
+  let dropoffCoords = [10.78288, 106.69821];
 
   // Telemetry Driver Map Variables
   let telemetryMap = null;
@@ -588,8 +605,8 @@ document.addEventListener("DOMContentLoaded", function () {
   let pathPolyline = null;
   let pathCoordinates = [];
   let totalDistanceMeters = 0;
+  let lastGeocodeTime = 0;
 
-  // Keyless standard OSM tile layer (prevents any API key errors)
   const TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   const TILE_ATTR = '&copy; OpenStreetMap contributors';
 
@@ -754,7 +771,28 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // --- ROBUST GEOCODING & ROUTING ENGINE ---
+  // --- REVERSE GEOCODING ENGINE (LAT/LON ➔ ROAD, DISTRICT, HOUSE NUMBER) ---
+  function reverseGeocode(lat, lon) {
+    const now = Date.now();
+    if (now - lastGeocodeTime < 3000) return; // Throttle to prevent API limits
+    lastGeocodeTime = now;
+
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+
+    fetch(url, { headers: { 'Accept': 'application/json' } })
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.display_name) {
+          const addrEl = document.getElementById("lgps-address");
+          if (addrEl) addrEl.textContent = data.display_name;
+
+          // Also set the form GPS tag with full street address
+          setValue("gpsField", `${data.display_name} (${lat.toFixed(5)}, ${lon.toFixed(5)})`);
+        }
+      })
+      .catch(err => console.error(err));
+  }
+
   function geocodeAndCalculate(pickupQuery, dropoffQuery) {
     const pQuery = pickupQuery || "Ben Thanh Market, HCMC";
     const dQuery = dropoffQuery || "Landmark 81, HCMC";
@@ -771,7 +809,6 @@ document.addEventListener("DOMContentLoaded", function () {
         dropoffCoords = [parseFloat(dData[0].lat), parseFloat(dData[0].lon)];
       }
 
-      // Draw markers and route
       if (map) {
         if (pickupMarker) map.removeLayer(pickupMarker);
         if (dropoffMarker) map.removeLayer(dropoffMarker);
@@ -868,8 +905,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const coords = pos.coords.latitude.toFixed(5) + ", " + pos.coords.longitude.toFixed(5);
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        const coords = lat.toFixed(5) + ", " + lon.toFixed(5);
         setValue("gpsField", coords);
+        reverseGeocode(lat, lon);
         playBeep(false);
         alert("GPS Locked successfully: " + coords);
       },
@@ -1044,7 +1084,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function getCSVString() {
-    const headings = ["Tracking ID", "Item Description", "Status", "Driver", "Vehicle", "Recipient", "GPS", "Timestamp"];
+    const headings = ["Tracking ID", "Item Description", "Status", "Driver", "Vehicle", "Recipient", "GPS & Address", "Timestamp"];
     let csvRows = [headings.join(",")];
     items.forEach(i => {
       csvRows.push([`"${i.id}"`, `"${i.item}"`, `"${i.status}"`, `"${i.driver}"`, `"${i.vehicle}"`, `"${i.recipient}"`, `"${i.gps}"`, `"${i.time}"`].join(","));
@@ -1231,7 +1271,7 @@ document.addEventListener("DOMContentLoaded", function () {
   };
   document.getElementById("btnCloseExport").onclick = () => document.getElementById("exportModal").style.display = "none";
 
-  // --- REAL-TIME GPS MOVEMENT & TELEMETRY ENGINE WITH LIVE CURSOR MAP ---
+  // --- REAL-TIME GPS MOVEMENT ENGINE WITH REVERSE GEOCODING ---
   let watchId = null;
 
   function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -1273,7 +1313,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (time) time.textContent = new Date(pos.timestamp).toLocaleTimeString();
         if (status) { status.textContent = "Live GPS Active & Tracking."; status.style.color = "#00e676"; }
 
-        setValue("gpsField", c.latitude.toFixed(5) + ", " + c.longitude.toFixed(5));
+        // Reverse geocode to get live house number, road, district, and city name
+        reverseGeocode(c.latitude, c.longitude);
 
         if (pathCoordinates.length > 0) {
           const prevPos = pathCoordinates[pathCoordinates.length - 1];
