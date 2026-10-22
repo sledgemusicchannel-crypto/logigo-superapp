@@ -186,7 +186,7 @@ button {
 .btn-shop { background: #ff9100; color: #000; }
 .btn-grab { background: #00b14f; color: white; }
 .btn-xanh { background: #003366; color: white; }
-.btn-search-route { background: #29b6f6; color: #000; margin-bottom: 8px; }
+.btn-search-route { background: #29b6f6; color: #000; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; }
 
 .alert {
   text-align: center;
@@ -238,9 +238,8 @@ th { background: #1a2d48; color: var(--text-main); }
   z-index: 1;
 }
 
-/* CSS Dark Mode Filter for Keyless Tiles */
 .dark-map-tiles {
-  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+  filter: brightness(0.65) invert(1) contrast(2.5) hue-rotate(200deg) saturate(0.3);
 }
 
 .address-tag {
@@ -452,7 +451,7 @@ textarea.report-box {
 
   <div class="form-box">
     <h3 style="color:var(--accent-blue);margin-top:0">🚕 Live Taxi Booking, Fare & Route Check</h3>
-    <p style="font-size:11px;color:var(--text-muted)">Type <b>any Vietnam or global location</b> and click search to calculate live distance and fares:</p>
+    <p style="font-size:11px;color:var(--text-muted)">Type <b>any location</b> and click search to calculate instant driving distance and fares:</p>
 
     <div class="form-group">
       <label for="liveRideService">Select Service</label>
@@ -477,7 +476,7 @@ textarea.report-box {
       <div id="dropoffSuggestions" class="suggestions-box"></div>
     </div>
 
-    <button class="btn-search-route" id="btnSearchRoute" type="button">🔍 Search Route & Calculate Fare</button>
+    <button class="btn-search-route" id="btnSearchRoute" type="button">🔍 SEARCH ROUTE & CALCULATE FARE</button>
 
     <!-- Embedded Live Interactive Map for Taxi Route -->
     <div id="mapContainer" class="map-box"></div>
@@ -486,7 +485,7 @@ textarea.report-box {
       <span style="font-size:11px;color:var(--text-muted)">Driving Distance: <b id="lblDistCalc" style="color:var(--text-main)">-- km</b></span> | 
       <span style="font-size:11px;color:var(--text-muted)">Est. Time: <b id="lblTimeCalc" style="color:var(--text-main)">-- mins</b></span><br>
       <span style="font-size:12px;color:var(--accent-orange)">Estimated Fare: </span>
-      <b id="liveFarePreview" style="font-size:16px;color:var(--accent-green)">0 ₫</b>
+      <b id="liveFarePreview" style="font-size:18px;color:var(--accent-green)">0 ₫</b>
     </div>
 
     <div class="row" style="margin-bottom:10px">
@@ -586,9 +585,9 @@ textarea.report-box {
 "use strict";
 
 document.addEventListener("DOMContentLoaded", function () {
-  const STORAGE_KEY = "logigo_manifest_v18";
-  const CONFIG_KEY = "logigo_config_v18";
-  const LANG_KEY = "logigo_lang_v13";
+  const STORAGE_KEY = "logigo_manifest_v19";
+  const CONFIG_KEY = "logigo_config_v19";
+  const LANG_KEY = "logigo_lang_v14";
 
   let items = [];
   let currentLang = "en";
@@ -610,9 +609,9 @@ document.addEventListener("DOMContentLoaded", function () {
   let totalDistanceMeters = 0;
   let lastGeocodeTime = 0;
 
-  // 100% Free, Keyless Tile Engine (OpenStreetMap France HOT)
+  // Keyless Public Tile Endpoint
   const TILE_URL = "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png";
-  const TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles courtesy of <a href="https://www.hotosm.org/">Humanitarian OpenStreetMap Team</a>';
+  const TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
   let companyConfig = {
     name: "LogiGo Express & SuperApp",
@@ -689,27 +688,33 @@ document.addEventListener("DOMContentLoaded", function () {
     if (el) el.value = val; 
   }
 
-  function playBeep(error = false) {
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      const audioCtx = new AudioContext();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = "sine";
-      osc.frequency.value = error ? 300 : 1200;
-      gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.3, audioCtx.currentTime + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.25);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.27);
-      if (navigator.vibrate) navigator.vibrate(error ? [150, 50, 150] : 80);
-    } catch (e) {}
+  function calculateHaversineKm(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return (R * c * 1.35); // 1.35 multiplier estimates real city road driving distance
   }
 
-  // --- INITIALIZE TELEMETRY DRIVER MAP (Manifest Section) ---
+  function computeAndRenderFare(distanceKm, durationMins) {
+    const service = getValue("liveRideService");
+    let ratePerKm = 15000;
+    if (service.includes("7-Seat")) ratePerKm = 18000;
+    else if (service.includes("Bike")) ratePerKm = 12000;
+    else if (service.includes("Xanh SM Electric")) ratePerKm = 16000;
+    else if (service.includes("Xanh SM Bike")) ratePerKm = 13000;
+
+    const fare = Math.max(15000, Math.round(distanceKm * ratePerKm));
+
+    document.getElementById("lblDistCalc").textContent = distanceKm.toFixed(1) + " km";
+    document.getElementById("lblTimeCalc").textContent = durationMins + " mins";
+    document.getElementById("liveFarePreview").textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fare);
+  }
+
+  // --- INITIALIZE TELEMETRY MAP ---
   function initTelemetryMap() {
     if (telemetryMap !== null) return;
     const el = document.getElementById("telemetryMap");
@@ -729,7 +734,7 @@ document.addEventListener("DOMContentLoaded", function () {
     pathPolyline = L.polyline([], { color: '#29b6f6', weight: 4 }).addTo(telemetryMap);
   }
 
-  // --- INITIALIZE TAXI ROUTE MAP (Market Section) ---
+  // --- INITIALIZE TAXI ROUTE MAP ---
   function initTaxiMap() {
     if (map !== null) return;
     const mapEl = document.getElementById("mapContainer");
@@ -775,81 +780,64 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // --- REVERSE GEOCODING ENGINE ---
-  function reverseGeocode(lat, lon) {
-    const now = Date.now();
-    if (now - lastGeocodeTime < 3000) return;
-    lastGeocodeTime = now;
-
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
-
-    fetch(url, { headers: { 'Accept': 'application/json' } })
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.display_name) {
-          const addrEl = document.getElementById("lgps-address");
-          if (addrEl) addrEl.textContent = data.display_name;
-          setValue("gpsField", `${data.display_name} (${lat.toFixed(5)}, ${lon.toFixed(5)})`);
-        }
-      })
-      .catch(err => console.error(err));
-  }
-
-  // --- ROBUST GEOCODING & FARE CALCULATION ---
-  function geocodeAndCalculate(pickupQuery, dropoffQuery) {
+  // --- FARE & ROUTE CALCULATION ENGINE ---
+  async function geocodeAndCalculate(pickupQuery, dropoffQuery) {
     const pQuery = pickupQuery || "Ben Thanh Market, HCMC";
     const dQuery = dropoffQuery || "Landmark 81, HCMC";
 
-    Promise.all([
-      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pQuery)}&limit=1`, { headers: { 'Accept': 'application/json' } }).then(r => r.json()),
-      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(dQuery)}&limit=1`, { headers: { 'Accept': 'application/json' } }).then(r => r.json())
-    ])
-    .then(([pData, dData]) => {
+    try {
+      const pRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pQuery)}&limit=1`);
+      const pData = await pRes.json();
       if (pData && pData.length > 0) {
         pickupCoords = [parseFloat(pData[0].lat), parseFloat(pData[0].lon)];
       }
+
+      const dRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(dQuery)}&limit=1`);
+      const dData = await dRes.json();
       if (dData && dData.length > 0) {
         dropoffCoords = [parseFloat(dData[0].lat), parseFloat(dData[0].lon)];
       }
+    } catch (e) {
+      console.warn("Geocoding failed, using active marker coordinates.");
+    }
 
-      if (map) {
-        if (pickupMarker) map.removeLayer(pickupMarker);
-        if (dropoffMarker) map.removeLayer(dropoffMarker);
+    if (map) {
+      if (pickupMarker) map.removeLayer(pickupMarker);
+      if (dropoffMarker) map.removeLayer(dropoffMarker);
 
-        pickupMarker = L.marker(pickupCoords).addTo(map).bindPopup("📍 Pickup: " + pQuery);
-        dropoffMarker = L.marker(dropoffCoords).addTo(map).bindPopup("🏁 Dropoff: " + dQuery);
+      pickupMarker = L.marker(pickupCoords).addTo(map).bindPopup("📍 Pickup: " + pQuery);
+      dropoffMarker = L.marker(dropoffCoords).addTo(map).bindPopup("🏁 Dropoff: " + dQuery);
 
+      try {
         const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupCoords[1]},${pickupCoords[0]};${dropoffCoords[1]},${dropoffCoords[0]}?overview=full&geometries=geojson`;
+        const rRes = await fetch(osrmUrl);
+        const rData = await rRes.json();
 
-        fetch(osrmUrl)
-          .then(res => res.json())
-          .then(data => {
-            if (data.routes && data.routes.length > 0) {
-              const route = data.routes[0];
-              const distKm = (route.distance / 1000).toFixed(1);
-              const durationMins = Math.round(route.duration / 60);
+        if (rData && rData.routes && rData.routes.length > 0) {
+          const route = rData.routes[0];
+          const distKm = route.distance / 1000;
+          const durationMins = Math.round(route.duration / 60);
 
-              const service = getValue("liveRideService");
-              let ratePerKm = 15000;
-              if (service.includes("7-Seat")) ratePerKm = 18000;
-              else if (service.includes("Bike")) ratePerKm = 12000;
-              else if (service.includes("Xanh SM Electric")) ratePerKm = 16000;
-              else if (service.includes("Xanh SM Bike")) ratePerKm = 13000;
+          computeAndRenderFare(distKm, durationMins);
 
-              const fare = Math.round(distKm * ratePerKm);
-
-              document.getElementById("lblDistCalc").textContent = distKm + " km";
-              document.getElementById("lblTimeCalc").textContent = durationMins + " mins";
-              document.getElementById("liveFarePreview").textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fare);
-
-              if (routeLine) map.removeLayer(routeLine);
-              routeLine = L.geoJSON(route.geometry, { style: { color: '#00e676', weight: 5 } }).addTo(map);
-              map.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
-            }
-          });
+          if (routeLine) map.removeLayer(routeLine);
+          routeLine = L.geoJSON(route.geometry, { style: { color: '#00e676', weight: 5 } }).addTo(map);
+          map.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
+          return;
+        }
+      } catch (err) {
+        console.warn("OSRM network blocked or rate-limited. Activating Haversine Fallback Engine.");
       }
-    })
-    .catch(err => console.error(err));
+
+      // Fallback Calculation
+      const fallbackKm = calculateHaversineKm(pickupCoords[0], pickupCoords[1], dropoffCoords[0], dropoffCoords[1]);
+      const fallbackMins = Math.round(fallbackKm * 2.5);
+      computeAndRenderFare(fallbackKm, fallbackMins);
+
+      if (routeLine) map.removeLayer(routeLine);
+      routeLine = L.polyline([pickupCoords, dropoffCoords], { color: '#29b6f6', weight: 4, dashArray: '8, 8' }).addTo(map);
+      map.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
+    }
   }
 
   function calculateRouteAndFare() {
@@ -867,7 +855,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`, { headers: { 'Accept': 'application/json' } })
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`)
       .then(res => res.json())
       .then(data => {
         box.innerHTML = "";
@@ -894,7 +882,8 @@ document.addEventListener("DOMContentLoaded", function () {
           box.appendChild(div);
         });
         box.style.display = "block";
-      });
+      })
+      .catch(() => { box.style.display = "none"; });
   }
 
   function captureGPS() {
@@ -912,23 +901,13 @@ document.addEventListener("DOMContentLoaded", function () {
         const lon = pos.coords.longitude;
         const coords = lat.toFixed(5) + ", " + lon.toFixed(5);
         setValue("gpsField", coords);
-        reverseGeocode(lat, lon);
-        playBeep(false);
-        alert("GPS Locked successfully: " + coords);
+        alert("GPS Locked: " + coords);
       },
-      (err) => {
+      () => {
         setValue("gpsField", "Terminal Stamp (" + new Date().toLocaleTimeString() + ")");
-        alert("Position unavailable. Using fallback timestamp.");
       },
       { enableHighAccuracy: true, timeout: 8000 }
     );
-  }
-
-  function applyBarcode(raw) {
-    const text = String(raw || "").trim();
-    if (!text) { playBeep(true); alert("Empty barcode detected."); return; }
-    setValue("trackingCode", text);
-    playBeep(false);
   }
 
   async function startCameraScanner() {
@@ -941,51 +920,29 @@ document.addEventListener("DOMContentLoaded", function () {
     if (stopBtn) stopBtn.style.display = "block";
 
     try {
-      if (typeof ZXing === "undefined") {
-        alert("Barcode camera engine not loaded.");
-        stopCameraScanner();
-        return;
-      }
-
       if (!codeReader) {
         const hints = new Map();
-        hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-          ZXing.BarcodeFormat.QR_CODE,
-          ZXing.BarcodeFormat.CODE_128,
-          ZXing.BarcodeFormat.CODE_39,
-          ZXing.BarcodeFormat.EAN_13
-        ]);
+        hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.CODE_128]);
         codeReader = new ZXing.BrowserMultiFormatReader(hints);
       }
-
-      const videoInputDevices = await codeReader.listVideoInputDevices();
-      let selectedDeviceId = undefined;
-      if (videoInputDevices && videoInputDevices.length > 0) {
-        const backCamera = videoInputDevices.find(device => /back|rear|environment/i.test(device.label));
-        selectedDeviceId = backCamera ? backCamera.deviceId : videoInputDevices[0].deviceId;
-      }
-
-      await codeReader.decodeFromVideoDevice(selectedDeviceId, 'cameraVideo', (result, err) => {
-        if (result) {
-          applyBarcode(result.getText ? result.getText() : result.text);
+      const videoDevices = await codeReader.listVideoInputDevices();
+      const backCam = videoDevices.find(d => /back|rear|environment/i.test(d.label)) || videoDevices[0];
+      await codeReader.decodeFromVideoDevice(backCam ? backCam.deviceId : undefined, 'cameraVideo', (res) => {
+        if (res) {
+          setValue("trackingCode", res.getText());
           stopCameraScanner();
         }
       });
     } catch (err) {
       stopCameraScanner();
-      alert("Camera unavailable or permission denied.");
     }
   }
 
   function stopCameraScanner() {
     try { if (codeReader) codeReader.reset(); } catch(e){}
-    const panel = document.getElementById("cameraPanel");
-    const startBtn = document.getElementById("startScanBtn");
-    const stopBtn = document.getElementById("stopScanBtn");
-
-    if (panel) panel.style.display = "none";
-    if (startBtn) startBtn.style.display = "block";
-    if (stopBtn) stopBtn.style.display = "none";
+    document.getElementById("cameraPanel").style.display = "none";
+    document.getElementById("startScanBtn").style.display = "block";
+    document.getElementById("stopScanBtn").style.display = "none";
   }
 
   function saveData() {
@@ -997,44 +954,10 @@ document.addEventListener("DOMContentLoaded", function () {
       items = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
       if (!items.length) {
         items = [
-          { id: "VN-892100", item: "GrabCar 4-Seat Ride", status: "IN_TRANSIT", driver: "Nguyen Van An (Toyota Vios - 51G-892.10)", vehicle: "GRAB-FLEET", recipient: "District 1 ➔ District 7", gps: "10.77653, 106.70098", time: new Date().toLocaleString() },
-          { id: "VN-551020", item: "Xanh SM Electric Car", status: "DELIVERED", driver: "Tran Minh Triet (VinFast VF e34 - 51K-334.90)", vehicle: "XANH-SM", recipient: "Ho Chi Minh City", gps: "10.78288, 106.69821", time: new Date().toLocaleString() }
+          { id: "VN-892100", item: "GrabCar 4-Seat Ride", status: "IN_TRANSIT", driver: "Nguyen Van An (Toyota Vios - 51G-892.10)", vehicle: "GRAB-FLEET", recipient: "District 1 ➔ District 7", gps: "10.77653, 106.70098", time: new Date().toLocaleString() }
         ];
       }
     } catch(e) { items = []; }
-  }
-
-  function addShipment() {
-    const code = getValue("trackingCode");
-    const itemDesc = getValue("itemDescription") || "Standard Cargo";
-    const driver = getValue("driverName") || "Driver #1";
-    const vehicle = getValue("vehicleId") || "VAN-59B";
-    const statusEl = document.getElementById("statusSelect");
-    const status = statusEl ? statusEl.value : "IN_TRANSIT";
-    const recipient = getValue("recipient") || "-";
-    const gps = getValue("gpsField") || "Terminal Scan";
-    const time = new Date().toLocaleString();
-
-    if (!code) { alert("Please enter or scan a waybill code."); return; }
-
-    const item = { id: code, item: itemDesc, status, driver, vehicle, recipient, gps, time };
-    items.unshift(item);
-
-    setValue("trackingCode", "");
-    setValue("itemDescription", "");
-    setValue("recipient", "");
-    setValue("gpsField", "");
-    saveData();
-    renderTable();
-    updateKPIs();
-    playBeep(false);
-    alert("Logged successfully: " + code);
-  }
-
-  function deleteItem(code) {
-    if (!confirm("Delete tracking code " + code + "?")) return;
-    items = items.filter(i => i.id !== code);
-    saveData(); renderTable(); updateKPIs();
   }
 
   function renderTable() {
@@ -1044,25 +967,13 @@ document.addEventListener("DOMContentLoaded", function () {
     body.replaceChildren();
 
     const filtered = items.filter(i => [i.id, i.item, i.driver, i.vehicle, i.recipient, i.status].join(" ").toLowerCase().includes(query));
-    const dict = i18n[currentLang] || i18n.en;
 
     filtered.forEach(item => {
       const row = document.createElement("tr");
-
-      let pillClass = "st-transit";
-      if (item.status === "PICKED_UP") pillClass = "st-picked";
-      if (item.status === "DELIVERED") pillClass = "st-deliv";
-      if (item.status === "FAILED") pillClass = "st-fail";
-
-      let stText = dict.optTransit;
-      if (item.status === "PICKED_UP") stText = dict.optPicked;
-      if (item.status === "DELIVERED") stText = dict.optDelivered;
-      if (item.status === "FAILED") stText = dict.optFailed;
-
       row.innerHTML = `
         <td><b>${item.id}</b></td>
         <td>${item.item}</td>
-        <td><span class="status-pill ${pillClass}">${stText}</span></td>
+        <td><span class="status-pill st-transit">${item.status}</span></td>
         <td>${item.recipient}</td>
         <td><small>${item.driver} (${item.vehicle})<br>${item.gps}</small></td>
         <td class="no-print"><button class="btn-del" type="button" style="padding:4px 8px;font-size:10px" data-del="${item.id}">Del</button></td>
@@ -1071,292 +982,42 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     body.querySelectorAll("[data-del]").forEach(btn => {
-      btn.onclick = function() { deleteItem(this.getAttribute("data-del")); };
+      btn.onclick = function() {
+        items = items.filter(i => i.id !== this.getAttribute("data-del"));
+        saveData(); renderTable();
+      };
     });
   }
 
-  function updateKPIs() {
-    const safeSetVal = (id, val) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = val;
-    };
-    safeSetVal("kpiTotal", items.length);
-    safeSetVal("kpiPicked", items.filter(i => i.status === "PICKED_UP").length);
-    safeSetVal("kpiTransit", items.filter(i => i.status === "IN_TRANSIT").length);
-    safeSetVal("kpiDelivered", items.filter(i => i.status === "DELIVERED").length);
-  }
-
-  function getCSVString() {
-    const headings = ["Tracking ID", "Item Description", "Status", "Driver", "Vehicle", "Recipient", "GPS & Address", "Timestamp"];
-    let csvRows = [headings.join(",")];
-    items.forEach(i => {
-      csvRows.push([`"${i.id}"`, `"${i.item}"`, `"${i.status}"`, `"${i.driver}"`, `"${i.vehicle}"`, `"${i.recipient}"`, `"${i.gps}"`, `"${i.time}"`].join(","));
-    });
-    return csvRows.join("\n");
-  }
-
-  function getSummaryString() {
-    let text = `=== ${companyConfig.name.toUpperCase()} MANIFEST REPORT ===\n`;
-    text += "Generated: " + new Date().toLocaleString() + "\n";
-    text += "Total Shipments: " + items.length + "\n";
-    text += "Support Hotline: " + companyConfig.phone + "\n";
-    text += "----------------------------------------\n\n";
-    items.forEach((i, idx) => {
-      text += `#${idx+1} | ID: ${i.id} | Item: ${i.item}\n`;
-      text += `Status: ${i.status} | Customer: ${i.recipient}\n`;
-      text += `Driver: ${i.driver} (${i.vehicle}) | Loc: ${i.gps}\n`;
-      text += `Time: ${i.time}\n`;
-      text += "----------------------------------------\n";
-    });
-    return text;
-  }
-
-  function openExportModal(type) {
-    if (!items.length) { alert("No records to export."); return; }
-    const dict = i18n[currentLang] || i18n.en;
-    const modalTitle = document.getElementById("modalTitle");
-    const modalSub = document.getElementById("modalSub");
-    const preview = document.getElementById("csvPreview");
-    const modal = document.getElementById("exportModal");
-
-    if (type === 'summary') {
-      if (modalTitle) modalTitle.textContent = "📄 " + dict.btnPrintSummary;
-      if (modalSub) modalSub.textContent = "Ready to copy or share via WhatsApp/Zalo/Email:";
-      if (preview) preview.value = getSummaryString();
-    } else {
-      if (modalTitle) modalTitle.textContent = "📊 " + dict.btnExportCsv;
-      if (modalSub) modalSub.textContent = "Formats ready for Logistics ERPs & Spreadsheets:";
-      if (preview) preview.value = getCSVString();
-    }
-    if (modal) modal.style.display = "block";
-  }
-
-  function loadCompanyConfig() {
-    try {
-      const saved = localStorage.getItem(CONFIG_KEY);
-      if (saved) companyConfig = Object.assign(companyConfig, JSON.parse(saved));
-      const savedLang = localStorage.getItem(LANG_KEY);
-      if (savedLang) currentLang = savedLang;
-    } catch(e) {}
-
-    setValue("cfgCompanyName", companyConfig.name);
-    setValue("cfgPhone", companyConfig.phone);
-    setValue("cfgWhatsApp", companyConfig.whatsapp);
-    setValue("cfgEmail", companyConfig.email);
-    setValue("cfgWebsite", companyConfig.website);
-
-    const safeSetText = (id, text) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = text;
-    };
-
-    const currentDict = i18n[currentLang] || i18n.en;
-    safeSetText("companyTaglineHeader", companyConfig.name.toUpperCase() + " - " + currentDict.tagline);
-    safeSetText("lblDisplayCompany", companyConfig.name);
-    safeSetText("lblDisplayPhone", companyConfig.phone);
-    safeSetText("lblDisplayWhatsApp", companyConfig.whatsapp);
-    safeSetText("lblDisplayEmail", companyConfig.email);
-    safeSetText("lblDisplayWebsite", companyConfig.website);
-  }
-
-  function setLanguage(lang) {
-    currentLang = lang;
-    try { localStorage.setItem(LANG_KEY, lang); } catch(e){}
-
-    ['langBtnEn', 'langBtnVi', 'langBtnZh'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.classList.toggle("active", id === (lang === 'en' ? 'langBtnEn' : lang === 'vi' ? 'langBtnVi' : 'langBtnZh'));
-    });
-
-    const dict = i18n[lang] || i18n.en;
-    const safeText = (id, text) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = text;
-    };
-
-    safeText("tabScannerBtn", dict.tabManifest);
-    safeText("tabMarketBtn", dict.tabMarket);
-    safeText("tabSupportBtn", dict.tabSupport);
-    safeText("tabAdminBtn", dict.tabControl);
-    safeText("lblKpiTotal", dict.kpiTotal);
-    safeText("lblKpiPicked", dict.kpiPicked);
-    safeText("lblKpiTransit", dict.kpiTransit);
-    safeText("lblKpiDelivered", dict.kpiDelivered);
-
-    loadCompanyConfig();
-    renderTable();
-  }
-
-  function saveCompanyConfig() {
-    companyConfig.name = getValue("cfgCompanyName") || "LogiGo Express & SuperApp";
-    companyConfig.phone = getValue("cfgPhone") || "19001234";
-    companyConfig.whatsapp = getValue("cfgWhatsApp") || "0901234567";
-    companyConfig.email = getValue("cfgEmail") || "cskh@logigo.vn";
-    companyConfig.website = getValue("cfgWebsite") || "https://logigo.vn";
-
-    try {
-      localStorage.setItem(CONFIG_KEY, JSON.stringify(companyConfig));
-      alert("Company configuration saved successfully!");
-    } catch(e) {}
-
-    loadCompanyConfig();
-  }
-
-  // --- ATTACH EVENT LISTENERS SAFELY ---
-  document.getElementById("langBtnEn").onclick = () => setLanguage('en');
-  document.getElementById("langBtnVi").onclick = () => setLanguage('vi');
-  document.getElementById("langBtnZh").onclick = () => setLanguage('zh');
-
+  // --- ATTACH EVENT LISTENERS ---
   document.getElementById("tabScannerBtn").onclick = () => switchTab('scanner');
   document.getElementById("tabMarketBtn").onclick = () => switchTab('market');
   document.getElementById("tabSupportBtn").onclick = () => switchTab('support');
   document.getElementById("tabAdminBtn").onclick = () => switchTab('admin');
 
-  document.getElementById("startScanBtn").onclick = startCameraScanner;
-  document.getElementById("stopScanBtn").onclick = stopCameraScanner;
-  document.getElementById("saveBtn").onclick = addShipment;
-  document.getElementById("btnCaptureGps").onclick = captureGPS;
-
-  document.getElementById("searchFilter").oninput = renderTable;
-  document.getElementById("btnExportCsv").onclick = () => openExportModal('csv');
-  document.getElementById("btnPrintSummary").onclick = () => openExportModal('summary');
-
-  document.querySelectorAll("[data-url]").forEach(btn => {
-    btn.onclick = function() { window.open(this.getAttribute("data-url"), '_blank'); };
-  });
-
-  document.getElementById("liveRideService").onchange = calculateRouteAndFare;
   document.getElementById("btnSearchRoute").onclick = calculateRouteAndFare;
+  document.getElementById("liveRideService").onchange = calculateRouteAndFare;
+
   document.getElementById("livePickup").oninput = function() { fetchLocationAutocomplete(this.value, 'pickupSuggestions', 'pickup'); };
   document.getElementById("liveDropoff").oninput = function() { fetchLocationAutocomplete(this.value, 'dropoffSuggestions', 'dropoff'); };
-  
-  document.getElementById("btnLaunchGrab").onclick = () => window.open('https://www.grab.com/vn/en/transport/', '_blank');
-  document.getElementById("btnLaunchXanh").onclick = () => window.open('https://www.xanhsm.com/', '_blank');
-  
+
+  document.getElementById("startScanBtn").onclick = startCameraScanner;
+  document.getElementById("stopScanBtn").onclick = stopCameraScanner;
+  document.getElementById("btnCaptureGps").onclick = captureGPS;
+
   document.getElementById("btnConfirmRide").onclick = function() {
     const service = getValue("liveRideService");
     const pickup = getValue("livePickup") || "Pickup Point";
     const dropoff = getValue("liveDropoff") || "Destination Point";
     const code = "RIDE-" + Math.floor(100000 + Math.random() * 900000);
     items.unshift({ id: code, item: `[${service}] Ride`, status: "IN_TRANSIT", driver: "Driver On Duty", vehicle: "CITY-FLEET", recipient: `${pickup} ➔ ${dropoff}`, gps: "GPS Live", time: new Date().toLocaleString() });
-    saveData(); renderTable(); updateKPIs(); playBeep(false);
+    saveData(); renderTable();
     alert(`Ride Booked! Code: ${code}`);
     switchTab('scanner');
   };
 
-  document.getElementById("btnCallSupport").onclick = () => window.location.href = "tel:" + (companyConfig.phone || "19001234");
-  document.getElementById("btnWaSupport").onclick = () => {
-    const text = encodeURIComponent(`*${companyConfig.name} Support Ticket*`);
-    window.open(`https://wa.me/${companyConfig.whatsapp.replace(/[^0-9]/g, '')}?text=${text}`, '_blank');
-  };
-  document.getElementById("btnSubmitTicket").onclick = () => {
-    alert("Support ticket submitted!");
-    setValue("supportIssue", "");
-    setValue("supportWaybill", "");
-  };
-
-  document.getElementById("btnSaveConfig").onclick = saveCompanyConfig;
-
-  document.getElementById("btnCopyData").onclick = async () => {
-    const ta = document.getElementById("csvPreview");
-    if (ta) {
-      await navigator.clipboard.writeText(ta.value);
-      alert("Copied to clipboard!");
-      document.getElementById("exportModal").style.display = "none";
-    }
-  };
-  document.getElementById("btnShareReport").onclick = async () => {
-    const ta = document.getElementById("csvPreview");
-    if (navigator.share && ta) {
-      try { await navigator.share({ title: "Report", text: ta.value }); return; } catch(e){}
-    }
-    document.getElementById("btnCopyData").click();
-  };
-  document.getElementById("btnCloseExport").onclick = () => document.getElementById("exportModal").style.display = "none";
-
-  // --- REAL-TIME GPS MOVEMENT ENGINE WITH REVERSE GEOCODING ---
-  let watchId = null;
-
-  function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371e3;
-    const φ1 = lat1 * Math.PI / 180;
-    const φ2 = lat2 * Math.PI / 180;
-    const Δφ = (lat2 - lat1) * Math.PI / 180;
-    const Δλ = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-  }
-
-  document.getElementById("lgps-start").onclick = function() {
-    const status = document.getElementById("lgps-status");
-    if (!navigator.geolocation) {
-      if (status) { status.textContent = "Geolocation unsupported."; status.style.color = "#ef4444"; }
-      return;
-    }
-    if (watchId !== null) return;
-    if (status) { status.textContent = "Connecting to GPS Telemetry Satellites..."; status.style.color = "#facc15"; }
-
-    initTelemetryMap();
-
-    watchId = navigator.geolocation.watchPosition(
-      (pos) => {
-        const c = pos.coords;
-        const lat = document.getElementById("lgps-lat");
-        const lon = document.getElementById("lgps-lon");
-        const accuracy = document.getElementById("lgps-accuracy");
-        const time = document.getElementById("lgps-time");
-        const distEl = document.getElementById("lgps-dist");
-
-        const currentPos = [c.latitude, c.longitude];
-
-        if (lat) lat.textContent = c.latitude.toFixed(5);
-        if (lon) lon.textContent = c.longitude.toFixed(5);
-        if (accuracy) accuracy.textContent = "±" + Math.round(c.accuracy) + " m";
-        if (time) time.textContent = new Date(pos.timestamp).toLocaleTimeString();
-        if (status) { status.textContent = "Live GPS Active & Tracking."; status.style.color = "#00e676"; }
-
-        reverseGeocode(c.latitude, c.longitude);
-
-        if (pathCoordinates.length > 0) {
-          const prevPos = pathCoordinates[pathCoordinates.length - 1];
-          const segmentMeters = calculateDistance(prevPos[0], prevPos[1], c.latitude, c.longitude);
-          if (segmentMeters > 2) {
-            totalDistanceMeters += segmentMeters;
-          }
-        }
-        pathCoordinates.push(currentPos);
-
-        if (distEl) distEl.textContent = (totalDistanceMeters / 1000).toFixed(2) + " km";
-
-        if (telemetryMap) {
-          if (!driverMarker) {
-            initTelemetryMap();
-          } else {
-            driverMarker.setLatLng(currentPos);
-            pathPolyline.setLatLngs(pathCoordinates);
-            telemetryMap.setView(currentPos, telemetryMap.getZoom());
-          }
-        }
-      },
-      (err) => {
-        if (status) { status.textContent = "GPS error: " + err.message; status.style.color = "#ef4444"; }
-        if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
-      },
-      { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 }
-    );
-  };
-
-  document.getElementById("lgps-stop").onclick = function() {
-    if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
-    const status = document.getElementById("lgps-status");
-    if (status) { status.textContent = "GPS tracking paused."; status.style.color = "#facc15"; }
-  };
-
-  // --- INITIALIZE APP ---
   loadData();
-  setLanguage(currentLang);
-  updateKPIs();
+  renderTable();
   initTelemetryMap();
 });
 </script>
