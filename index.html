@@ -585,9 +585,9 @@ textarea.report-box {
 "use strict";
 
 document.addEventListener("DOMContentLoaded", function () {
-  const STORAGE_KEY = "logigo_manifest_v20";
-  const CONFIG_KEY = "logigo_config_v20";
-  const LANG_KEY = "logigo_lang_v15";
+  const STORAGE_KEY = "logigo_manifest_v21";
+  const CONFIG_KEY = "logigo_config_v21";
+  const LANG_KEY = "logigo_lang_v16";
 
   let items = [];
   let currentLang = "en";
@@ -626,55 +626,22 @@ document.addEventListener("DOMContentLoaded", function () {
       tagline: "VIETNAM & GLOBAL LOGISTICS, RIDE-HAILING & E-COMMERCE ENGINE",
       tabManifest: "📦 Manifest", tabMarket: "🛒 E-Shop & Rides", tabSupport: "🎧 Support", tabControl: "⚙️ Control",
       kpiTotal: "TOTAL", kpiPicked: "PICKED UP", kpiTransit: "IN TRANSIT", kpiDelivered: "DELIVERED",
-      lblDriver: "Driver / Officer", lblVehicle: "Vehicle / Route ID", btnOpenCam: "📷 OPEN CAMERA SCANNER", btnStopCam: "✕ STOP CAMERA",
-      lblTracking: "Waybill / Tracking Barcode", lblItemDesc: "Package Item / Product Type", lblRecipient: "Customer / Recipient Name",
-      lblStatus: "Delivery Status", optPicked: "Picked Up", optTransit: "In Transit", optDelivered: "Delivered", optFailed: "Delivery Exception",
-      lblGps: "GPS Location / Terminal Tag", btnLogShipment: "➕ LOG SHIPMENT TO MANIFEST", phSearch: "🔍 Search tracking number, product, driver, or customer...",
-      thWaybill: "Tracking ID", thItem: "Item / Product", thStatus: "Status", thCustomer: "Customer / Recipient", thDriverGps: "Driver & GPS", thActions: "Actions",
-      btnExportCsv: "📊 Export CSV", btnPrintSummary: "📄 Printable Summary",
-      hdrSupport: "🎧 Dispatch & Dispute Support Center", descSupport: "Need help with an emergency, dispute, or address change? Connect instantly with our team:",
-      lblSupportWaybill: "Reference Waybill / Tracking ID (Optional)", lblSupportIssue: "Describe Issue / Dispute / Address Change",
-      btnCallSupport: "📞 CALL DISPATCH HOTLINE", btnWaSupport: "💬 CHAT VIA WHATSAPP / ZALO", btnSubmitTicket: "📩 SUBMIT SUPPORT TICKET",
-      hdrCompanyDetails: "Official Contact Details", lblCompany: "Company:", lblHotline: "Support Phone:", lblWhatsApp: "WhatsApp / Zalo:", lblEmail: "Email:", lblWebsite: "Website:",
-      hdrAdminControl: "⚙️ Company Self-Service Control Panel", descAdminControl: "Configure your business contact details. Changing these details instantly updates all support routing across the app!",
-      lblCfgName: "Business / Company Name", lblCfgPhone: "Dispatch Hotline (Calls)", lblCfgWhatsApp: "WhatsApp / Zalo Number", lblCfgEmail: "Support Email Address", lblCfgWebsite: "Website URL", btnSaveConfig: "💾 SAVE COMPANY CONFIGURATION",
-      btnCopyData: "📋 COPY DATA TO CLIPBOARD", btnShareReport: "📲 SHARE VIA WHATSAPP / ZALO / EMAIL", btnCloseExport: "✕ Close Window"
+      optPicked: "Picked Up", optTransit: "In Transit", optDelivered: "Delivered", optFailed: "Delivery Exception",
+      btnExportCsv: "📊 Export CSV", btnPrintSummary: "📄 Printable Summary"
     },
     vi: {
       tagline: "GIAO HÀNG TOÀN QUỐC & SIÊU ỨNG DỤNG THƯƠNG MẠI ĐIỆN TỬ",
       tabManifest: "📦 Đơn Hàng", tabMarket: "🛒 Mua Sắm & Đặt Xe", tabSupport: "🎧 Hỗ Trợ", tabControl: "⚙️ Cấu Hình",
       kpiTotal: "TỔNG ĐƠN", kpiPicked: "ĐÃ NHẬN", kpiTransit: "ĐANG GIAO", kpiDelivered: "THÀNH CÔNG",
-      lblDriver: "Tài Xế / Nhân Viên", lblVehicle: "Mã Xe / Tuyến", btnOpenCam: "📷 MỞ CAMERA QUÉT MÃ", btnStopCam: "✕ TẮT CAMERA",
-      lblTracking: "Mã Vận Đơn / Barcode", lblItemDesc: "Tên Sản Phẩm / Hàng Hóa", lblRecipient: "Người Nhận / Địa Chỉ",
-      lblStatus: "Trạng Thái Giao Hàng", optPicked: "Đã Nhận Hàng", optTransit: "Đang Giao Hàng", optDelivered: "Giao Thành Công", optFailed: "Giao Thất Bại / Sự Cố",
-      lblGps: "Tọa Độ GPS / Vị Trí Giao", btnLogShipment: "➕ LƯU ĐƠN VÀO DANH SÁCH", phSearch: "🔍 Tìm theo mã đơn, sản phẩm, tài xế, khách hàng...",
-      thWaybill: "Mã Vận Đơn", thItem: "Sản Phẩm", thStatus: "Trạng Thái", thCustomer: "Khách Hàng", thDriverGps: "Tài Xế & GPS", thActions: "Thao Tác",
-      btnExportCsv: "📊 Xuất File CSV", btnPrintSummary: "📄 Báo Cáo Tổng Hợp",
-      hdrSupport: "🎧 Trung Tâm Hỗ Trợ & Khiếu Nại Đơn Hàng", descSupport: "Cần hỗ trợ sự cố, đổi địa chỉ giao hàng hoặc phản hồi dịch vụ? Liên hệ ngay:",
-      lblSupportWaybill: "Mã Vận Đơn / Đơn Hàng (Không bắt buộc)", lblSupportIssue: "Nội Dung Sự Cố / Yêu Cầu Đổi Địa Chỉ",
-      btnCallSupport: "📞 GỌI HOTLINE TỔNG ĐÀI", btnWaSupport: "💬 CHAT QUA WHATSAPP / ZALO", btnSubmitTicket: "📩 GỬI YÊU CẦU HỖ TRỢ",
-      hdrCompanyDetails: "Thông Tin Liên Hệ Doanh Nghiệp", lblCompany: "Doanh Nghiệp:", lblHotline: "Hotline:", lblWhatsApp: "WhatsApp / Zalo:", lblEmail: "Email:", lblWebsite: "Website:",
-      hdrAdminControl: "⚙️ Cấu Hình Doanh Nghiệp (Tự Quản Lý)", descAdminControl: "Nhập số điện thoại, Zalo/WhatsApp và thông tin công ty của bạn. Thông tin sẽ tự động áp dụng toàn bộ ứng dụng!",
-      lblCfgName: "Tên Công Ty / Cửa Hàng", lblCfgPhone: "Số Hotline Gọi Điện", lblCfgWhatsApp: "Số Zalo / WhatsApp", lblCfgEmail: "Email Hỗ Trợ Khách Hàng", lblCfgWebsite: "Địa Chỉ Website", btnSaveConfig: "💾 LƯU CẤU HÌNH DOANH NGHIỆP",
-      btnCopyData: "📋 SAO CHÉP DỮ LIỆU", btnShareReport: "📲 CHIA SẺ QUA ZALO / EMAIL", btnCloseExport: "✕ Đóng Cửa Sổ"
+      optPicked: "Đã Nhận Hàng", optTransit: "Đang Giao Hàng", optDelivered: "Giao Thành Công", optFailed: "Giao Thất Bại / Sự Cố",
+      btnExportCsv: "📊 Xuất File CSV", btnPrintSummary: "📄 Báo Cáo Tổng Hợp"
     },
     zh: {
       tagline: "越南全境与全球物流派送、叫车出行与电商超级应用平台",
       tabManifest: "📦 运单列表", tabMarket: "🛒 商城与出行", tabSupport: "🎧 客服中心", tabControl: "⚙️ 公司设置",
       kpiTotal: "总运单", kpiPicked: "已揽收", kpiTransit: "运输中", kpiDelivered: "已送达",
-      lblDriver: "司机 / 派送员", lblVehicle: "车辆 / 路线 ID", btnOpenCam: "📷 打开摄像头扫码", btnStopCam: "✕ 关闭摄像头",
-      lblTracking: "运单号 / 条形码", lblItemDesc: "包裹物品 / 产品类型", lblRecipient: "收件人 / 目的地",
-      lblStatus: "派送状态", optPicked: "已揽收", optTransit: "派送中", optDelivered: "已送达", optFailed: "派送异常",
-      lblGps: "GPS 定位 / 站点标记", btnLogShipment: "➕ 添加运单至列表", phSearch: "🔍 搜索运单号、物品、司机或收件人...",
-      thWaybill: "运单号", thItem: "物品", thStatus: "状态", thCustomer: "收件人", thDriverGps: "司机与 GPS", thActions: "操作",
-      btnExportCsv: "📊 导出 CSV", btnPrintSummary: "📄 打印汇总报告",
-      hdrSupport: "🎧 调度与争议客服中心", descSupport: "需要紧急协助、修改地址或处理争议？请即刻联系我们：",
-      lblSupportWaybill: "参考运单号 (选填)", lblSupportIssue: "描述问题 / 争议 / 修改地址",
-      btnCallSupport: "📞 拨打调度热线", btnWaSupport: "💬 微信 / WhatsApp / Zalo 客服", btnSubmitTicket: "📩 提交客服工单",
-      hdrCompanyDetails: "官方联系方式", lblCompany: "公司名称:", lblHotline: "客服热线:", lblWhatsApp: "WhatsApp / Zalo / 微信:", lblEmail: "电子邮箱:", lblWebsite: "官方网站:",
-      hdrAdminControl: "⚙️ 公司自主管理控制台", descAdminControl: "配置您的企业联系方式。保存后将即时更新应用内所有客服与路由信息！",
-      lblCfgName: "企业 / 公司名称", lblCfgPhone: "调度热线电话", lblCfgWhatsApp: "WhatsApp / Zalo / 微信账号", lblCfgEmail: "客服电子邮箱", lblCfgWebsite: "官方网站 URL", btnSaveConfig: "💾 保存公司配置",
-      btnCopyData: "📋 复制数据至剪贴板", btnShareReport: "📲 分享报告 (微信/Zalo/邮箱)", btnCloseExport: "✕ 关闭窗口"
+      optPicked: "已揽收", optTransit: "派送中", optDelivered: "已送达", optFailed: "派送异常",
+      btnExportCsv: "📊 导出 CSV", btnPrintSummary: "📄 打印汇总报告"
     }
   };
 
@@ -686,6 +653,25 @@ document.addEventListener("DOMContentLoaded", function () {
   function setValue(id, val) { 
     const el = document.getElementById(id);
     if (el) el.value = val; 
+  }
+
+  function playBeep(error = false) {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const audioCtx = new AudioContext();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = error ? 300 : 1200;
+      gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.3, audioCtx.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.25);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.27);
+    } catch (e) {}
   }
 
   function calculateHaversineKm(lat1, lon1, lat2, lon2) {
@@ -842,7 +828,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       } catch (err) {}
 
-      // Fallback Calculation
       const fallbackKm = calculateHaversineKm(pickupCoords[0], pickupCoords[1], dropoffCoords[0], dropoffCoords[1]);
       const fallbackMins = Math.round(fallbackKm * 2.5);
       computeAndRenderFare(fallbackKm, fallbackMins);
@@ -973,6 +958,45 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch(e) { items = []; }
   }
 
+  function addShipment() {
+    const code = getValue("trackingCode");
+    const itemDesc = getValue("itemDescription") || "Standard Cargo";
+    const driver = getValue("driverName") || "Driver #104";
+    const vehicle = getValue("vehicleId") || "VAN-59B";
+    const statusEl = document.getElementById("statusSelect");
+    const status = statusEl ? statusEl.value : "IN_TRANSIT";
+    const recipient = getValue("recipient") || "General Customer";
+    const gps = getValue("gpsField") || "Terminal Scan";
+    const time = new Date().toLocaleString();
+
+    if (!code) {
+      alert("Please enter or scan a waybill tracking code.");
+      return;
+    }
+
+    const newItem = { id: code, item: itemDesc, status, driver, vehicle, recipient, gps, time };
+    items.unshift(newItem);
+
+    setValue("trackingCode", "");
+    setValue("itemDescription", "");
+    setValue("recipient", "");
+    setValue("gpsField", "");
+
+    saveData();
+    renderTable();
+    updateKPIs();
+    playBeep(false);
+    alert("Shipment successfully logged to manifest: " + code);
+  }
+
+  function deleteItem(code) {
+    if (!confirm("Delete tracking code " + code + "?")) return;
+    items = items.filter(i => i.id !== code);
+    saveData();
+    renderTable();
+    updateKPIs();
+  }
+
   function renderTable() {
     const body = document.getElementById("manifestBody");
     if (!body) return;
@@ -982,11 +1006,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const filtered = items.filter(i => [i.id, i.item, i.driver, i.vehicle, i.recipient, i.status].join(" ").toLowerCase().includes(query));
 
     filtered.forEach(item => {
+      let pillClass = "st-transit";
+      if (item.status === "PICKED_UP") pillClass = "st-picked";
+      if (item.status === "DELIVERED") pillClass = "st-deliv";
+      if (item.status === "FAILED") pillClass = "st-fail";
+
       const row = document.createElement("tr");
       row.innerHTML = `
         <td><b>${item.id}</b></td>
         <td>${item.item}</td>
-        <td><span class="status-pill st-transit">${item.status}</span></td>
+        <td><span class="status-pill ${pillClass}">${item.status}</span></td>
         <td>${item.recipient}</td>
         <td><small>${item.driver} (${item.vehicle})<br>${item.gps}</small></td>
         <td class="no-print"><button class="btn-del" type="button" style="padding:4px 8px;font-size:10px" data-del="${item.id}">Del</button></td>
@@ -996,13 +1025,67 @@ document.addEventListener("DOMContentLoaded", function () {
 
     body.querySelectorAll("[data-del]").forEach(btn => {
       btn.onclick = function() {
-        items = items.filter(i => i.id !== this.getAttribute("data-del"));
-        saveData(); renderTable();
+        deleteItem(this.getAttribute("data-del"));
       };
     });
   }
 
-  // --- REAL-TIME GPS TELEMETRY ENGINE FIXED ---
+  function updateKPIs() {
+    const safeSetVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    };
+    safeSetVal("kpiTotal", items.length);
+    safeSetVal("kpiPicked", items.filter(i => i.status === "PICKED_UP").length);
+    safeSetVal("kpiTransit", items.filter(i => i.status === "IN_TRANSIT").length);
+    safeSetVal("kpiDelivered", items.filter(i => i.status === "DELIVERED").length);
+  }
+
+  function getCSVString() {
+    const headings = ["Tracking ID", "Item Description", "Status", "Driver", "Vehicle", "Recipient", "GPS & Address", "Timestamp"];
+    let csvRows = [headings.join(",")];
+    items.forEach(i => {
+      csvRows.push([`"${i.id}"`, `"${i.item}"`, `"${i.status}"`, `"${i.driver}"`, `"${i.vehicle}"`, `"${i.recipient}"`, `"${i.gps}"`, `"${i.time}"`].join(","));
+    });
+    return csvRows.join("\n");
+  }
+
+  function getSummaryString() {
+    let text = `=== LOGIGO EXPRESS MANIFEST REPORT ===\n`;
+    text += "Generated: " + new Date().toLocaleString() + "\n";
+    text += "Total Shipments: " + items.length + "\n";
+    text += "Support Hotline: " + companyConfig.phone + "\n";
+    text += "----------------------------------------\n\n";
+    items.forEach((i, idx) => {
+      text += `#${idx+1} | ID: ${i.id} | Item: ${i.item}\n`;
+      text += `Status: ${i.status} | Customer: ${i.recipient}\n`;
+      text += `Driver: ${i.driver} (${i.vehicle}) | Loc: ${i.gps}\n`;
+      text += `Time: ${i.time}\n`;
+      text += "----------------------------------------\n";
+    });
+    return text;
+  }
+
+  function openExportModal(type) {
+    if (!items.length) { alert("No records to export."); return; }
+    const modalTitle = document.getElementById("modalTitle");
+    const modalSub = document.getElementById("modalSub");
+    const preview = document.getElementById("csvPreview");
+    const modal = document.getElementById("exportModal");
+
+    if (type === 'summary') {
+      if (modalTitle) modalTitle.textContent = "📄 Printable Summary Report";
+      if (modalSub) modalSub.textContent = "Ready to copy or share:";
+      if (preview) preview.value = getSummaryString();
+    } else {
+      if (modalTitle) modalTitle.textContent = "📊 Export CSV Data";
+      if (modalSub) modalSub.textContent = "Formats ready for ERPs & Spreadsheets:";
+      if (preview) preview.value = getCSVString();
+    }
+    if (modal) modal.style.display = "block";
+  }
+
+  // --- REAL-TIME GPS TELEMETRY ENGINE ---
   let watchId = null;
 
   function calculateDistanceMeters(lat1, lon1, lat2, lon2) {
@@ -1077,11 +1160,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     initTelemetryMap();
 
-    // Instant single fix first to bypass initial delay
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         handleGpsPosition(pos);
-        // Then start continuous watch
         if (watchId === null) {
           watchId = navigator.geolocation.watchPosition(
             handleGpsPosition,
@@ -1117,11 +1198,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  // --- ATTACH EVENT LISTENERS ---
+  // --- ATTACH ALL EVENT LISTENERS ---
   document.getElementById("tabScannerBtn").onclick = () => switchTab('scanner');
   document.getElementById("tabMarketBtn").onclick = () => switchTab('market');
   document.getElementById("tabSupportBtn").onclick = () => switchTab('support');
   document.getElementById("tabAdminBtn").onclick = () => switchTab('admin');
+
+  document.getElementById("saveBtn").onclick = addShipment;
+  document.getElementById("btnExportCsv").onclick = () => openExportModal('csv');
+  document.getElementById("btnPrintSummary").onclick = () => openExportModal('summary');
 
   document.getElementById("btnSearchRoute").onclick = calculateRouteAndFare;
   document.getElementById("liveRideService").onchange = calculateRouteAndFare;
@@ -1133,19 +1218,30 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("stopScanBtn").onclick = stopCameraScanner;
   document.getElementById("btnCaptureGps").onclick = captureGPS;
 
+  document.getElementById("btnCopyData").onclick = async () => {
+    const ta = document.getElementById("csvPreview");
+    if (ta) {
+      await navigator.clipboard.writeText(ta.value);
+      alert("Copied to clipboard!");
+      document.getElementById("exportModal").style.display = "none";
+    }
+  };
+  document.getElementById("btnCloseExport").onclick = () => document.getElementById("exportModal").style.display = "none";
+
   document.getElementById("btnConfirmRide").onclick = function() {
     const service = getValue("liveRideService");
     const pickup = getValue("livePickup") || "Pickup Point";
     const dropoff = getValue("liveDropoff") || "Destination Point";
     const code = "RIDE-" + Math.floor(100000 + Math.random() * 900000);
     items.unshift({ id: code, item: `[${service}] Ride`, status: "IN_TRANSIT", driver: "Driver On Duty", vehicle: "CITY-FLEET", recipient: `${pickup} ➔ ${dropoff}`, gps: "GPS Live", time: new Date().toLocaleString() });
-    saveData(); renderTable();
+    saveData(); renderTable(); updateKPIs();
     alert(`Ride Booked! Code: ${code}`);
     switchTab('scanner');
   };
 
   loadData();
   renderTable();
+  updateKPIs();
   initTelemetryMap();
 });
 </script>
