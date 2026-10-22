@@ -363,14 +363,13 @@ textarea.report-box {
     <button class="btn-add" id="saveBtn" type="button">➕ LOG SHIPMENT TO MANIFEST</button>
   </div>
 
-  <!-- LogiGo Live GPS Telemetry Widget Card with Reverse Geocoded Street & District Address -->
+  <!-- LogiGo Live GPS Telemetry Widget Card -->
   <div id="logigo-live-gps" class="form-box no-print" style="margin-bottom:12px;">
     <h3 style="margin-top:0;margin-bottom:4px;font-size:14px;color:var(--accent-blue)">📍 Real-Time GPS Telemetry & Live Address Audit</h3>
     <p style="margin:0 0 8px 0;font-size:10px;color:var(--text-muted);">Live movement tracking, road/district reverse lookup & distance audit</p>
     
     <p style="margin:4px 0;font-size:11px;">Status: <strong id="lgps-status" style="color:var(--accent-orange)">GPS tracking is stopped.</strong></p>
     
-    <!-- Live Geocoded Address Tag -->
     <div class="address-tag">
       🏠 <b>Current Address:</b> <span id="lgps-address" style="color:#ffffff;">Waiting for live GPS signal...</span>
     </div>
@@ -473,7 +472,7 @@ textarea.report-box {
       <div id="dropoffSuggestions" class="suggestions-box"></div>
     </div>
 
-    <!-- Search Button -->
+    <!-- Explicit Search & Calculate Route Button -->
     <button class="btn-search-route" id="btnSearchRoute" type="button">🔍 Search Route & Calculate Fare</button>
 
     <!-- Embedded Live Interactive Map for Taxi Route -->
@@ -583,9 +582,9 @@ textarea.report-box {
 "use strict";
 
 document.addEventListener("DOMContentLoaded", function () {
-  const STORAGE_KEY = "logigo_manifest_v15";
-  const CONFIG_KEY = "logigo_config_v15";
-  const LANG_KEY = "logigo_lang_v10";
+  const STORAGE_KEY = "logigo_manifest_v16";
+  const CONFIG_KEY = "logigo_config_v16";
+  const LANG_KEY = "logigo_lang_v11";
 
   let items = [];
   let currentLang = "en";
@@ -607,8 +606,9 @@ document.addEventListener("DOMContentLoaded", function () {
   let totalDistanceMeters = 0;
   let lastGeocodeTime = 0;
 
-  const TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-  const TILE_ATTR = '&copy; OpenStreetMap contributors';
+  // Policy-compliant CartoDB tile layer (avoids OSM 403 blocks completely)
+  const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+  const TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>';
 
   let companyConfig = {
     name: "LogiGo Express & SuperApp",
@@ -771,10 +771,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // --- REVERSE GEOCODING ENGINE (LAT/LON ➔ ROAD, DISTRICT, HOUSE NUMBER) ---
+  // --- REVERSE GEOCODING ENGINE ---
   function reverseGeocode(lat, lon) {
     const now = Date.now();
-    if (now - lastGeocodeTime < 3000) return; // Throttle to prevent API limits
+    if (now - lastGeocodeTime < 3000) return;
     lastGeocodeTime = now;
 
     const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
@@ -785,14 +785,13 @@ document.addEventListener("DOMContentLoaded", function () {
         if (data && data.display_name) {
           const addrEl = document.getElementById("lgps-address");
           if (addrEl) addrEl.textContent = data.display_name;
-
-          // Also set the form GPS tag with full street address
           setValue("gpsField", `${data.display_name} (${lat.toFixed(5)}, ${lon.toFixed(5)})`);
         }
       })
       .catch(err => console.error(err));
   }
 
+  // --- ROBUST GEOCODING & FARE CALCULATION ---
   function geocodeAndCalculate(pickupQuery, dropoffQuery) {
     const pQuery = pickupQuery || "Ben Thanh Market, HCMC";
     const dQuery = dropoffQuery || "Landmark 81, HCMC";
@@ -1313,7 +1312,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (time) time.textContent = new Date(pos.timestamp).toLocaleTimeString();
         if (status) { status.textContent = "Live GPS Active & Tracking."; status.style.color = "#00e676"; }
 
-        // Reverse geocode to get live house number, road, district, and city name
         reverseGeocode(c.latitude, c.longitude);
 
         if (pathCoordinates.length > 0) {
