@@ -186,6 +186,7 @@ button {
 .btn-shop { background: #ff9100; color: #000; }
 .btn-grab { background: #00b14f; color: white; }
 .btn-xanh { background: #003366; color: white; }
+.btn-search-route { background: #29b6f6; color: #000; margin-bottom: 8px; }
 
 .alert {
   text-align: center;
@@ -288,7 +289,7 @@ textarea.report-box {
     <div class="kpi-card"><div class="val" style="color:var(--accent-green)" id="kpiDelivered">0</div><div class="lbl" id="lblKpiDelivered">DELIVERED</div></div>
   </div>
 
-  <div id="alertBox" class="alert no-print">Live GPS Audit Engine Active. Engine Ready.</div>
+  <div id="alertBox" class="alert no-print">Live GPS Audit Engine Active. Ready.</div>
 
   <div class="form-box no-print">
     <div class="row">
@@ -430,7 +431,7 @@ textarea.report-box {
 
   <div class="form-box">
     <h3 style="color:var(--accent-blue);margin-top:0">🚕 Live Taxi Booking, Fare & Route Check</h3>
-    <p style="font-size:11px;color:var(--text-muted)">Type <b>any Vietnam region or city location</b> (e.g., Ben Thanh, Hanoi, Da Nang, District 1) to calculate fares:</p>
+    <p style="font-size:11px;color:var(--text-muted)">Type <b>any Vietnam or global location</b> and click search to calculate live distance and fares:</p>
 
     <div class="form-group">
       <label for="liveRideService">Select Service</label>
@@ -445,15 +446,18 @@ textarea.report-box {
 
     <div class="form-group">
       <label for="livePickup">📍 Pickup Location</label>
-      <input id="livePickup" placeholder="Type pickup location in Vietnam..." autocomplete="off">
+      <input id="livePickup" value="Ben Thanh Market, HCMC" autocomplete="off">
       <div id="pickupSuggestions" class="suggestions-box"></div>
     </div>
 
     <div class="form-group">
       <label for="liveDropoff">🏁 Destination Address</label>
-      <input id="liveDropoff" placeholder="Type destination address in Vietnam..." autocomplete="off">
+      <input id="liveDropoff" value="Landmark 81, HCMC" autocomplete="off">
       <div id="dropoffSuggestions" class="suggestions-box"></div>
     </div>
+
+    <!-- Explicit Search & Calculate Route Button -->
+    <button class="btn-search-route" id="btnSearchRoute" type="button">🔍 Search Route & Calculate Fare</button>
 
     <!-- Embedded Live Interactive Map for Taxi Route -->
     <div id="mapContainer" class="map-box"></div>
@@ -562,9 +566,9 @@ textarea.report-box {
 "use strict";
 
 document.addEventListener("DOMContentLoaded", function () {
-  const STORAGE_KEY = "logigo_manifest_v13";
-  const CONFIG_KEY = "logigo_config_v13";
-  const LANG_KEY = "logigo_lang_v8";
+  const STORAGE_KEY = "logigo_manifest_v14";
+  const CONFIG_KEY = "logigo_config_v14";
+  const LANG_KEY = "logigo_lang_v9";
 
   let items = [];
   let currentLang = "en";
@@ -575,8 +579,8 @@ document.addEventListener("DOMContentLoaded", function () {
   let pickupMarker = null;
   let dropoffMarker = null;
   let routeLine = null;
-  let pickupCoords = null;
-  let dropoffCoords = null;
+  let pickupCoords = [10.77653, 106.70098]; // Default Ben Thanh
+  let dropoffCoords = [10.78288, 106.69821]; // Default Landmark 81
 
   // Telemetry Driver Map Variables
   let telemetryMap = null;
@@ -585,9 +589,9 @@ document.addEventListener("DOMContentLoaded", function () {
   let pathCoordinates = [];
   let totalDistanceMeters = 0;
 
-  // Policy-compliant CartoDB tile layer (solves OpenStreetMap policy blocks)
-  const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
-  const TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>';
+  // Keyless standard OSM tile layer (prevents any API key errors)
+  const TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+  const TILE_ATTR = '&copy; OpenStreetMap contributors';
 
   let companyConfig = {
     name: "LogiGo Express & SuperApp",
@@ -684,7 +688,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (e) {}
   }
 
-  // --- INITIALIZE TELEMETRY DRIVER MAP (In Manifest Section) ---
+  // --- INITIALIZE TELEMETRY DRIVER MAP (Manifest Section) ---
   function initTelemetryMap() {
     if (telemetryMap !== null) return;
     const el = document.getElementById("telemetryMap");
@@ -704,14 +708,15 @@ document.addEventListener("DOMContentLoaded", function () {
     pathPolyline = L.polyline([], { color: '#29b6f6', weight: 4 }).addTo(telemetryMap);
   }
 
-  // --- INITIALIZE TAXI ROUTE MAP (In Market Section) ---
+  // --- INITIALIZE TAXI ROUTE MAP (Market Section) ---
   function initTaxiMap() {
     if (map !== null) return;
     const mapEl = document.getElementById("mapContainer");
     if (!mapEl) return;
 
-    map = L.map("mapContainer").setView([10.8231, 106.6297], 12);
+    map = L.map("mapContainer").setView([10.8231, 106.6297], 13);
     L.tileLayer(TILE_URL, { attribution: TILE_ATTR, maxZoom: 19 }).addTo(map);
+    calculateRouteAndFare();
   }
 
   function switchTab(tabName) {
@@ -749,10 +754,71 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // --- COMPLIANT NOMINATIM SEARCH ENGINE (Prioritizes Vietnam) ---
-  let debounceTimer = null;
+  // --- ROBUST GEOCODING & ROUTING ENGINE ---
+  function geocodeAndCalculate(pickupQuery, dropoffQuery) {
+    const pQuery = pickupQuery || "Ben Thanh Market, HCMC";
+    const dQuery = dropoffQuery || "Landmark 81, HCMC";
+
+    Promise.all([
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pQuery)}&limit=1`, { headers: { 'Accept': 'application/json' } }).then(r => r.json()),
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(dQuery)}&limit=1`, { headers: { 'Accept': 'application/json' } }).then(r => r.json())
+    ])
+    .then(([pData, dData]) => {
+      if (pData && pData.length > 0) {
+        pickupCoords = [parseFloat(pData[0].lat), parseFloat(pData[0].lon)];
+      }
+      if (dData && dData.length > 0) {
+        dropoffCoords = [parseFloat(dData[0].lat), parseFloat(dData[0].lon)];
+      }
+
+      // Draw markers and route
+      if (map) {
+        if (pickupMarker) map.removeLayer(pickupMarker);
+        if (dropoffMarker) map.removeLayer(dropoffMarker);
+
+        pickupMarker = L.marker(pickupCoords).addTo(map).bindPopup("📍 Pickup: " + pQuery);
+        dropoffMarker = L.marker(dropoffCoords).addTo(map).bindPopup("🏁 Dropoff: " + dQuery);
+
+        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupCoords[1]},${pickupCoords[0]};${dropoffCoords[1]},${dropoffCoords[0]}?overview=full&geometries=geojson`;
+
+        fetch(osrmUrl)
+          .then(res => res.json())
+          .then(data => {
+            if (data.routes && data.routes.length > 0) {
+              const route = data.routes[0];
+              const distKm = (route.distance / 1000).toFixed(1);
+              const durationMins = Math.round(route.duration / 60);
+
+              const service = getValue("liveRideService");
+              let ratePerKm = 15000;
+              if (service.includes("7-Seat")) ratePerKm = 18000;
+              else if (service.includes("Bike")) ratePerKm = 12000;
+              else if (service.includes("Xanh SM Electric")) ratePerKm = 16000;
+              else if (service.includes("Xanh SM Bike")) ratePerKm = 13000;
+
+              const fare = Math.round(distKm * ratePerKm);
+
+              document.getElementById("lblDistCalc").textContent = distKm + " km";
+              document.getElementById("lblTimeCalc").textContent = durationMins + " mins";
+              document.getElementById("liveFarePreview").textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fare);
+
+              if (routeLine) map.removeLayer(routeLine);
+              routeLine = L.geoJSON(route.geometry, { style: { color: '#00e676', weight: 5 } }).addTo(map);
+              map.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
+            }
+          });
+      }
+    })
+    .catch(err => console.error(err));
+  }
+
+  function calculateRouteAndFare() {
+    const pickup = getValue("livePickup");
+    const dropoff = getValue("liveDropoff");
+    geocodeAndCalculate(pickup, dropoff);
+  }
+
   function fetchLocationAutocomplete(query, boxId, type) {
-    clearTimeout(debounceTimer);
     const box = document.getElementById(boxId);
     if (!box) return;
 
@@ -761,89 +827,34 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    debounceTimer = setTimeout(() => {
-      // Append countrycodes=vn to ensure reliable regional lookup across Vietnam while allowing global search
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=vn&limit=5`;
-
-      fetch(url, { headers: { 'Accept': 'application/json' } })
-        .then(res => res.json())
-        .then(data => {
-          box.innerHTML = "";
-          if (!data || data.length === 0) {
-            box.style.display = "none";
-            return;
-          }
-
-          data.forEach(item => {
-            const div = document.createElement("div");
-            div.className = "suggestion-item";
-            div.textContent = item.display_name;
-            div.onclick = function() {
-              if (type === 'pickup') {
-                setValue("livePickup", item.display_name);
-                pickupCoords = [parseFloat(item.lat), parseFloat(item.lon)];
-                if (map) {
-                  if (pickupMarker) map.removeLayer(pickupMarker);
-                  pickupMarker = L.marker(pickupCoords).addTo(map).bindPopup("📍 Pickup Point").openPopup();
-                  map.setView(pickupCoords, 14);
-                }
-              } else {
-                setValue("liveDropoff", item.display_name);
-                dropoffCoords = [parseFloat(item.lat), parseFloat(item.lon)];
-                if (map) {
-                  if (dropoffMarker) map.removeLayer(dropoffMarker);
-                  dropoffMarker = L.marker(dropoffCoords).addTo(map).bindPopup("🏁 Destination").openPopup();
-                }
-              }
-              box.style.display = "none";
-              calculateRouteAndFare();
-            };
-            box.appendChild(div);
-          });
-          box.style.display = "block";
-        })
-        .catch(err => console.error(err));
-    }, 400);
-  }
-
-  function calculateRouteAndFare() {
-    if (!pickupCoords || !dropoffCoords) return;
-
-    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupCoords[1]},${pickupCoords[0]};${dropoffCoords[1]},${dropoffCoords[0]}?overview=full&geometries=geojson`;
-
-    fetch(osrmUrl)
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`, { headers: { 'Accept': 'application/json' } })
       .then(res => res.json())
       .then(data => {
-        if (data.routes && data.routes.length > 0) {
-          const route = data.routes[0];
-          const distKm = (route.distance / 1000).toFixed(1);
-          const durationMins = Math.round(route.duration / 60);
-
-          const service = getValue("liveRideService");
-          let ratePerKm = 15000;
-          if (service.includes("7-Seat")) ratePerKm = 18000;
-          else if (service.includes("Bike")) ratePerKm = 12000;
-          else if (service.includes("Xanh SM Electric")) ratePerKm = 16000;
-          else if (service.includes("Xanh SM Bike")) ratePerKm = 13000;
-
-          const fare = Math.round(distKm * ratePerKm);
-
-          const lblDist = document.getElementById("lblDistCalc");
-          const lblTime = document.getElementById("lblTimeCalc");
-          const lblFare = document.getElementById("liveFarePreview");
-
-          if (lblDist) lblDist.textContent = distKm + " km";
-          if (lblTime) lblTime.textContent = durationMins + " mins";
-          if (lblFare) lblFare.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fare);
-
-          if (map) {
-            if (routeLine) map.removeLayer(routeLine);
-            routeLine = L.geoJSON(route.geometry, { style: { color: '#00e676', weight: 5 } }).addTo(map);
-            map.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
-          }
+        box.innerHTML = "";
+        if (!data || data.length === 0) {
+          box.style.display = "none";
+          return;
         }
-      })
-      .catch(err => console.error(err));
+
+        data.forEach(item => {
+          const div = document.createElement("div");
+          div.className = "suggestion-item";
+          div.textContent = item.display_name;
+          div.onclick = function() {
+            if (type === 'pickup') {
+              setValue("livePickup", item.display_name);
+              pickupCoords = [parseFloat(item.lat), parseFloat(item.lon)];
+            } else {
+              setValue("liveDropoff", item.display_name);
+              dropoffCoords = [parseFloat(item.lat), parseFloat(item.lon)];
+            }
+            box.style.display = "none";
+            calculateRouteAndFare();
+          };
+          box.appendChild(div);
+        });
+        box.style.display = "block";
+      });
   }
 
   function captureGPS() {
@@ -863,8 +874,7 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("GPS Locked successfully: " + coords);
       },
       (err) => {
-        const fallbackNote = "Terminal Stamp (" + new Date().toLocaleTimeString() + ")";
-        setValue("gpsField", fallbackNote);
+        setValue("gpsField", "Terminal Stamp (" + new Date().toLocaleTimeString() + ")");
         alert("Position unavailable. Using fallback timestamp.");
       },
       { enableHighAccuracy: true, timeout: 8000 }
@@ -889,7 +899,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try {
       if (typeof ZXing === "undefined") {
-        alert("Barcode camera engine not loaded. Please enter tracking code manually.");
+        alert("Barcode camera engine not loaded.");
         stopCameraScanner();
         return;
       }
@@ -907,7 +917,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const videoInputDevices = await codeReader.listVideoInputDevices();
       let selectedDeviceId = undefined;
-
       if (videoInputDevices && videoInputDevices.length > 0) {
         const backCamera = videoInputDevices.find(device => /back|rear|environment/i.test(device.label));
         selectedDeviceId = backCamera ? backCamera.deviceId : videoInputDevices[0].deviceId;
@@ -920,7 +929,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
     } catch (err) {
-      console.error(err);
       stopCameraScanner();
       alert("Camera unavailable or permission denied.");
     }
@@ -1127,67 +1135,10 @@ document.addEventListener("DOMContentLoaded", function () {
     safeText("tabMarketBtn", dict.tabMarket);
     safeText("tabSupportBtn", dict.tabSupport);
     safeText("tabAdminBtn", dict.tabControl);
-
     safeText("lblKpiTotal", dict.kpiTotal);
     safeText("lblKpiPicked", dict.kpiPicked);
     safeText("lblKpiTransit", dict.kpiTransit);
     safeText("lblKpiDelivered", dict.kpiDelivered);
-
-    safeText("lblDriver", dict.lblDriver);
-    safeText("lblVehicle", dict.lblVehicle);
-    safeText("startScanBtn", dict.btnOpenCam);
-    safeText("stopScanBtn", dict.btnStopCam);
-    safeText("lblTracking", dict.lblTracking);
-    safeText("lblItemDesc", dict.lblItemDesc);
-    safeText("lblRecipient", dict.lblRecipient);
-    safeText("lblStatus", dict.lblStatus);
-    safeText("optPicked", dict.optPicked);
-    safeText("optTransit", dict.optTransit);
-    safeText("optDelivered", dict.optDelivered);
-    safeText("optFailed", dict.optFailed);
-    safeText("lblGps", dict.lblGps);
-    safeText("saveBtn", dict.btnLogShipment);
-
-    const searchEl = document.getElementById("searchFilter");
-    if (searchEl) searchEl.placeholder = dict.phSearch;
-
-    safeText("thWaybill", dict.thWaybill);
-    safeText("thItem", dict.thItem);
-    safeText("thStatus", dict.thStatus);
-    safeText("thCustomer", dict.thCustomer);
-    safeText("thDriverGps", dict.thDriverGps);
-    safeText("thActions", dict.thActions);
-
-    safeText("btnExportCsv", dict.btnExportCsv);
-    safeText("btnPrintSummary", dict.btnPrintSummary);
-
-    safeText("hdrSupport", dict.hdrSupport);
-    safeText("descSupport", dict.descSupport);
-    safeText("lblSupportWaybill", dict.lblSupportWaybill);
-    safeText("lblSupportIssue", dict.lblSupportIssue);
-    safeText("btnCallSupport", dict.btnCallSupport);
-    safeText("btnWaSupport", dict.btnWaSupport);
-    safeText("btnSubmitTicket", dict.btnSubmitTicket);
-
-    safeText("hdrCompanyDetails", dict.hdrCompanyDetails);
-    safeText("lblCompany", dict.lblCompany);
-    safeText("lblHotline", dict.lblHotline);
-    safeText("lblWhatsApp", dict.lblWhatsApp);
-    safeText("lblEmail", dict.lblEmail);
-    safeText("lblWebsite", dict.lblWebsite);
-
-    safeText("hdrAdminControl", dict.hdrAdminControl);
-    safeText("descAdminControl", dict.descAdminControl);
-    safeText("lblCfgName", dict.lblCfgName);
-    safeText("lblCfgPhone", dict.lblCfgPhone);
-    safeText("lblCfgWhatsApp", dict.lblCfgWhatsApp);
-    safeText("lblCfgEmail", dict.lblCfgEmail);
-    safeText("lblCfgWebsite", dict.lblCfgWebsite);
-    safeText("btnSaveConfig", dict.btnSaveConfig);
-
-    safeText("btnCopyData", dict.btnCopyData);
-    safeText("btnShareReport", dict.btnShareReport);
-    safeText("btnCloseExport", dict.btnCloseExport);
 
     loadCompanyConfig();
     renderTable();
@@ -1232,8 +1183,10 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   document.getElementById("liveRideService").onchange = calculateRouteAndFare;
+  document.getElementById("btnSearchRoute").onclick = calculateRouteAndFare;
   document.getElementById("livePickup").oninput = function() { fetchLocationAutocomplete(this.value, 'pickupSuggestions', 'pickup'); };
   document.getElementById("liveDropoff").oninput = function() { fetchLocationAutocomplete(this.value, 'dropoffSuggestions', 'dropoff'); };
+  
   document.getElementById("btnLaunchGrab").onclick = () => window.open('https://www.grab.com/vn/en/transport/', '_blank');
   document.getElementById("btnLaunchXanh").onclick = () => window.open('https://www.xanhsm.com/', '_blank');
   
@@ -1282,18 +1235,14 @@ document.addEventListener("DOMContentLoaded", function () {
   let watchId = null;
 
   function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371e3; // metres
+    const R = 6371e3;
     const φ1 = lat1 * Math.PI / 180;
     const φ2 = lat2 * Math.PI / 180;
     const Δφ = (lat2 - lat1) * Math.PI / 180;
     const Δλ = (lon2 - lon1) * Math.PI / 180;
-
-    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-              Math.cos(φ1) * Math.cos(φ2) *
-              Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-    return R * c; // meters
+    return R * c;
   }
 
   document.getElementById("lgps-start").onclick = function() {
@@ -1324,14 +1273,12 @@ document.addEventListener("DOMContentLoaded", function () {
         if (time) time.textContent = new Date(pos.timestamp).toLocaleTimeString();
         if (status) { status.textContent = "Live GPS Active & Tracking."; status.style.color = "#00e676"; }
 
-        // Update Auto GPS Input Field for Quick Manifest Logging
         setValue("gpsField", c.latitude.toFixed(5) + ", " + c.longitude.toFixed(5));
 
-        // Calculate continuous cumulative distance
         if (pathCoordinates.length > 0) {
           const prevPos = pathCoordinates[pathCoordinates.length - 1];
           const segmentMeters = calculateDistance(prevPos[0], prevPos[1], c.latitude, c.longitude);
-          if (segmentMeters > 2) { // Filter minor noise
+          if (segmentMeters > 2) {
             totalDistanceMeters += segmentMeters;
           }
         }
@@ -1339,7 +1286,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (distEl) distEl.textContent = (totalDistanceMeters / 1000).toFixed(2) + " km";
 
-        // Update Telemetry Map Cursor & Audit Trail Polyline
         if (telemetryMap) {
           if (!driverMarker) {
             initTelemetryMap();
