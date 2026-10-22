@@ -4,8 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0b1320">
-<title>LogiGo SuperApp - All-In-One Delivery, Taxi & E-Commerce Engine</title>
+<title>LogiGo SuperApp - Global Delivery, Taxi & E-Commerce Engine</title>
+
+<!-- Third Party Libraries: ZXing Barcode Scanner & Leaflet Interactive Maps -->
 <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
 :root {
@@ -142,16 +146,17 @@ input, select, textarea {
   background: #1b2f4c;
   border: 1px solid var(--accent-blue);
   border-radius: 0 0 6px 6px;
-  z-index: 99;
-  max-height: 150px;
+  z-index: 999;
+  max-height: 180px;
   overflow-y: auto;
   display: none;
 }
 .suggestion-item {
   padding: 8px 10px;
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
   border-bottom: 1px solid #243b5e;
+  color: var(--text-main);
 }
 .suggestion-item:hover {
   background: #29b6f6;
@@ -222,6 +227,15 @@ th { background: #1a2d48; color: var(--text-main); }
 }
 .shop-card h4 { margin: 0 0 4px; font-size: 12px; color: var(--text-main); }
 
+#mapContainer {
+  width: 100%;
+  height: 250px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 10px;
+  z-index: 1;
+}
+
 #exportModal {
   display: none;
   background: rgba(0,0,0,0.95);
@@ -254,7 +268,7 @@ textarea.report-box {
 
 <header class="no-print">
   <h1>🚀 LogiGo SuperApp</h1>
-  <p id="companyTaglineHeader">LOGISTICS, RIDE-HAILING & E-COMMERCE ENGINE</p>
+  <p id="companyTaglineHeader">GLOBAL LOGISTICS, RIDE-HAILING & E-COMMERCE ENGINE</p>
 </header>
 
 <div class="nav-tabs no-print">
@@ -273,7 +287,7 @@ textarea.report-box {
     <div class="kpi-card"><div class="val" style="color:var(--accent-green)" id="kpiDelivered">0</div><div class="lbl" id="lblKpiDelivered">DELIVERED</div></div>
   </div>
 
-  <div id="alertBox" class="alert no-print">Ready for scanning. High-Precision Engine Active.</div>
+  <div id="alertBox" class="alert no-print">Global GPS Engine Active. Scanning Ready.</div>
 
   <div class="form-box no-print">
     <div class="row">
@@ -336,10 +350,10 @@ textarea.report-box {
     <button class="btn-add" id="saveBtn" type="button">➕ LOG SHIPMENT TO MANIFEST</button>
   </div>
 
-  <!-- LogiGo Live GPS Widget Card -->
+  <!-- LogiGo Live GPS Telemetry Widget Card -->
   <div id="logigo-live-gps" class="form-box no-print" style="margin-bottom:12px;">
     <h3 style="margin-top:0;margin-bottom:4px;font-size:14px;color:var(--accent-blue)">📍 LogiGo Live GPS Telemetry</h3>
-    <p style="margin:0 0 8px 0;font-size:10px;color:var(--text-muted);">Continuous coordinate tracking & proof-of-delivery audit trail</p>
+    <p style="margin:0 0 8px 0;font-size:10px;color:var(--text-muted);">Real-time movement tracking, fleet visibility & proof of delivery</p>
     <p style="margin:4px 0;font-size:11px;">Status: <strong id="lgps-status" style="color:var(--accent-orange)">GPS tracking is stopped.</strong></p>
     <p style="margin:3px 0;font-size:11px;">Latitude: <span id="lgps-lat" style="font-family:monospace;">--</span></p>
     <p style="margin:3px 0;font-size:11px;">Longitude: <span id="lgps-lon" style="font-family:monospace;">--</span></p>
@@ -377,7 +391,7 @@ textarea.report-box {
   </div>
 </div>
 
-<!-- SECTION 2: E-COMMERCE, FOOD & LIVE TAXI RIDES -->
+<!-- SECTION 2: E-COMMERCE, FOOD & NATIONWIDE/GLOBAL LIVE TAXI RIDES -->
 <div id="sectionMarket" class="app-section" style="display:none">
   <div class="form-box">
     <h3 style="color:var(--accent-orange);margin-top:0">🛍️ E-Commerce & Online Stores</h3>
@@ -410,8 +424,8 @@ textarea.report-box {
   </div>
 
   <div class="form-box">
-    <h3 style="color:var(--accent-blue);margin-top:0">🚕 Live Taxi Booking & Fare Check</h3>
-    <p style="font-size:12px;color:var(--text-muted)">Type pickup & dropoff to search locations and calculate fares:</p>
+    <h3 style="color:var(--accent-blue);margin-top:0">🚕 Global Live Map, Taxi Fare & Route Checker</h3>
+    <p style="font-size:11px;color:var(--text-muted)">Type <b>any city, street, or address globally</b> to calculate exact live routing distance and fare estimates:</p>
 
     <div class="form-group">
       <label for="liveRideService">Select Service</label>
@@ -425,22 +439,25 @@ textarea.report-box {
     </div>
 
     <div class="form-group">
-      <label for="livePickup">📍 Pickup Location</label>
-      <input id="livePickup" placeholder="Type location (e.g. Ben Thanh...)" autocomplete="off">
+      <label for="livePickup">📍 Pickup Address (Global Autocomplete)</label>
+      <input id="livePickup" placeholder="Type pickup city or address (e.g. Ben Thanh, Hanoi, JFK Airport...)" autocomplete="off">
       <div id="pickupSuggestions" class="suggestions-box"></div>
     </div>
 
     <div class="form-group">
-      <label for="liveDropoff">🏁 Destination Address</label>
-      <input id="liveDropoff" placeholder="Type destination (e.g. Landmark 81...)" autocomplete="off">
+      <label for="liveDropoff">🏁 Destination Address (Global Autocomplete)</label>
+      <input id="liveDropoff" placeholder="Type destination city or address..." autocomplete="off">
       <div id="dropoffSuggestions" class="suggestions-box"></div>
     </div>
 
+    <!-- Embedded Live Interactive Map -->
+    <div id="mapContainer"></div>
+
     <div style="background:var(--bg-main);padding:10px;border-radius:6px;margin-bottom:10px;text-align:center;border:1px dashed var(--accent-blue)">
-      <span style="font-size:11px;color:var(--text-muted)">Estimated Distance: <b id="lblDistCalc" style="color:var(--text-main)">6.5 km</b></span> | 
-      <span style="font-size:11px;color:var(--text-muted)">Est. Time: <b id="lblTimeCalc" style="color:var(--text-main)">18 mins</b></span><br>
-      <span style="font-size:12px;color:var(--accent-orange)">Estimated Fare: </span>
-      <b id="liveFarePreview" style="font-size:16px;color:var(--accent-green)">97.500 ₫</b>
+      <span style="font-size:11px;color:var(--text-muted)">Satellite Driving Distance: <b id="lblDistCalc" style="color:var(--text-main)">-- km</b></span> | 
+      <span style="font-size:11px;color:var(--text-muted)">Est. Time: <b id="lblTimeCalc" style="color:var(--text-main)">-- mins</b></span><br>
+      <span style="font-size:12px;color:var(--accent-orange)">Estimated Live Fare: </span>
+      <b id="liveFarePreview" style="font-size:16px;color:var(--accent-green)">0 ₫</b>
     </div>
 
     <div class="row" style="margin-bottom:10px">
@@ -540,13 +557,21 @@ textarea.report-box {
 "use strict";
 
 document.addEventListener("DOMContentLoaded", function () {
-  const STORAGE_KEY = "logigo_manifest_v11";
-  const CONFIG_KEY = "logigo_config_v11";
-  const LANG_KEY = "logigo_lang_v6";
+  const STORAGE_KEY = "logigo_manifest_v12";
+  const CONFIG_KEY = "logigo_config_v12";
+  const LANG_KEY = "logigo_lang_v7";
 
   let items = [];
   let currentLang = "en";
   let codeReader = null;
+
+  // Global Map & Route Variables
+  let map = null;
+  let pickupMarker = null;
+  let dropoffMarker = null;
+  let routeLine = null;
+  let pickupCoords = null;
+  let dropoffCoords = null;
 
   let companyConfig = {
     name: "LogiGo Express & SuperApp",
@@ -556,22 +581,9 @@ document.addEventListener("DOMContentLoaded", function () {
     website: "https://logigo.vn"
   };
 
-  const locationDatabase = [
-    "Ben Thanh Market, District 1, HCMC",
-    "Landmark 81, Binh Thanh District, HCMC",
-    "Tan Son Nhat International Airport, Tân Bình, HCMC",
-    "Walking Street Nguyen Hue, District 1, HCMC",
-    "Saigon Centre / Takashimaya, District 1, HCMC",
-    "Independence Palace, District 1, HCMC",
-    "Starlight Bridge, Phu My Hung, District 7, HCMC",
-    "Ho Chi Minh City University of Technology, District 10",
-    "Thao Dien, Thu Duc City, HCMC",
-    "VivoCity Mall, District 7, HCMC"
-  ];
-
   const i18n = {
     en: {
-      tagline: "LOGISTICS, RIDE-HAILING & E-COMMERCE ENGINE",
+      tagline: "GLOBAL LOGISTICS, RIDE-HAILING & E-COMMERCE ENGINE",
       tabManifest: "📦 Manifest", tabMarket: "🛒 E-Shop & Rides", tabSupport: "🎧 Support", tabControl: "⚙️ Control",
       kpiTotal: "TOTAL", kpiPicked: "PICKED UP", kpiTransit: "IN TRANSIT", kpiDelivered: "DELIVERED",
       lblDriver: "Driver / Officer", lblVehicle: "Vehicle / Route ID", btnOpenCam: "📷 OPEN CAMERA SCANNER", btnStopCam: "✕ STOP CAMERA",
@@ -589,7 +601,7 @@ document.addEventListener("DOMContentLoaded", function () {
       btnCopyData: "📋 COPY DATA TO CLIPBOARD", btnShareReport: "📲 SHARE VIA WHATSAPP / ZALO / EMAIL", btnCloseExport: "✕ Close Window"
     },
     vi: {
-      tagline: "GIAO HÀNG, ĐẶT XE & SIÊU ỨNG DỤNG THƯƠNG MẠI ĐIỆN TỬ",
+      tagline: "GIAO HÀNG TOÀN CẦU, ĐẶT XE & SIÊU ỨNG DỤNG THƯƠNG MẠI ĐIỆN TỬ",
       tabManifest: "📦 Đơn Hàng", tabMarket: "🛒 Mua Sắm & Đặt Xe", tabSupport: "🎧 Hỗ Trợ", tabControl: "⚙️ Cấu Hình",
       kpiTotal: "TỔNG ĐƠN", kpiPicked: "ĐÃ NHẬN", kpiTransit: "ĐANG GIAO", kpiDelivered: "THÀNH CÔNG",
       lblDriver: "Tài Xế / Nhân Viên", lblVehicle: "Mã Xe / Tuyến", btnOpenCam: "📷 MỞ CAMERA QUÉT MÃ", btnStopCam: "✕ TẮT CAMERA",
@@ -607,7 +619,7 @@ document.addEventListener("DOMContentLoaded", function () {
       btnCopyData: "📋 SAO CHÉP DỮ LIỆU", btnShareReport: "📲 CHIA SẺ QUA ZALO / EMAIL", btnCloseExport: "✕ Đóng Cửa Sổ"
     },
     zh: {
-      tagline: "物流派送、叫车出行与电商超级应用平台",
+      tagline: "全球物流派送、叫车出行与电商超级应用平台",
       tabManifest: "📦 运单列表", tabMarket: "🛒 商城与出行", tabSupport: "🎧 客服中心", tabControl: "⚙️ 公司设置",
       kpiTotal: "总运单", kpiPicked: "已揽收", kpiTransit: "运输中", kpiDelivered: "已送达",
       lblDriver: "司机 / 派送员", lblVehicle: "车辆 / 路线 ID", btnOpenCam: "📷 打开摄像头扫码", btnStopCam: "✕ 关闭摄像头",
@@ -656,6 +668,19 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (e) {}
   }
 
+  function initInteractiveMap() {
+    if (map !== null) return;
+    const mapEl = document.getElementById("mapContainer");
+    if (!mapEl) return;
+
+    // Default center to Ho Chi Minh City
+    map = L.map("mapContainer").setView([10.8231, 106.6297], 12);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+  }
+
   function switchTab(tabName) {
     const sections = ['sectionScanner', 'sectionMarket', 'sectionSupport', 'sectionAdmin'];
     const tabs = ['tabScannerBtn', 'tabMarketBtn', 'tabSupportBtn', 'tabAdminBtn'];
@@ -675,152 +700,110 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (activeSec) activeSec.style.display = "block";
     if (activeTab) activeTab.classList.add("active");
+
+    if (tabName === 'market') {
+      setTimeout(() => {
+        initInteractiveMap();
+        if (map) map.invalidateSize();
+      }, 200);
+    }
   }
 
-  function setLanguage(lang) {
-    currentLang = lang;
-    try { localStorage.setItem(LANG_KEY, lang); } catch(e){}
-
-    ['langBtnEn', 'langBtnVi', 'langBtnZh'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.classList.toggle("active", id === (lang === 'en' ? 'langBtnEn' : lang === 'vi' ? 'langBtnVi' : 'langBtnZh'));
-    });
-
-    const dict = i18n[lang] || i18n.en;
-    const safeText = (id, text) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = text;
-    };
-
-    safeText("tabScannerBtn", dict.tabManifest);
-    safeText("tabMarketBtn", dict.tabMarket);
-    safeText("tabSupportBtn", dict.tabSupport);
-    safeText("tabAdminBtn", dict.tabControl);
-
-    safeText("lblKpiTotal", dict.kpiTotal);
-    safeText("lblKpiPicked", dict.kpiPicked);
-    safeText("lblKpiTransit", dict.kpiTransit);
-    safeText("lblKpiDelivered", dict.kpiDelivered);
-
-    safeText("lblDriver", dict.lblDriver);
-    safeText("lblVehicle", dict.lblVehicle);
-    safeText("startScanBtn", dict.btnOpenCam);
-    safeText("stopScanBtn", dict.btnStopCam);
-    safeText("lblTracking", dict.lblTracking);
-    safeText("lblItemDesc", dict.lblItemDesc);
-    safeText("lblRecipient", dict.lblRecipient);
-    safeText("lblStatus", dict.lblStatus);
-    safeText("optPicked", dict.optPicked);
-    safeText("optTransit", dict.optTransit);
-    safeText("optDelivered", dict.optDelivered);
-    safeText("optFailed", dict.optFailed);
-    safeText("lblGps", dict.lblGps);
-    safeText("saveBtn", dict.btnLogShipment);
-
-    const searchEl = document.getElementById("searchFilter");
-    if (searchEl) searchEl.placeholder = dict.phSearch;
-
-    safeText("thWaybill", dict.thWaybill);
-    safeText("thItem", dict.thItem);
-    safeText("thStatus", dict.thStatus);
-    safeText("thCustomer", dict.thCustomer);
-    safeText("thDriverGps", dict.thDriverGps);
-    safeText("thActions", dict.thActions);
-
-    safeText("btnExportCsv", dict.btnExportCsv);
-    safeText("btnPrintSummary", dict.btnPrintSummary);
-
-    safeText("hdrSupport", dict.hdrSupport);
-    safeText("descSupport", dict.descSupport);
-    safeText("lblSupportWaybill", dict.lblSupportWaybill);
-    safeText("lblSupportIssue", dict.lblSupportIssue);
-    safeText("btnCallSupport", dict.btnCallSupport);
-    safeText("btnWaSupport", dict.btnWaSupport);
-    safeText("btnSubmitTicket", dict.btnSubmitTicket);
-
-    safeText("hdrCompanyDetails", dict.hdrCompanyDetails);
-    safeText("lblCompany", dict.lblCompany);
-    safeText("lblHotline", dict.lblHotline);
-    safeText("lblWhatsApp", dict.lblWhatsApp);
-    safeText("lblEmail", dict.lblEmail);
-    safeText("lblWebsite", dict.lblWebsite);
-
-    safeText("hdrAdminControl", dict.hdrAdminControl);
-    safeText("descAdminControl", dict.descAdminControl);
-    safeText("lblCfgName", dict.lblCfgName);
-    safeText("lblCfgPhone", dict.lblCfgPhone);
-    safeText("lblCfgWhatsApp", dict.lblCfgWhatsApp);
-    safeText("lblCfgEmail", dict.lblCfgEmail);
-    safeText("lblCfgWebsite", dict.lblCfgWebsite);
-    safeText("btnSaveConfig", dict.btnSaveConfig);
-
-    safeText("btnCopyData", dict.btnCopyData);
-    safeText("btnShareReport", dict.btnShareReport);
-    safeText("btnCloseExport", dict.btnCloseExport);
-
-    loadCompanyConfig();
-    renderTable();
-  }
-
-  function filterLocations(query, boxId) {
+  // --- OPENSTREETMAP NOMINATIM GLOBAL GEOCODING & OSRM ROUTING ENGINE ---
+  let debounceTimer = null;
+  function fetchGlobalAutocomplete(query, boxId, type) {
+    clearTimeout(debounceTimer);
     const box = document.getElementById(boxId);
     if (!box) return;
-    box.innerHTML = "";
-    if (!query || query.length < 2) {
+
+    if (!query || query.length < 3) {
       box.style.display = "none";
       return;
     }
 
-    const matches = locationDatabase.filter(loc => loc.toLowerCase().includes(query.toLowerCase()));
-    if (matches.length === 0) {
-      box.style.display = "none";
-      return;
-    }
+    debounceTimer = setTimeout(() => {
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`)
+        .then(res => res.json())
+        .then(data => {
+          box.innerHTML = "";
+          if (!data || data.length === 0) {
+            box.style.display = "none";
+            return;
+          }
 
-    matches.forEach(match => {
-      const div = document.createElement("div");
-      div.className = "suggestion-item";
-      div.textContent = match;
-      div.onclick = function() {
-        if (boxId === 'pickupSuggestions') {
-          setValue("livePickup", match);
-        } else {
-          setValue("liveDropoff", match);
-        }
-        box.style.display = "none";
-        calculateLiveFare();
-      };
-      box.appendChild(div);
-    });
-    box.style.display = "block";
+          data.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "suggestion-item";
+            div.textContent = item.display_name;
+            div.onclick = function() {
+              if (type === 'pickup') {
+                setValue("livePickup", item.display_name);
+                pickupCoords = [parseFloat(item.lat), parseFloat(item.lon)];
+                if (map) {
+                  if (pickupMarker) map.removeLayer(pickupMarker);
+                  pickupMarker = L.marker(pickupCoords).addTo(map).bindPopup("📍 Pickup").openPopup();
+                  map.setView(pickupCoords, 14);
+                }
+              } else {
+                setValue("liveDropoff", item.display_name);
+                dropoffCoords = [parseFloat(item.lat), parseFloat(item.lon)];
+                if (map) {
+                  if (dropoffMarker) map.removeLayer(dropoffMarker);
+                  dropoffMarker = L.marker(dropoffCoords).addTo(map).bindPopup("🏁 Dropoff").openPopup();
+                }
+              }
+              box.style.display = "none";
+              calculateGlobalRoute();
+            };
+            box.appendChild(div);
+          });
+          box.style.display = "block";
+        })
+        .catch(err => console.error(err));
+    }, 400);
   }
 
-  function calculateLiveFare() {
-    const service = getValue("liveRideService");
-    const pickup = getValue("livePickup");
-    const dropoff = getValue("liveDropoff");
+  function calculateGlobalRoute() {
+    if (!pickupCoords || !dropoffCoords) return;
 
-    let distKm = 5.0;
-    if (pickup && dropoff) {
-      distKm = Math.min(25, Math.max(2, (pickup.length + dropoff.length) % 18 + 3.2));
-    }
+    // Use OSRM Routing Machine API for true driving distance
+    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupCoords[1]},${pickupCoords[0]};${dropoffCoords[1]},${dropoffCoords[0]}?overview=full&geometries=geojson`;
 
-    let ratePerKm = 15000;
-    if (service.includes("7-Seat")) ratePerKm = 18000;
-    else if (service.includes("Bike")) ratePerKm = 12000;
-    else if (service.includes("Xanh SM Electric")) ratePerKm = 16000;
-    else if (service.includes("Xanh SM Bike")) ratePerKm = 13000;
+    fetch(osrmUrl)
+      .then(res => res.json())
+      .then(data => {
+        if (data.routes && data.routes.length > 0) {
+          const route = data.routes[0];
+          const distKm = (route.distance / 1000).toFixed(1);
+          const durationMins = Math.round(route.duration / 60);
 
-    let fare = Math.round(distKm * ratePerKm);
-    let estMinutes = Math.round(distKm * 2.5 + 4);
+          const service = getValue("liveRideService");
+          let ratePerKm = 15000;
+          if (service.includes("7-Seat")) ratePerKm = 18000;
+          else if (service.includes("Bike")) ratePerKm = 12000;
+          else if (service.includes("Xanh SM Electric")) ratePerKm = 16000;
+          else if (service.includes("Xanh SM Bike")) ratePerKm = 13000;
 
-    const lblDist = document.getElementById("lblDistCalc");
-    const lblTime = document.getElementById("lblTimeCalc");
-    const lblFare = document.getElementById("liveFarePreview");
+          const fare = Math.round(distKm * ratePerKm);
 
-    if (lblDist) lblDist.textContent = distKm.toFixed(1) + " km";
-    if (lblTime) lblTime.textContent = estMinutes + " mins";
-    if (lblFare) lblFare.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fare);
+          const lblDist = document.getElementById("lblDistCalc");
+          const lblTime = document.getElementById("lblTimeCalc");
+          const lblFare = document.getElementById("liveFarePreview");
+
+          if (lblDist) lblDist.textContent = distKm + " km";
+          if (lblTime) lblTime.textContent = durationMins + " mins";
+          if (lblFare) lblFare.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fare);
+
+          // Draw satellite polyline path on Leaflet map
+          if (map) {
+            if (routeLine) map.removeLayer(routeLine);
+            const geojson = route.geometry;
+            routeLine = L.geoJSON(geojson, { style: { color: '#00e676', weight: 5 } }).addTo(map);
+            map.fitBounds(routeLine.getBounds(), { padding: [30, 30] });
+          }
+        }
+      })
+      .catch(err => console.error(err));
   }
 
   function captureGPS() {
@@ -844,7 +827,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setValue("gpsField", fallbackNote);
         alert("Position unavailable. Using fallback timestamp.");
       },
-      { enableHighAccuracy: false, timeout: 8000 }
+      { enableHighAccuracy: true, timeout: 8000 }
     );
   }
 
@@ -1085,6 +1068,91 @@ document.addEventListener("DOMContentLoaded", function () {
     safeSetText("lblDisplayWebsite", companyConfig.website);
   }
 
+  function setLanguage(lang) {
+    currentLang = lang;
+    try { localStorage.setItem(LANG_KEY, lang); } catch(e){}
+
+    ['langBtnEn', 'langBtnVi', 'langBtnZh'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle("active", id === (lang === 'en' ? 'langBtnEn' : lang === 'vi' ? 'langBtnVi' : 'langBtnZh'));
+    });
+
+    const dict = i18n[lang] || i18n.en;
+    const safeText = (id, text) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    safeText("tabScannerBtn", dict.tabManifest);
+    safeText("tabMarketBtn", dict.tabMarket);
+    safeText("tabSupportBtn", dict.tabSupport);
+    safeText("tabAdminBtn", dict.tabControl);
+
+    safeText("lblKpiTotal", dict.kpiTotal);
+    safeText("lblKpiPicked", dict.kpiPicked);
+    safeText("lblKpiTransit", dict.kpiTransit);
+    safeText("lblKpiDelivered", dict.kpiDelivered);
+
+    safeText("lblDriver", dict.lblDriver);
+    safeText("lblVehicle", dict.lblVehicle);
+    safeText("startScanBtn", dict.btnOpenCam);
+    safeText("stopScanBtn", dict.btnStopCam);
+    safeText("lblTracking", dict.lblTracking);
+    safeText("lblItemDesc", dict.lblItemDesc);
+    safeText("lblRecipient", dict.lblRecipient);
+    safeText("lblStatus", dict.lblStatus);
+    safeText("optPicked", dict.optPicked);
+    safeText("optTransit", dict.optTransit);
+    safeText("optDelivered", dict.optDelivered);
+    safeText("optFailed", dict.optFailed);
+    safeText("lblGps", dict.lblGps);
+    safeText("saveBtn", dict.btnLogShipment);
+
+    const searchEl = document.getElementById("searchFilter");
+    if (searchEl) searchEl.placeholder = dict.phSearch;
+
+    safeText("thWaybill", dict.thWaybill);
+    safeText("thItem", dict.thItem);
+    safeText("thStatus", dict.thStatus);
+    safeText("thCustomer", dict.thCustomer);
+    safeText("thDriverGps", dict.thDriverGps);
+    safeText("thActions", dict.thActions);
+
+    safeText("btnExportCsv", dict.btnExportCsv);
+    safeText("btnPrintSummary", dict.btnPrintSummary);
+
+    safeText("hdrSupport", dict.hdrSupport);
+    safeText("descSupport", dict.descSupport);
+    safeText("lblSupportWaybill", dict.lblSupportWaybill);
+    safeText("lblSupportIssue", dict.lblSupportIssue);
+    safeText("btnCallSupport", dict.btnCallSupport);
+    safeText("btnWaSupport", dict.btnWaSupport);
+    safeText("btnSubmitTicket", dict.btnSubmitTicket);
+
+    safeText("hdrCompanyDetails", dict.hdrCompanyDetails);
+    safeText("lblCompany", dict.lblCompany);
+    safeText("lblHotline", dict.lblHotline);
+    safeText("lblWhatsApp", dict.lblWhatsApp);
+    safeText("lblEmail", dict.lblEmail);
+    safeText("lblWebsite", dict.lblWebsite);
+
+    safeText("hdrAdminControl", dict.hdrAdminControl);
+    safeText("descAdminControl", dict.descAdminControl);
+    safeText("lblCfgName", dict.lblCfgName);
+    safeText("lblCfgPhone", dict.lblCfgPhone);
+    safeText("lblCfgWhatsApp", dict.lblCfgWhatsApp);
+    safeText("lblCfgEmail", dict.lblCfgEmail);
+    safeText("lblCfgWebsite", dict.lblCfgWebsite);
+    safeText("btnSaveConfig", dict.btnSaveConfig);
+
+    safeText("btnCopyData", dict.btnCopyData);
+    safeText("btnShareReport", dict.btnShareReport);
+    safeText("btnCloseExport", dict.btnCloseExport);
+
+    loadCompanyConfig();
+    renderTable();
+  }
+
   function saveCompanyConfig() {
     companyConfig.name = getValue("cfgCompanyName") || "LogiGo Express & SuperApp";
     companyConfig.phone = getValue("cfgPhone") || "19001234";
@@ -1123,19 +1191,20 @@ document.addEventListener("DOMContentLoaded", function () {
     btn.onclick = function() { window.open(this.getAttribute("data-url"), '_blank'); };
   });
 
-  document.getElementById("liveRideService").onchange = calculateLiveFare;
-  document.getElementById("livePickup").oninput = function() { filterLocations(this.value, 'pickupSuggestions'); };
-  document.getElementById("liveDropoff").oninput = function() { filterLocations(this.value, 'dropoffSuggestions'); };
+  document.getElementById("liveRideService").onchange = calculateGlobalRoute;
+  document.getElementById("livePickup").oninput = function() { fetchGlobalAutocomplete(this.value, 'pickupSuggestions', 'pickup'); };
+  document.getElementById("liveDropoff").oninput = function() { fetchGlobalAutocomplete(this.value, 'dropoffSuggestions', 'dropoff'); };
   document.getElementById("btnLaunchGrab").onclick = () => window.open('https://www.grab.com/vn/en/transport/', '_blank');
   document.getElementById("btnLaunchXanh").onclick = () => window.open('https://www.xanhsm.com/', '_blank');
+  
   document.getElementById("btnConfirmRide").onclick = function() {
     const service = getValue("liveRideService");
-    const pickup = getValue("livePickup") || "Ben Thanh Market";
-    const dropoff = getValue("liveDropoff") || "Landmark 81";
+    const pickup = getValue("livePickup") || "Pickup Point";
+    const dropoff = getValue("liveDropoff") || "Destination Point";
     const code = "RIDE-" + Math.floor(100000 + Math.random() * 900000);
     items.unshift({ id: code, item: `[${service}] Ride`, status: "IN_TRANSIT", driver: "Driver On Duty", vehicle: "CITY-FLEET", recipient: `${pickup} ➔ ${dropoff}`, gps: "GPS Live", time: new Date().toLocaleString() });
     saveData(); renderTable(); updateKPIs(); playBeep(false);
-    alert(`Ride Booked! Code: ${code}`);
+    alert(`Ride Booked Globally! Code: ${code}`);
     switchTab('scanner');
   };
 
@@ -1192,6 +1261,15 @@ document.addEventListener("DOMContentLoaded", function () {
         if (accuracy) accuracy.textContent = "±" + Math.round(c.accuracy) + " m";
         if (time) time.textContent = new Date(pos.timestamp).toLocaleTimeString();
         if (status) { status.textContent = "Live GPS Active."; status.style.color = "#4ade80"; }
+
+        // Pan map marker dynamically if live map is active
+        if (map) {
+          const currentPos = [c.latitude, c.longitude];
+          if (!pickupMarker) {
+            pickupMarker = L.marker(currentPos).addTo(map).bindPopup("📍 Driver Current GPS").openPopup();
+            map.setView(currentPos, 14);
+          }
+        }
       },
       (err) => {
         if (status) { status.textContent = "GPS error: " + err.message; status.style.color = "#ef4444"; }
