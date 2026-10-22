@@ -585,9 +585,9 @@ textarea.report-box {
 "use strict";
 
 document.addEventListener("DOMContentLoaded", function () {
-  const STORAGE_KEY = "logigo_manifest_v21";
-  const CONFIG_KEY = "logigo_config_v21";
-  const LANG_KEY = "logigo_lang_v16";
+  const STORAGE_KEY = "logigo_manifest_v22";
+  const CONFIG_KEY = "logigo_config_v22";
+  const LANG_KEY = "logigo_lang_v17";
 
   let items = [];
   let currentLang = "en";
@@ -619,30 +619,6 @@ document.addEventListener("DOMContentLoaded", function () {
     whatsapp: "0901234567",
     email: "cskh@logigo.vn",
     website: "https://logigo.vn"
-  };
-
-  const i18n = {
-    en: {
-      tagline: "VIETNAM & GLOBAL LOGISTICS, RIDE-HAILING & E-COMMERCE ENGINE",
-      tabManifest: "📦 Manifest", tabMarket: "🛒 E-Shop & Rides", tabSupport: "🎧 Support", tabControl: "⚙️ Control",
-      kpiTotal: "TOTAL", kpiPicked: "PICKED UP", kpiTransit: "IN TRANSIT", kpiDelivered: "DELIVERED",
-      optPicked: "Picked Up", optTransit: "In Transit", optDelivered: "Delivered", optFailed: "Delivery Exception",
-      btnExportCsv: "📊 Export CSV", btnPrintSummary: "📄 Printable Summary"
-    },
-    vi: {
-      tagline: "GIAO HÀNG TOÀN QUỐC & SIÊU ỨNG DỤNG THƯƠNG MẠI ĐIỆN TỬ",
-      tabManifest: "📦 Đơn Hàng", tabMarket: "🛒 Mua Sắm & Đặt Xe", tabSupport: "🎧 Hỗ Trợ", tabControl: "⚙️ Cấu Hình",
-      kpiTotal: "TỔNG ĐƠN", kpiPicked: "ĐÃ NHẬN", kpiTransit: "ĐANG GIAO", kpiDelivered: "THÀNH CÔNG",
-      optPicked: "Đã Nhận Hàng", optTransit: "Đang Giao Hàng", optDelivered: "Giao Thành Công", optFailed: "Giao Thất Bại / Sự Cố",
-      btnExportCsv: "📊 Xuất File CSV", btnPrintSummary: "📄 Báo Cáo Tổng Hợp"
-    },
-    zh: {
-      tagline: "越南全境与全球物流派送、叫车出行与电商超级应用平台",
-      tabManifest: "📦 运单列表", tabMarket: "🛒 商城与出行", tabSupport: "🎧 客服中心", tabControl: "⚙️ 公司设置",
-      kpiTotal: "总运单", kpiPicked: "已揽收", kpiTransit: "运输中", kpiDelivered: "已送达",
-      optPicked: "已揽收", optTransit: "派送中", optDelivered: "已送达", optFailed: "派送异常",
-      btnExportCsv: "📊 导出 CSV", btnPrintSummary: "📄 打印汇总报告"
-    }
   };
 
   function getValue(id) { 
@@ -1203,6 +1179,19 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("tabMarketBtn").onclick = () => switchTab('market');
   document.getElementById("tabSupportBtn").onclick = () => switchTab('support');
   document.getElementById("tabAdminBtn").onclick = () => switchTab('admin');
+
+  // E-Commerce & Online Food Delivery Buttons Binding Fix
+  document.querySelectorAll("[data-url]").forEach(btn => {
+    btn.onclick = function() { 
+      const targetUrl = this.getAttribute("data-url");
+      if (targetUrl) {
+        window.open(targetUrl, '_blank'); 
+      }
+    };
+  });
+
+  document.getElementById("btnLaunchGrab").onclick = () => window.open('https://www.grab.com/vn/en/transport/', '_blank');
+  document.getElementById("btnLaunchXanh").onclick = () => window.open('https://www.xanhsm.com/', '_blank');
 
   document.getElementById("saveBtn").onclick = addShipment;
   document.getElementById("btnExportCsv").onclick = () => openExportModal('csv');
