@@ -238,6 +238,11 @@ th { background: #1a2d48; color: var(--text-main); }
   z-index: 1;
 }
 
+/* CSS Dark Mode Filter for Keyless Tiles */
+.dark-map-tiles {
+  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+}
+
 .address-tag {
   background: var(--bg-input);
   border: 1px solid var(--accent-blue);
@@ -472,7 +477,6 @@ textarea.report-box {
       <div id="dropoffSuggestions" class="suggestions-box"></div>
     </div>
 
-    <!-- Explicit Search & Calculate Route Button -->
     <button class="btn-search-route" id="btnSearchRoute" type="button">🔍 Search Route & Calculate Fare</button>
 
     <!-- Embedded Live Interactive Map for Taxi Route -->
@@ -582,9 +586,9 @@ textarea.report-box {
 "use strict";
 
 document.addEventListener("DOMContentLoaded", function () {
-  const STORAGE_KEY = "logigo_manifest_v17";
-  const CONFIG_KEY = "logigo_config_v17";
-  const LANG_KEY = "logigo_lang_v12";
+  const STORAGE_KEY = "logigo_manifest_v18";
+  const CONFIG_KEY = "logigo_config_v18";
+  const LANG_KEY = "logigo_lang_v13";
 
   let items = [];
   let currentLang = "en";
@@ -606,9 +610,9 @@ document.addEventListener("DOMContentLoaded", function () {
   let totalDistanceMeters = 0;
   let lastGeocodeTime = 0;
 
-  // Keyless, non-watermarked tile layer (Stadia / Stamen Design)
-  const TILE_URL = "https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png";
-  const TILE_ATTR = '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://stamen.com/">Stamen Design</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+  // 100% Free, Keyless Tile Engine (OpenStreetMap France HOT)
+  const TILE_URL = "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png";
+  const TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles courtesy of <a href="https://www.hotosm.org/">Humanitarian OpenStreetMap Team</a>';
 
   let companyConfig = {
     name: "LogiGo Express & SuperApp",
@@ -712,7 +716,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!el) return;
 
     telemetryMap = L.map("telemetryMap").setView([10.84735, 106.84420], 14);
-    L.tileLayer(TILE_URL, { attribution: TILE_ATTR, maxZoom: 19 }).addTo(telemetryMap);
+    L.tileLayer(TILE_URL, { attribution: TILE_ATTR, maxZoom: 19, className: 'dark-map-tiles' }).addTo(telemetryMap);
 
     const driverIcon = L.divIcon({
       className: 'driver-cursor',
@@ -732,7 +736,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!mapEl) return;
 
     map = L.map("mapContainer").setView([10.8231, 106.6297], 13);
-    L.tileLayer(TILE_URL, { attribution: TILE_ATTR, maxZoom: 19 }).addTo(map);
+    L.tileLayer(TILE_URL, { attribution: TILE_ATTR, maxZoom: 19, className: 'dark-map-tiles' }).addTo(map);
     calculateRouteAndFare();
   }
 
