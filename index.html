@@ -585,9 +585,9 @@ textarea.report-box {
 "use strict";
 
 document.addEventListener("DOMContentLoaded", function () {
-  const STORAGE_KEY = "logigo_manifest_v22";
-  const CONFIG_KEY = "logigo_config_v22";
-  const LANG_KEY = "logigo_lang_v17";
+  const STORAGE_KEY = "logigo_manifest_v23";
+  const CONFIG_KEY = "logigo_config_v23";
+  const LANG_KEY = "logigo_lang_v18";
 
   let items = [];
   let currentLang = "en";
@@ -619,6 +619,63 @@ document.addEventListener("DOMContentLoaded", function () {
     whatsapp: "0901234567",
     email: "cskh@logigo.vn",
     website: "https://logigo.vn"
+  };
+
+  const i18n = {
+    en: {
+      tagline: "VIETNAM & GLOBAL LOGISTICS, RIDE-HAILING & E-COMMERCE ENGINE",
+      tabManifest: "📦 Manifest", tabMarket: "🛒 E-Shop & Rides", tabSupport: "🎧 Support", tabControl: "⚙️ Control",
+      kpiTotal: "TOTAL", kpiPicked: "PICKED UP", kpiTransit: "IN TRANSIT", kpiDelivered: "DELIVERED",
+      lblDriver: "Driver / Officer", lblVehicle: "Vehicle / Route ID", btnOpenCam: "📷 OPEN CAMERA SCANNER", btnStopCam: "✕ STOP CAMERA",
+      lblTracking: "Waybill / Tracking Barcode", lblItemDesc: "Package Item / Product Type", lblRecipient: "Customer / Recipient Name",
+      lblStatus: "Delivery Status", optPicked: "Picked Up", optTransit: "In Transit", optDelivered: "Delivered", optFailed: "Delivery Exception",
+      lblGps: "GPS Location / Terminal Tag", btnLogShipment: "➕ LOG SHIPMENT TO MANIFEST", phSearch: "🔍 Search tracking number, product, driver, or customer...",
+      thWaybill: "Tracking ID", thItem: "Item / Product", thStatus: "Status", thCustomer: "Customer / Recipient", thDriverGps: "Driver & GPS", thActions: "Actions",
+      btnExportCsv: "📊 Export CSV", btnPrintSummary: "📄 Printable Summary",
+      hdrSupport: "🎧 Dispatch & Dispute Support Center", descSupport: "Need help with an emergency, dispute, or address change? Connect instantly with our team:",
+      lblSupportWaybill: "Reference Waybill / Tracking ID (Optional)", lblSupportIssue: "Describe Issue / Dispute / Address Change",
+      btnCallSupport: "📞 CALL DISPATCH HOTLINE", btnWaSupport: "💬 CHAT VIA WHATSAPP / ZALO", btnSubmitTicket: "📩 SUBMIT SUPPORT TICKET",
+      hdrCompanyDetails: "Official Contact Details", lblCompany: "Company:", lblHotline: "Support Phone:", lblWhatsApp: "WhatsApp / Zalo:", lblEmail: "Email:", lblWebsite: "Website:",
+      hdrAdminControl: "⚙️ Company Self-Service Control Panel", descAdminControl: "Configure your business contact details. Changing these details instantly updates all support routing across the app!",
+      lblCfgName: "Business / Company Name", lblCfgPhone: "Dispatch Hotline (Calls)", lblCfgWhatsApp: "WhatsApp / Zalo Number", lblCfgEmail: "Support Email Address", lblCfgWebsite: "Website URL", btnSaveConfig: "💾 SAVE COMPANY CONFIGURATION",
+      btnCopyData: "📋 COPY DATA TO CLIPBOARD", btnShareReport: "📲 SHARE VIA WHATSAPP / ZALO / EMAIL", btnCloseExport: "✕ Close Window"
+    },
+    vi: {
+      tagline: "GIAO HÀNG TOÀN QUỐC & SIÊU ỨNG DỤNG THƯƠNG MẠI ĐIỆN TỬ",
+      tabManifest: "📦 Đơn Hàng", tabMarket: "🛒 Mua Sắm & Đặt Xe", tabSupport: "🎧 Hỗ Trợ", tabControl: "⚙️ Cấu Hình",
+      kpiTotal: "TỔNG ĐƠN", kpiPicked: "ĐÃ NHẬN", kpiTransit: "ĐANG GIAO", kpiDelivered: "THÀNH CÔNG",
+      lblDriver: "Tài Xế / Nhân Viên", lblVehicle: "Mã Xe / Tuyến", btnOpenCam: "📷 MỞ CAMERA QUÉT MÃ", btnStopCam: "✕ TẮT CAMERA",
+      lblTracking: "Mã Vận Đơn / Barcode", lblItemDesc: "Tên Sản Phẩm / Hàng Hóa", lblRecipient: "Người Nhận / Địa Chỉ",
+      lblStatus: "Trạng Thái Giao Hàng", optPicked: "Đã Nhận Hàng", optTransit: "Đang Giao Hàng", optDelivered: "Giao Thành Công", optFailed: "Giao Thất Bại / Sự Cố",
+      lblGps: "Tọa Độ GPS / Vị Trí Giao", btnLogShipment: "➕ LƯU ĐƠN VÀO DANH SÁCH", phSearch: "🔍 Tìm theo mã đơn, sản phẩm, tài xế, khách hàng...",
+      thWaybill: "Mã Vận Đơn", thItem: "Sản Phẩm", thStatus: "Trạng Thái", thCustomer: "Khách Hàng", thDriverGps: "Tài Xế & GPS", thActions: "Thao Tác",
+      btnExportCsv: "📊 Xuất File CSV", btnPrintSummary: "📄 Báo Cáo Tổng Hợp",
+      hdrSupport: "🎧 Trung Tâm Hỗ Trợ & Khiếu Nại Đơn Hàng", descSupport: "Cần hỗ trợ sự cố, đổi địa chỉ giao hàng hoặc phản hồi dịch vụ? Liên hệ ngay:",
+      lblSupportWaybill: "Mã Vận Đơn / Đơn Hàng (Không bắt buộc)", lblSupportIssue: "Nội Dung Sự Cố / Yêu Cầu Đổi Địa Chỉ",
+      btnCallSupport: "📞 GỌI HOTLINE TỔNG ĐÀI", btnWaSupport: "💬 CHAT QUA WHATSAPP / ZALO", btnSubmitTicket: "📩 GỬI YÊU CẦU HỖ TRỢ",
+      hdrCompanyDetails: "Thông Tin Liên Hệ Doanh Nghiệp", lblCompany: "Doanh Nghiệp:", lblHotline: "Hotline:", lblWhatsApp: "WhatsApp / Zalo:", lblEmail: "Email:", lblWebsite: "Website:",
+      hdrAdminControl: "⚙️ Cấu Hình Doanh Nghiệp (Tự Quản Lý)", descAdminControl: "Nhập số điện thoại, Zalo/WhatsApp và thông tin công ty của bạn. Thông tin sẽ tự động áp dụng toàn bộ ứng dụng!",
+      lblCfgName: "Tên Công Ty / Cửa Hàng", lblCfgPhone: "Số Hotline Gọi Điện", lblCfgWhatsApp: "Số Zalo / WhatsApp", lblCfgEmail: "Email Hỗ Trợ Khách Hàng", lblCfgWebsite: "Địa Chỉ Website", btnSaveConfig: "💾 LƯU CẤU HÌNH DOANH NGHIỆP",
+      btnCopyData: "📋 SAO CHÉP DỮ LIỆU", btnShareReport: "📲 CHIA SẺ QUA ZALO / EMAIL", btnCloseExport: "✕ Đóng Cửa Sổ"
+    },
+    zh: {
+      tagline: "越南全境与全球物流派送、叫车出行与电商超级应用平台",
+      tabManifest: "📦 运单列表", tabMarket: "🛒 商城与出行", tabSupport: "🎧 客服中心", tabControl: "⚙️ 公司设置",
+      kpiTotal: "总运单", kpiPicked: "已揽收", kpiTransit: "运输中", kpiDelivered: "已送达",
+      lblDriver: "司机 / 派送员", lblVehicle: "车辆 / 路线 ID", btnOpenCam: "📷 打开摄像头扫码", btnStopCam: "✕ 关闭摄像头",
+      lblTracking: "运单号 / 条形码", lblItemDesc: "包裹物品 / 产品类型", lblRecipient: "收件人 / 目的地",
+      lblStatus: "派送状态", optPicked: "已揽收", optTransit: "派送中", optDelivered: "已送达", optFailed: "派送异常",
+      lblGps: "GPS 定位 / 站点标记", btnLogShipment: "➕ 添加运单至列表", phSearch: "🔍 搜索运单号、物品、司机或收件人...",
+      thWaybill: "运单号", thItem: "物品", thStatus: "状态", thCustomer: "收件人", thDriverGps: "司机与 GPS", thActions: "操作",
+      btnExportCsv: "📊 导出 CSV", btnPrintSummary: "📄 打印汇总报告",
+      hdrSupport: "🎧 调度与争议客服中心", descSupport: "需要紧急协助、修改地址或处理争议？请即刻联系我们：",
+      lblSupportWaybill: "参考运单号 (选填)", lblSupportIssue: "描述问题 / 争议 / 修改地址",
+      btnCallSupport: "📞 拨打调度热线", btnWaSupport: "💬 微信 / WhatsApp / Zalo 客服", btnSubmitTicket: "📩 提交客服工单",
+      hdrCompanyDetails: "官方联系方式", lblCompany: "公司名称:", lblHotline: "客服热线:", lblWhatsApp: "WhatsApp / Zalo / 微信:", lblEmail: "电子邮箱:", lblWebsite: "官方网站:",
+      hdrAdminControl: "⚙️ 公司自主管理控制台", descAdminControl: "配置您的企业联系方式。保存后将即时更新应用内所有客服与路由信息！",
+      lblCfgName: "企业 / 公司名称", lblCfgPhone: "调度热线电话", lblCfgWhatsApp: "WhatsApp / Zalo / 微信账号", lblCfgEmail: "客服电子邮箱", lblCfgWebsite: "官方网站 URL", btnSaveConfig: "💾 保存公司配置",
+      btnCopyData: "📋 复制数据至剪贴板", btnShareReport: "📲 分享报告 (微信/Zalo/邮箱)", btnCloseExport: "✕ 关闭窗口"
+    }
   };
 
   function getValue(id) { 
@@ -674,6 +731,119 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("lblDistCalc").textContent = distanceKm.toFixed(1) + " km";
     document.getElementById("lblTimeCalc").textContent = durationMins + " mins";
     document.getElementById("liveFarePreview").textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fare);
+  }
+
+  // --- MULTILINGUAL ENGINE ENGINE FIX ---
+  function loadCompanyConfig() {
+    try {
+      const saved = localStorage.getItem(CONFIG_KEY);
+      if (saved) companyConfig = Object.assign(companyConfig, JSON.parse(saved));
+      const savedLang = localStorage.getItem(LANG_KEY);
+      if (savedLang) currentLang = savedLang;
+    } catch(e) {}
+
+    setValue("cfgCompanyName", companyConfig.name);
+    setValue("cfgPhone", companyConfig.phone);
+    setValue("cfgWhatsApp", companyConfig.whatsapp);
+    setValue("cfgEmail", companyConfig.email);
+    setValue("cfgWebsite", companyConfig.website);
+
+    const safeSetText = (id, text) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    const currentDict = i18n[currentLang] || i18n.en;
+    safeSetText("companyTaglineHeader", companyConfig.name.toUpperCase() + " - " + currentDict.tagline);
+    safeSetText("lblDisplayCompany", companyConfig.name);
+    safeSetText("lblDisplayPhone", companyConfig.phone);
+    safeSetText("lblDisplayWhatsApp", companyConfig.whatsapp);
+    safeSetText("lblDisplayEmail", companyConfig.email);
+    safeSetText("lblDisplayWebsite", companyConfig.website);
+  }
+
+  function setLanguage(lang) {
+    currentLang = lang;
+    try { localStorage.setItem(LANG_KEY, lang); } catch(e){}
+
+    ['langBtnEn', 'langBtnVi', 'langBtnZh'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle("active", id === (lang === 'en' ? 'langBtnEn' : lang === 'vi' ? 'langBtnVi' : 'langBtnZh'));
+    });
+
+    const dict = i18n[lang] || i18n.en;
+    const safeText = (id, text) => {
+      const el = document.getElementById(id);
+      if (el && text) el.textContent = text;
+    };
+
+    safeText("tabScannerBtn", dict.tabManifest);
+    safeText("tabMarketBtn", dict.tabMarket);
+    safeText("tabSupportBtn", dict.tabSupport);
+    safeText("tabAdminBtn", dict.tabControl);
+    safeText("lblKpiTotal", dict.kpiTotal);
+    safeText("lblKpiPicked", dict.kpiPicked);
+    safeText("lblKpiTransit", dict.kpiTransit);
+    safeText("lblKpiDelivered", dict.kpiDelivered);
+
+    safeText("lblDriver", dict.lblDriver);
+    safeText("lblVehicle", dict.lblVehicle);
+    safeText("startScanBtn", dict.btnOpenCam);
+    safeText("stopScanBtn", dict.btnStopCam);
+    safeText("lblTracking", dict.lblTracking);
+    safeText("lblItemDesc", dict.lblItemDesc);
+    safeText("lblRecipient", dict.lblRecipient);
+    safeText("lblStatus", dict.lblStatus);
+    safeText("optPicked", dict.optPicked);
+    safeText("optTransit", dict.optTransit);
+    safeText("optDelivered", dict.optDelivered);
+    safeText("optFailed", dict.optFailed);
+    safeText("lblGps", dict.lblGps);
+    safeText("saveBtn", dict.btnLogShipment);
+
+    safeText("thWaybill", dict.thWaybill);
+    safeText("thItem", dict.thItem);
+    safeText("thStatus", dict.thStatus);
+    safeText("thCustomer", dict.thCustomer);
+    safeText("thDriverGps", dict.thDriverGps);
+    safeText("thActions", dict.thActions);
+
+    safeText("btnExportCsv", dict.btnExportCsv);
+    safeText("btnPrintSummary", dict.btnPrintSummary);
+
+    safeText("hdrSupport", dict.hdrSupport);
+    safeText("descSupport", dict.descSupport);
+    safeText("lblSupportWaybill", dict.lblSupportWaybill);
+    safeText("lblSupportIssue", dict.lblSupportIssue);
+    safeText("btnCallSupport", dict.btnCallSupport);
+    safeText("btnWaSupport", dict.btnWaSupport);
+    safeText("btnSubmitTicket", dict.btnSubmitTicket);
+
+    safeText("hdrCompanyDetails", dict.hdrCompanyDetails);
+    safeText("lblCompany", dict.lblCompany);
+    safeText("lblHotline", dict.lblHotline);
+    safeText("lblWhatsApp", dict.lblWhatsApp);
+    safeText("lblEmail", dict.lblEmail);
+    safeText("lblWebsite", dict.lblWebsite);
+
+    safeText("hdrAdminControl", dict.hdrAdminControl);
+    safeText("descAdminControl", dict.descAdminControl);
+    safeText("lblCfgName", dict.lblCfgName);
+    safeText("lblCfgPhone", dict.lblCfgPhone);
+    safeText("lblCfgWhatsApp", dict.lblCfgWhatsApp);
+    safeText("lblCfgEmail", dict.lblCfgEmail);
+    safeText("lblCfgWebsite", dict.lblCfgWebsite);
+    safeText("btnSaveConfig", dict.btnSaveConfig);
+
+    safeText("btnCopyData", dict.btnCopyData);
+    safeText("btnShareReport", dict.btnShareReport);
+    safeText("btnCloseExport", dict.btnCloseExport);
+
+    const sFilter = document.getElementById("searchFilter");
+    if (sFilter && dict.phSearch) sFilter.placeholder = dict.phSearch;
+
+    loadCompanyConfig();
+    renderTable();
   }
 
   // --- INITIALIZE TELEMETRY MAP ---
@@ -980,6 +1150,7 @@ document.addEventListener("DOMContentLoaded", function () {
     body.replaceChildren();
 
     const filtered = items.filter(i => [i.id, i.item, i.driver, i.vehicle, i.recipient, i.status].join(" ").toLowerCase().includes(query));
+    const dict = i18n[currentLang] || i18n.en;
 
     filtered.forEach(item => {
       let pillClass = "st-transit";
@@ -987,11 +1158,16 @@ document.addEventListener("DOMContentLoaded", function () {
       if (item.status === "DELIVERED") pillClass = "st-deliv";
       if (item.status === "FAILED") pillClass = "st-fail";
 
+      let stText = dict.optTransit || "In Transit";
+      if (item.status === "PICKED_UP") stText = dict.optPicked || "Picked Up";
+      if (item.status === "DELIVERED") stText = dict.optDelivered || "Delivered";
+      if (item.status === "FAILED") stText = dict.optFailed || "Exception";
+
       const row = document.createElement("tr");
       row.innerHTML = `
         <td><b>${item.id}</b></td>
         <td>${item.item}</td>
-        <td><span class="status-pill ${pillClass}">${item.status}</span></td>
+        <td><span class="status-pill ${pillClass}">${stText}</span></td>
         <td>${item.recipient}</td>
         <td><small>${item.driver} (${item.vehicle})<br>${item.gps}</small></td>
         <td class="no-print"><button class="btn-del" type="button" style="padding:4px 8px;font-size:10px" data-del="${item.id}">Del</button></td>
@@ -1044,17 +1220,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function openExportModal(type) {
     if (!items.length) { alert("No records to export."); return; }
+    const dict = i18n[currentLang] || i18n.en;
     const modalTitle = document.getElementById("modalTitle");
     const modalSub = document.getElementById("modalSub");
     const preview = document.getElementById("csvPreview");
     const modal = document.getElementById("exportModal");
 
     if (type === 'summary') {
-      if (modalTitle) modalTitle.textContent = "📄 Printable Summary Report";
+      if (modalTitle) modalTitle.textContent = "📄 " + (dict.btnPrintSummary || "Printable Summary Report");
       if (modalSub) modalSub.textContent = "Ready to copy or share:";
       if (preview) preview.value = getSummaryString();
     } else {
-      if (modalTitle) modalTitle.textContent = "📊 Export CSV Data";
+      if (modalTitle) modalTitle.textContent = "📊 " + (dict.btnExportCsv || "Export CSV Data");
       if (modalSub) modalSub.textContent = "Formats ready for ERPs & Spreadsheets:";
       if (preview) preview.value = getCSVString();
     }
@@ -1175,12 +1352,15 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   // --- ATTACH ALL EVENT LISTENERS ---
+  document.getElementById("langBtnEn").onclick = () => setLanguage('en');
+  document.getElementById("langBtnVi").onclick = () => setLanguage('vi');
+  document.getElementById("langBtnZh").onclick = () => setLanguage('zh');
+
   document.getElementById("tabScannerBtn").onclick = () => switchTab('scanner');
   document.getElementById("tabMarketBtn").onclick = () => switchTab('market');
   document.getElementById("tabSupportBtn").onclick = () => switchTab('support');
   document.getElementById("tabAdminBtn").onclick = () => switchTab('admin');
 
-  // E-Commerce & Online Food Delivery Buttons Binding Fix
   document.querySelectorAll("[data-url]").forEach(btn => {
     btn.onclick = function() { 
       const targetUrl = this.getAttribute("data-url");
@@ -1196,6 +1376,8 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("saveBtn").onclick = addShipment;
   document.getElementById("btnExportCsv").onclick = () => openExportModal('csv');
   document.getElementById("btnPrintSummary").onclick = () => openExportModal('summary');
+
+  document.getElementById("searchFilter").oninput = renderTable;
 
   document.getElementById("btnSearchRoute").onclick = calculateRouteAndFare;
   document.getElementById("liveRideService").onchange = calculateRouteAndFare;
@@ -1228,8 +1410,9 @@ document.addEventListener("DOMContentLoaded", function () {
     switchTab('scanner');
   };
 
+  // --- INITIAL LOAD ---
   loadData();
-  renderTable();
+  setLanguage(currentLang);
   updateKPIs();
   initTelemetryMap();
 });
