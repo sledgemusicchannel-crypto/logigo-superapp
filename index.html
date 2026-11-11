@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0b1320">
 <title>LogiGo SuperApp - Logistics, Taxi & E-Commerce Engine</title>
 
@@ -33,6 +33,16 @@ body {
   margin: 0;
   padding: 12px;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Universal Desktop & Tablet Wrapper constraint to ensure professional presentation on large screens */
+.app-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .lang-bar {
@@ -42,7 +52,7 @@ body {
   margin-bottom: 8px;
 }
 .lang-btn {
-  padding: 4px 8px;
+  padding: 6px 10px;
   font-size: 11px;
   font-weight: bold;
   border: 1px solid var(--border-color);
@@ -50,6 +60,7 @@ body {
   color: var(--text-muted);
   border-radius: 4px;
   cursor: pointer;
+  touch-action: manipulation;
 }
 .lang-btn.active {
   background: var(--accent-blue);
@@ -84,7 +95,7 @@ header p {
 }
 .tab-btn {
   flex: 1;
-  padding: 8px 2px;
+  padding: 10px 4px;
   font-size: 10px;
   font-weight: bold;
   background: var(--bg-card);
@@ -93,6 +104,7 @@ header p {
   border-radius: 6px;
   cursor: pointer;
   text-align: center;
+  touch-action: manipulation;
 }
 .tab-btn.active {
   background: var(--accent-blue);
@@ -175,6 +187,7 @@ button {
   align-items: center;
   justify-content: center;
   gap: 6px;
+  touch-action: manipulation;
 }
 .btn-scan { background: #5c6bc0; color: white; }
 .btn-add { background: var(--accent-green); color: #000; }
@@ -277,308 +290,312 @@ textarea.report-box {
 
 <body>
 
-<div class="lang-bar no-print">
-  <button class="lang-btn active" id="langBtnEn" type="button">🇬🇧 EN</button>
-  <button class="lang-btn" id="langBtnVi" type="button">🇻🇳 VN</button>
-  <button class="lang-btn" id="langBtnZh" type="button">🇨🇳 中文</button>
-</div>
-
-<header class="no-print">
-  <h1>🚀 LogiGo SuperApp</h1>
-  <p id="companyTaglineHeader">VIETNAM & GLOBAL LOGISTICS, RIDE-HAILING & E-COMMERCE ENGINE</p>
-</header>
-
-<div class="nav-tabs no-print">
-  <button class="tab-btn active" id="tabScannerBtn" type="button">📦 Manifest</button>
-  <button class="tab-btn" id="tabMarketBtn" type="button">🛒 E-Shop & Rides</button>
-  <button class="tab-btn" id="tabSupportBtn" type="button">🎧 Support</button>
-  <button class="tab-btn" id="tabAdminBtn" type="button">⚙️ Control</button>
-</div>
-
-<!-- SECTION 1: MANIFEST & SCANNER -->
-<div id="sectionScanner" class="app-section">
-  <div class="kpi-grid no-print">
-    <div class="kpi-card"><div class="val" id="kpiTotal">0</div><div class="lbl" id="lblKpiTotal">TOTAL</div></div>
-    <div class="kpi-card"><div class="val" style="color:var(--accent-blue)" id="kpiPicked">0</div><div class="lbl" id="lblKpiPicked">PICKED UP</div></div>
-    <div class="kpi-card"><div class="val" style="color:var(--accent-orange)" id="kpiTransit">0</div><div class="lbl" id="lblKpiTransit">IN TRANSIT</div></div>
-    <div class="kpi-card"><div class="val" style="color:var(--accent-green)" id="kpiDelivered">0</div><div class="lbl" id="lblKpiDelivered">DELIVERED</div></div>
+<div class="app-container">
+  <div class="lang-bar no-print">
+    <button class="lang-btn active" id="langBtnEn" type="button">🇬🇧 EN</button>
+    <button class="lang-btn" id="langBtnVi" type="button">🇻🇳 VN</button>
+    <button class="lang-btn" id="langBtnZh" type="button">🇨🇳 中文</button>
   </div>
 
-  <div id="alertBox" class="alert no-print">Live GPS Audit Engine Active. Ready.</div>
+  <header class="no-print">
+    <h1>🚀 LogiGo SuperApp</h1>
+    <p id="companyTaglineHeader">VIETNAM & GLOBAL LOGISTICS, RIDE-HAILING & E-COMMERCE ENGINE</p>
+  </header>
 
-  <div class="form-box no-print">
-    <div class="row">
-      <div class="col form-group">
-        <label for="driverName" id="lblDriver">Driver / Officer</label>
-        <input id="driverName" value="Driver #104" maxlength="60">
+  <div class="nav-tabs no-print">
+    <button class="tab-btn active" id="tabScannerBtn" type="button">📦 Manifest</button>
+    <button class="tab-btn" id="tabMarketBtn" type="button">🛒 E-Shop & Rides</button>
+    <button class="tab-btn" id="tabSupportBtn" type="button">🎧 Support</button>
+    <button class="tab-btn" id="tabAdminBtn" type="button">⚙️ Control</button>
+  </div>
+
+  <!-- SECTION 1: MANIFEST & SCANNER -->
+  <div id="sectionScanner" class="app-section">
+    <div class="kpi-grid no-print">
+      <div class="kpi-card"><div class="val" id="kpiTotal">0</div><div class="lbl" id="lblKpiTotal">TOTAL</div></div>
+      <div class="kpi-card"><div class="val" style="color:var(--accent-blue)" id="kpiPicked">0</div><div class="lbl" id="lblKpiPicked">PICKED UP</div></div>
+      <div class="kpi-card"><div class="val" style="color:var(--accent-orange)" id="kpiTransit">0</div><div class="lbl" id="lblKpiTransit">IN TRANSIT</div></div>
+      <div class="kpi-card"><div class="val" style="color:var(--accent-green)" id="kpiDelivered">0</div><div class="lbl" id="lblKpiDelivered">DELIVERED</div></div>
+    </div>
+
+    <div id="alertBox" class="alert no-print">Live GPS Audit Engine Active. Ready.</div>
+
+    <div class="form-box no-print">
+      <div class="row">
+        <div class="col form-group">
+          <label for="driverName" id="lblDriver">Driver / Officer</label>
+          <input id="driverName" value="Driver #104" maxlength="60">
+        </div>
+        <div class="col form-group">
+          <label for="vehicleId" id="lblVehicle">Vehicle / Route ID</label>
+          <input id="vehicleId" value="VAN-59B" maxlength="60">
+        </div>
       </div>
-      <div class="col form-group">
-        <label for="vehicleId" id="lblVehicle">Vehicle / Route ID</label>
-        <input id="vehicleId" value="VAN-59B" maxlength="60">
+
+      <button class="btn-scan" id="startScanBtn" type="button">📷 OPEN CAMERA SCANNER</button>
+      <button class="btn-del" id="stopScanBtn" type="button" style="display:none">✕ STOP CAMERA</button>
+
+      <div id="cameraPanel" style="display:none;margin-top:8px;background:#050c18;padding:8px;border-radius:8px">
+        <video id="cameraVideo" playsinline muted autoplay style="width:100%;max-height:280px;object-fit:cover;background:#000;border:2px solid var(--accent-blue);border-radius:6px"></video>
+        <div style="font-size:10px;color:var(--accent-orange);text-align:center;margin-top:4px">Hold barcode steadily inside video frame...</div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <div class="col form-group">
+          <label for="trackingCode" id="lblTracking">Waybill / Tracking Barcode</label>
+          <input id="trackingCode" placeholder="Scan tracking barcode..." autocomplete="off">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col form-group">
+          <label for="itemDescription" id="lblItemDesc">Package Item / Product Type</label>
+          <input id="itemDescription" placeholder="e.g. Electronics / Documents / Cargo">
+        </div>
+        <div class="col form-group">
+          <label for="recipient" id="lblRecipient">Customer / Recipient Name</label>
+          <input id="recipient" placeholder="Customer name or hub">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col form-group">
+          <label for="statusSelect" id="lblStatus">Delivery Status</label>
+          <select id="statusSelect">
+            <option value="PICKED_UP" id="optPicked">Picked Up</option>
+            <option value="IN_TRANSIT" id="optTransit" selected>In Transit</option>
+            <option value="DELIVERED" id="optDelivered">Delivered</option>
+            <option value="FAILED" id="optFailed">Delivery Exception</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="gpsField" id="lblGps">GPS Location / Terminal Tag</label>
+        <div class="row" style="margin-bottom:0">
+          <input id="gpsField" placeholder="Auto-captured or tap to type location...">
+          <button id="btnCaptureGps" type="button" style="width:110px;background:#37474f;color:white">📍 GPS</button>
+        </div>
+      </div>
+
+      <button class="btn-add" id="saveBtn" type="button">➕ LOG SHIPMENT TO MANIFEST</button>
+    </div>
+
+    <!-- LogiGo Live GPS Telemetry Widget Card -->
+    <div id="logigo-live-gps" class="form-box no-print" style="margin-bottom:12px;">
+      <h3 style="margin-top:0;margin-bottom:4px;font-size:14px;color:var(--accent-blue)">📍 Real-Time GPS Telemetry & Live Address Audit</h3>
+      <p style="margin:0 0 8px 0;font-size:10px;color:var(--text-muted);">Live movement tracking, road/district reverse lookup & distance audit</p>
+      
+      <p style="margin:4px 0;font-size:11px;">Status: <strong id="lgps-status" style="color:var(--accent-orange)">GPS tracking is stopped.</strong></p>
+      
+      <div class="address-tag">
+        🏠 <b>Current Address:</b> <span id="lgps-address" style="color:#ffffff;">Waiting for live GPS signal...</span>
+      </div>
+
+      <p style="margin:3px 0;font-size:11px;">Latitude: <span id="lgps-lat" style="font-family:monospace;">--</span> | Longitude: <span id="lgps-lon" style="font-family:monospace;">--</span></p>
+      <p style="margin:3px 0;font-size:11px;">Accuracy: <span id="lgps-accuracy" style="font-family:monospace;">--</span> | Distance Traveled: <b id="lgps-dist" style="color:var(--accent-green)">0.00 km</b></p>
+      <p style="margin:3px 0 8px 0;font-size:11px;">Last update: <span id="lgps-time" style="font-family:monospace;">--</span></p>
+
+      <!-- Embedded Driver Tracking Map -->
+      <div id="telemetryMap" class="map-box"></div>
+
+      <div class="row" style="margin-bottom:0;">
+        <div class="col"><button id="lgps-start" type="button" style="background:#16a34a;color:white;">Start Live GPS Tracking</button></div>
+        <div class="col"><button id="lgps-stop" type="button" style="background:#dc2626;color:white;">Stop GPS</button></div>
       </div>
     </div>
 
-    <button class="btn-scan" id="startScanBtn" type="button">📷 OPEN CAMERA SCANNER</button>
-    <button class="btn-del" id="stopScanBtn" type="button" style="display:none">✕ STOP CAMERA</button>
-
-    <div id="cameraPanel" style="display:none;margin-top:8px;background:#050c18;padding:8px;border-radius:8px">
-      <video id="cameraVideo" playsinline muted autoplay style="width:100%;max-height:280px;object-fit:cover;background:#000;border:2px solid var(--accent-blue);border-radius:6px"></video>
-      <div style="font-size:10px;color:var(--accent-orange);text-align:center;margin-top:4px">Hold barcode steadily inside video frame...</div>
+    <div class="no-print" style="margin-bottom:10px">
+      <input id="searchFilter" placeholder="🔍 Search tracking number, product, driver, or customer..." style="background:var(--bg-card)">
     </div>
 
-    <div class="row" style="margin-top:10px">
-      <div class="col form-group">
-        <label for="trackingCode" id="lblTracking">Waybill / Tracking Barcode</label>
-        <input id="trackingCode" placeholder="Scan tracking barcode..." autocomplete="off">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th id="thWaybill">Tracking ID</th>
+            <th id="thItem">Item / Product</th>
+            <th id="thStatus">Status</th>
+            <th id="thCustomer">Customer / Recipient</th>
+            <th id="thDriverGps">Driver & GPS</th>
+            <th class="no-print" id="thActions">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="manifestBody"></tbody>
+      </table>
+    </div>
+
+    <div class="row no-print" style="margin-top:12px">
+      <div class="col"><button class="btn-excel" id="btnExportCsv" type="button">📊 Export CSV</button></div>
+      <div class="col"><button class="btn-share" id="btnPrintSummary" type="button">📄 Printable Summary</button></div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: E-COMMERCE, FOOD & LIVE TAXI RIDES -->
+  <div id="sectionMarket" class="app-section" style="display:none">
+    <div class="form-box">
+      <h3 style="color:var(--accent-orange);margin-top:0">🛍️ E-Commerce & Online Stores</h3>
+      <div class="shop-grid">
+        <div class="shop-card">
+          <h4>Shopee Vietnam</h4>
+          <button class="btn-shop" type="button" data-url="https://shopee.vn">Open Shopee</button>
+        </div>
+        <div class="shop-card">
+          <h4>Lazada Vietnam</h4>
+          <button class="btn-shop" type="button" data-url="https://www.lazada.vn">Open Lazada</button>
+        </div>
+        <div class="shop-card">
+          <h4>Thế Giới Di Động</h4>
+          <button class="btn-shop" type="button" data-url="https://www.thegioididong.com">Open TGDĐ</button>
+        </div>
+        <div class="shop-card">
+          <h4>Nguyễn Kim</h4>
+          <button class="btn-shop" type="button" data-url="https://www.nguyenkim.com">Open Nguyễn Kim</button>
+        </div>
       </div>
     </div>
 
-    <div class="row">
-      <div class="col form-group">
-        <label for="itemDescription" id="lblItemDesc">Package Item / Product Type</label>
-        <input id="itemDescription" placeholder="e.g. Electronics / Documents / Cargo">
-      </div>
-      <div class="col form-group">
-        <label for="recipient" id="lblRecipient">Customer / Recipient Name</label>
-        <input id="recipient" placeholder="Customer name or hub">
+    <div class="form-box">
+      <h3 style="color:var(--accent-green);margin-top:0">🍔 Online Food Delivery</h3>
+      <div class="row">
+        <div class="col"><button class="btn-shop" type="button" data-url="https://shopeefood.vn">🍕 Order on ShopeeFood</button></div>
+        <div class="col"><button class="btn-grab" type="button" data-url="https://food.grab.com/vn/en/">🍜 Order on GrabFood</button></div>
       </div>
     </div>
 
-    <div class="row">
-      <div class="col form-group">
-        <label for="statusSelect" id="lblStatus">Delivery Status</label>
-        <select id="statusSelect">
-          <option value="PICKED_UP" id="optPicked">Picked Up</option>
-          <option value="IN_TRANSIT" id="optTransit" selected>In Transit</option>
-          <option value="DELIVERED" id="optDelivered">Delivered</option>
-          <option value="FAILED" id="optFailed">Delivery Exception</option>
+    <div class="form-box">
+      <h3 style="color:var(--accent-blue);margin-top:0">🚕 Live Taxi Booking, Fare & Route Check</h3>
+      <p style="font-size:11px;color:var(--text-muted)">Type <b>any location</b> and click search to calculate instant driving distance and fares:</p>
+
+      <div class="form-group">
+        <label for="liveRideService">Select Service</label>
+        <select id="liveRideService">
+          <option value="GrabCar 4-Seat (15.000₫/km)">GrabCar 4-Seat (Standard)</option>
+          <option value="GrabCar 7-Seat (18.000₫/km)">GrabCar 7-Seat (Family)</option>
+          <option value="GrabBike (12.000₫/km)">GrabBike (Motorbike)</option>
+          <option value="Xanh SM Electric Car (16.000₫/km)">Xanh SM Electric Car (VinFast)</option>
+          <option value="Xanh SM Bike (13.000₫/km)">Xanh SM Bike (Electric Motorbike)</option>
         </select>
       </div>
-    </div>
 
-    <div class="form-group">
-      <label for="gpsField" id="lblGps">GPS Location / Terminal Tag</label>
-      <div class="row" style="margin-bottom:0">
-        <input id="gpsField" placeholder="Auto-captured or tap to type location...">
-        <button id="btnCaptureGps" type="button" style="width:110px;background:#37474f;color:white">📍 GPS</button>
+      <div class="form-group">
+        <label for="livePickup">📍 Pickup Location</label>
+        <input id="livePickup" value="Ben Thanh Market, HCMC" autocomplete="off">
+        <div id="pickupSuggestions" class="suggestions-box"></div>
       </div>
-    </div>
 
-    <button class="btn-add" id="saveBtn" type="button">➕ LOG SHIPMENT TO MANIFEST</button>
-  </div>
-
-  <!-- LogiGo Live GPS Telemetry Widget Card -->
-  <div id="logigo-live-gps" class="form-box no-print" style="margin-bottom:12px;">
-    <h3 style="margin-top:0;margin-bottom:4px;font-size:14px;color:var(--accent-blue)">📍 Real-Time GPS Telemetry & Live Address Audit</h3>
-    <p style="margin:0 0 8px 0;font-size:10px;color:var(--text-muted);">Live movement tracking, road/district reverse lookup & distance audit</p>
-    
-    <p style="margin:4px 0;font-size:11px;">Status: <strong id="lgps-status" style="color:var(--accent-orange)">GPS tracking is stopped.</strong></p>
-    
-    <div class="address-tag">
-      🏠 <b>Current Address:</b> <span id="lgps-address" style="color:#ffffff;">Waiting for live GPS signal...</span>
-    </div>
-
-    <p style="margin:3px 0;font-size:11px;">Latitude: <span id="lgps-lat" style="font-family:monospace;">--</span> | Longitude: <span id="lgps-lon" style="font-family:monospace;">--</span></p>
-    <p style="margin:3px 0;font-size:11px;">Accuracy: <span id="lgps-accuracy" style="font-family:monospace;">--</span> | Distance Traveled: <b id="lgps-dist" style="color:var(--accent-green)">0.00 km</b></p>
-    <p style="margin:3px 0 8px 0;font-size:11px;">Last update: <span id="lgps-time" style="font-family:monospace;">--</span></p>
-
-    <!-- Embedded Driver Tracking Map -->
-    <div id="telemetryMap" class="map-box"></div>
-
-    <div class="row" style="margin-bottom:0;">
-      <div class="col"><button id="lgps-start" type="button" style="background:#16a34a;color:white;">Start Live GPS Tracking</button></div>
-      <div class="col"><button id="lgps-stop" type="button" style="background:#dc2626;color:white;">Stop GPS</button></div>
-    </div>
-  </div>
-
-  <div class="no-print" style="margin-bottom:10px">
-    <input id="searchFilter" placeholder="🔍 Search tracking number, product, driver, or customer..." style="background:var(--bg-card)">
-  </div>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th id="thWaybill">Tracking ID</th>
-          <th id="thItem">Item / Product</th>
-          <th id="thStatus">Status</th>
-          <th id="thCustomer">Customer / Recipient</th>
-          <th id="thDriverGps">Driver & GPS</th>
-          <th class="no-print" id="thActions">Actions</th>
-        </tr>
-      </thead>
-      <tbody id="manifestBody"></tbody>
-    </table>
-  </div>
-
-  <div class="row no-print" style="margin-top:12px">
-    <div class="col"><button class="btn-excel" id="btnExportCsv" type="button">📊 Export CSV</button></div>
-    <div class="col"><button class="btn-share" id="btnPrintSummary" type="button">📄 Printable Summary</button></div>
-  </div>
-</div>
-
-<!-- SECTION 2: E-COMMERCE, FOOD & LIVE TAXI RIDES -->
-<div id="sectionMarket" class="app-section" style="display:none">
-  <div class="form-box">
-    <h3 style="color:var(--accent-orange);margin-top:0">🛍️ E-Commerce & Online Stores</h3>
-    <div class="shop-grid">
-      <div class="shop-card">
-        <h4>Shopee Vietnam</h4>
-        <button class="btn-shop" type="button" data-url="https://shopee.vn">Open Shopee</button>
+      <div class="form-group">
+        <label for="liveDropoff">🏁 Destination Address</label>
+        <input id="liveDropoff" value="Landmark 81, HCMC" autocomplete="off">
+        <div id="dropoffSuggestions" class="suggestions-box"></div>
       </div>
-      <div class="shop-card">
-        <h4>Lazada Vietnam</h4>
-        <button class="btn-shop" type="button" data-url="https://www.lazada.vn">Open Lazada</button>
+
+      <button class="btn-search-route" id="btnSearchRoute" type="button">🔍 SEARCH ROUTE & CALCULATE FARE</button>
+
+      <!-- Embedded Live Interactive Map for Taxi Route -->
+      <div id="mapContainer" class="map-box"></div>
+
+      <div style="background:var(--bg-main);padding:10px;border-radius:6px;margin-bottom:10px;text-align:center;border:1px dashed var(--accent-blue)">
+        <span style="font-size:11px;color:var(--text-muted)">Driving Distance: <b id="lblDistCalc" style="color:var(--text-main)">-- km</b></span> | 
+        <span style="font-size:11px;color:var(--text-muted)">Est. Time: <b id="lblTimeCalc" style="color:var(--text-main)">-- mins</b></span><br>
+        <span style="font-size:12px;color:var(--accent-orange)">Estimated Fare: </span>
+        <b id="liveFarePreview" style="font-size:18px;color:var(--accent-green)">0 ₫</b>
       </div>
-      <div class="shop-card">
-        <h4>Thế Giới Di Động</h4>
-        <button class="btn-shop" type="button" data-url="https://www.thegioididong.com">Open TGDĐ</button>
+
+      <div class="row" style="margin-bottom:10px">
+        <div class="col"><button class="btn-grab" id="btnLaunchGrab" type="button">🟢 Open Grab App / Web</button></div>
+        <div class="col"><button class="btn-xanh" id="btnLaunchXanh" type="button">🔵 Open Xanh SM App</button></div>
       </div>
-      <div class="shop-card">
-        <h4>Nguyễn Kim</h4>
-        <button class="btn-shop" type="button" data-url="https://www.nguyenkim.com">Open Nguyễn Kim</button>
-      </div>
+
+      <button class="btn-add" id="btnConfirmRide" type="button">🚀 CONFIRM & DISPATCH RIDE TO MANIFEST</button>
     </div>
   </div>
 
-  <div class="form-box">
-    <h3 style="color:var(--accent-green);margin-top:0">🍔 Online Food Delivery</h3>
-    <div class="row">
-      <div class="col"><button class="btn-shop" type="button" data-url="https://shopeefood.vn">🍕 Order on ShopeeFood</button></div>
-      <div class="col"><button class="btn-grab" type="button" data-url="https://food.grab.com/vn/en/">🍜 Order on GrabFood</button></div>
-    </div>
-  </div>
+  <!-- SECTION 3: CUSTOMER SERVICE & DISPUTE CENTER -->
+  <div id="sectionSupport" class="app-section" style="display:none">
+    <div class="form-box">
+      <h3 style="color:var(--accent-blue);margin-top:0" id="hdrSupport">🎧 Dispatch & Dispute Support Center</h3>
+      <p style="font-size:12px;color:var(--text-muted)" id="descSupport">Need help with an emergency, dispute, or address change? Connect instantly with our team:</p>
 
-  <div class="form-box">
-    <h3 style="color:var(--accent-blue);margin-top:0">🚕 Live Taxi Booking, Fare & Route Check</h3>
-    <p style="font-size:11px;color:var(--text-muted)">Type <b>any location</b> and click search to calculate instant driving distance and fares:</p>
+      <div style="margin: 15px 0;">
+        <label for="supportWaybill" id="lblSupportWaybill">Reference Waybill / Tracking ID (Optional)</label>
+        <input id="supportWaybill" placeholder="e.g. WAYBILL-8921" style="margin-bottom:10px">
 
-    <div class="form-group">
-      <label for="liveRideService">Select Service</label>
-      <select id="liveRideService">
-        <option value="GrabCar 4-Seat (15.000₫/km)">GrabCar 4-Seat (Standard)</option>
-        <option value="GrabCar 7-Seat (18.000₫/km)">GrabCar 7-Seat (Family)</option>
-        <option value="GrabBike (12.000₫/km)">GrabBike (Motorbike)</option>
-        <option value="Xanh SM Electric Car (16.000₫/km)">Xanh SM Electric Car (VinFast)</option>
-        <option value="Xanh SM Bike (13.000₫/km)">Xanh SM Bike (Electric Motorbike)</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="livePickup">📍 Pickup Location</label>
-      <input id="livePickup" value="Ben Thanh Market, HCMC" autocomplete="off">
-      <div id="pickupSuggestions" class="suggestions-box"></div>
-    </div>
-
-    <div class="form-group">
-      <label for="liveDropoff">🏁 Destination Address</label>
-      <input id="liveDropoff" value="Landmark 81, HCMC" autocomplete="off">
-      <div id="dropoffSuggestions" class="suggestions-box"></div>
-    </div>
-
-    <button class="btn-search-route" id="btnSearchRoute" type="button">🔍 SEARCH ROUTE & CALCULATE FARE</button>
-
-    <!-- Embedded Live Interactive Map for Taxi Route -->
-    <div id="mapContainer" class="map-box"></div>
-
-    <div style="background:var(--bg-main);padding:10px;border-radius:6px;margin-bottom:10px;text-align:center;border:1px dashed var(--accent-blue)">
-      <span style="font-size:11px;color:var(--text-muted)">Driving Distance: <b id="lblDistCalc" style="color:var(--text-main)">-- km</b></span> | 
-      <span style="font-size:11px;color:var(--text-muted)">Est. Time: <b id="lblTimeCalc" style="color:var(--text-main)">-- mins</b></span><br>
-      <span style="font-size:12px;color:var(--accent-orange)">Estimated Fare: </span>
-      <b id="liveFarePreview" style="font-size:18px;color:var(--accent-green)">0 ₫</b>
-    </div>
-
-    <div class="row" style="margin-bottom:10px">
-      <div class="col"><button class="btn-grab" id="btnLaunchGrab" type="button">🟢 Open Grab App / Web</button></div>
-      <div class="col"><button class="btn-xanh" id="btnLaunchXanh" type="button">🔵 Open Xanh SM App</button></div>
-    </div>
-
-    <button class="btn-add" id="btnConfirmRide" type="button">🚀 CONFIRM & DISPATCH RIDE TO MANIFEST</button>
-  </div>
-</div>
-
-<!-- SECTION 3: CUSTOMER SERVICE & DISPUTE CENTER -->
-<div id="sectionSupport" class="app-section" style="display:none">
-  <div class="form-box">
-    <h3 style="color:var(--accent-blue);margin-top:0" id="hdrSupport">🎧 Dispatch & Dispute Support Center</h3>
-    <p style="font-size:12px;color:var(--text-muted)" id="descSupport">Need help with an emergency, dispute, or address change? Connect instantly with our team:</p>
-
-    <div style="margin: 15px 0;">
-      <label for="supportWaybill" id="lblSupportWaybill">Reference Waybill / Tracking ID (Optional)</label>
-      <input id="supportWaybill" placeholder="e.g. WAYBILL-8921" style="margin-bottom:10px">
-
-      <label for="supportIssue" id="lblSupportIssue">Describe Issue / Dispute / Address Change</label>
-      <textarea id="supportIssue" placeholder="Type delivery dispute, emergency note, or new address..." style="height:90px;margin-bottom:10px"></textarea>
-    </div>
-
-    <div class="row" style="margin-bottom:10px">
-      <div class="col">
-        <button class="btn-call" id="btnCallSupport" type="button">📞 CALL DISPATCH HOTLINE</button>
+        <label for="supportIssue" id="lblSupportIssue">Describe Issue / Dispute / Address Change</label>
+        <textarea id="supportIssue" placeholder="Type delivery dispute, emergency note, or new address..." style="height:90px;margin-bottom:10px"></textarea>
       </div>
-      <div class="col">
-        <button class="btn-wa" id="btnWaSupport" type="button">💬 CHAT VIA WHATSAPP / ZALO</button>
+
+      <div class="row" style="margin-bottom:10px">
+        <div class="col">
+          <button class="btn-call" id="btnCallSupport" type="button">📞 CALL DISPATCH HOTLINE</button>
+        </div>
+        <div class="col">
+          <button class="btn-wa" id="btnWaSupport" type="button">💬 CHAT VIA WHATSAPP / ZALO</button>
+        </div>
       </div>
+
+      <button class="btn-share" id="btnSubmitTicket" type="button">📩 SUBMIT SUPPORT TICKET</button>
     </div>
 
-    <button class="btn-share" id="btnSubmitTicket" type="button">📩 SUBMIT SUPPORT TICKET</button>
+    <div class="form-box">
+      <h4 style="color:var(--accent-green);margin-top:0" id="hdrCompanyDetails">Official Contact Details</h4>
+      <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblCompany">Company:</b> <span id="lblDisplayCompany">LogiGo Express & SuperApp</span></p>
+      <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblHotline">Support Phone:</b> <span id="lblDisplayPhone">1900 1234</span></p>
+      <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblWhatsApp">WhatsApp / Zalo:</b> <span id="lblDisplayWhatsApp">0901234567</span></p>
+      <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblEmail">Email:</b> <span id="lblDisplayEmail">cskh@logigo.vn</span></p>
+      <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblWebsite">Website:</b> <span id="lblDisplayWebsite">www.logigo.vn</span></p>
+    </div>
   </div>
 
-  <div class="form-box">
-    <h4 style="color:var(--accent-green);margin-top:0" id="hdrCompanyDetails">Official Contact Details</h4>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblCompany">Company:</b> <span id="lblDisplayCompany">LogiGo Express & SuperApp</span></p>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblHotline">Support Phone:</b> <span id="lblDisplayPhone">1900 1234</span></p>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblWhatsApp">WhatsApp / Zalo:</b> <span id="lblDisplayWhatsApp">0901234567</span></p>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblEmail">Email:</b> <span id="lblDisplayEmail">cskh@logigo.vn</span></p>
-    <p style="font-size:12px;color:var(--text-muted);margin:4px 0"><b id="lblWebsite">Website:</b> <span id="lblDisplayWebsite">www.logigo.vn</span></p>
-  </div>
-</div>
+  <!-- SECTION 4: COMPANY CONTROL PANEL -->
+  <div id="sectionAdmin" class="app-section" style="display:none">
+    <div class="form-box">
+      <h3 style="color:var(--accent-green);margin-top:0" id="hdrAdminControl">⚙️ Company Self-Service Control Panel</h3>
+      <p style="font-size:12px;color:var(--text-muted)" id="descAdminControl">Configure your business contact details in real-time:</p>
 
-<!-- SECTION 4: COMPANY CONTROL PANEL -->
-<div id="sectionAdmin" class="app-section" style="display:none">
-  <div class="form-box">
-    <h3 style="color:var(--accent-green);margin-top:0" id="hdrAdminControl">⚙️ Company Self-Service Control Panel</h3>
-    <p style="font-size:12px;color:var(--text-muted)" id="descAdminControl">Configure your business contact details in real-time:</p>
-
-    <div class="form-group">
-      <label for="cfgCompanyName" id="lblCfgName">Business / Company Name</label>
-      <input id="cfgCompanyName" placeholder="e.g. LogiGo Express & SuperApp">
-    </div>
-
-    <div class="row">
-      <div class="col form-group">
-        <label for="cfgPhone" id="lblCfgPhone">Dispatch Hotline (Calls)</label>
-        <input id="cfgPhone" placeholder="e.g. 1900 1234">
+      <div class="form-group">
+        <label for="cfgCompanyName" id="lblCfgName">Business / Company Name</label>
+        <input id="cfgCompanyName" placeholder="e.g. LogiGo Express & SuperApp">
       </div>
-      <div class="col form-group">
-        <label for="cfgWhatsApp" id="lblCfgWhatsApp">WhatsApp / Zalo Number</label>
-        <input id="cfgWhatsApp" placeholder="e.g. 0901234567">
+
+      <div class="row">
+        <div class="col form-group">
+          <label for="cfgPhone" id="lblCfgPhone">Dispatch Hotline (Calls)</label>
+          <input id="cfgPhone" placeholder="e.g. 1900 1234">
+        </div>
+        <div class="col form-group">
+          <label for="cfgWhatsApp" id="lblCfgWhatsApp">WhatsApp / Zalo Number</label>
+          <input id="cfgWhatsApp" placeholder="e.g. 0901234567">
+        </div>
       </div>
-    </div>
 
-    <div class="form-group">
-      <label for="cfgEmail" id="lblCfgEmail">Support Email Address</label>
-      <input id="cfgEmail" placeholder="e.g. cskh@domain.com">
-    </div>
+      <div class="form-group">
+        <label for="cfgEmail" id="lblCfgEmail">Support Email Address</label>
+        <input id="cfgEmail" placeholder="e.g. cskh@domain.com">
+      </div>
 
-    <div class="form-group">
-      <label for="cfgWebsite" id="lblCfgWebsite">Website URL</label>
-      <input id="cfgWebsite" placeholder="e.g. https://domain.com">
-    </div>
+      <div class="form-group">
+        <label for="cfgWebsite" id="lblCfgWebsite">Website URL</label>
+        <input id="cfgWebsite" placeholder="e.g. https://domain.com">
+      </div>
 
-    <button class="btn-add" id="btnSaveConfig" type="button">💾 SAVE COMPANY CONFIGURATION</button>
+      <button class="btn-add" id="btnSaveConfig" type="button">💾 SAVE COMPANY CONFIGURATION</button>
+    </div>
   </div>
-</div>
 
-<!-- EXPORT MODAL -->
-<div id="exportModal" class="no-print">
-  <h3 id="modalTitle" style="color:var(--accent-green);margin-top:0">Manifest Export Hub</h3>
-  <p id="modalSub" style="font-size:12px;color:var(--text-muted)">Formats ready for Logistics ERPs & Spreadsheets:</p>
+  <!-- EXPORT MODAL -->
+  <div id="exportModal" class="no-print">
+    <div style="max-width:500px;margin:40px auto;background:var(--bg-card);padding:20px;border-radius:10px;border:1px solid var(--border-color);text-align:left;">
+      <h3 id="modalTitle" style="color:var(--accent-green);margin-top:0">Manifest Export Hub</h3>
+      <p id="modalSub" style="font-size:12px;color:var(--text-muted)">Formats ready for Logistics ERPs & Spreadsheets:</p>
 
-  <textarea id="csvPreview" class="report-box" readonly></textarea>
+      <textarea id="csvPreview" class="report-box" readonly></textarea>
 
-  <button class="btn-add" id="btnCopyData" type="button" style="margin-bottom:8px">📋 COPY DATA TO CLIPBOARD</button>
-  <button class="btn-share" id="btnShareReport" type="button" style="margin-bottom:8px">📲 SHARE VIA WHATSAPP / ZALO / EMAIL</button>
-  <button class="btn-del" id="btnCloseExport" type="button">✕ Close Window</button>
+      <button class="btn-add" id="btnCopyData" type="button" style="margin-bottom:8px">📋 COPY DATA TO CLIPBOARD</button>
+      <button class="btn-share" id="btnShareReport" type="button" style="margin-bottom:8px">📲 SHARE VIA WHATSAPP / ZALO / EMAIL</button>
+      <button class="btn-del" id="btnCloseExport" type="button">✕ Close Window</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -863,7 +880,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // --- INITIALIZE TELEMETRY MAP ---
   function initTelemetryMap() {
-    if (telemetryMap !== null) return;
+    if (telemetryMap !== null) {
+      telemetryMap.invalidateSize();
+      return;
+    }
     const el = document.getElementById("telemetryMap");
     if (!el) return;
 
@@ -883,7 +903,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // --- INITIALIZE TAXI ROUTE MAP ---
   function initTaxiMap() {
-    if (map !== null) return;
+    if (map !== null) {
+      map.invalidateSize();
+      return;
+    }
     const mapEl = document.getElementById("mapContainer");
     if (!mapEl) return;
 
@@ -915,15 +938,13 @@ document.addEventListener("DOMContentLoaded", function () {
     if (tabName === 'scanner') {
       setTimeout(() => {
         initTelemetryMap();
-        if (telemetryMap) telemetryMap.invalidateSize();
-      }, 200);
+      }, 250);
     }
 
     if (tabName === 'market') {
       setTimeout(() => {
         initTaxiMap();
-        if (map) map.invalidateSize();
-      }, 200);
+      }, 250);
     }
   }
 
